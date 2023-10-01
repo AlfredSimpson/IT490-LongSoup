@@ -10,6 +10,10 @@ A repository for the IT490 Systems Integration Course.
 - [Justin Tecson](https://github.com/JustinTecson)
 - [Ricky Hernandez](https://github.com/rickyhernandez1000)
 
+## Attribitution
+
+Source Code initially copied from [engineerOfLies](https://github.com/engineerOfLies/rabbitmqphp_example).
+
 ## Project Summary
 
 ## Additional Resources
