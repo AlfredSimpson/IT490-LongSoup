@@ -5,6 +5,8 @@
 
 This table is a baseline for users.
 
+Name of table: users
+
 userid = int
 username = varchar
 usermail = varchar (email addresses)
@@ -14,6 +16,7 @@ usermail = varchar (email addresses)
 Should be hashed
 
 This is our password table, stored separately.
+Name of table: userpass
 
 userid - int (FK)
 userpass - varchar (encrypt)
@@ -22,6 +25,7 @@ userpass - varchar (encrypt)
 
 This is additional information about the user that we may want to add to in the future.
 
+Name of table: userinfo
 userid - int - pk/fk
 userfname - varchar - firstname
 userlname - varchar - lastname
