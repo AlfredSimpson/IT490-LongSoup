@@ -6,11 +6,16 @@ require_once('./rabbitMQLib.inc');
 
 function doLogin($username, $password)
 {
-  // lookup username in databas
-  // check password
+  // lookup username found in the ../DB/example.sql table users
+
+
+  // check password found in the ../DB/example.sql table userpass
   return true;
   //return false if not valid
 }
+
+
+
 
 function requestProcessor($request)
 {
