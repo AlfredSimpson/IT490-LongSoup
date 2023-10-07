@@ -14,17 +14,20 @@ This is the Front End server. This handles the user interface and user interacti
 
 
 
-
 ## Set up apache
 
 After apache is installed, we'll need to make sure our files are in the write directory and that apache is accessing them.
 
-First, let's make sure apache is running:
+First, let's make sure apache is running & that necessary packages are installed:
 
 ```bash
 
 sudo systemctl status apache2
-
+sudo apt install php libapache2-mod-php
+sudo apt install php-cli
+sudo apt install php-cgi
+sudo apt install php-mysql
+sudo apt install php-pgsql # For postgres
 ```
 
 If it's not running, start it:

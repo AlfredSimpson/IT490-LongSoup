@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Destination directory (where to copy to)
-destination_dir="/var/www/"
+destination_dir="/var/www/cgs/"
 
 # Check if the destination directory exists, create it if not
 if [ ! -d "$destination_dir" ]; then
@@ -9,7 +9,11 @@ if [ ! -d "$destination_dir" ]; then
 fi
 
 # Copy all files and directories recursively from the current directory to the destination
-sudo cp -r ./* "$destination_dir"
+sudo cp -r ./Testing/* "$destination_dir"
+
+# For some reason the .inc files don't copy, so let's do them manually
+
+sudo cp  
 
 # Change ownership of copied files and directories to the web server user. We can change this if we need or want to though.
 sudo chown -R www-data:www-data "$destination_dir"
