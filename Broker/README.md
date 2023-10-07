@@ -4,7 +4,20 @@ This is the Broker server - previously the Rabbit server. This handles messaging
 
 ## Setup
 
-Information coming soon.
+Install necessary python libraries.
+
+```bash
+
+sudo apt install python3-pip
+sudo apt install python3-venv
+```
+
+If there is already a requirements.txt file, just run:
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
 
 
 ## Usage
