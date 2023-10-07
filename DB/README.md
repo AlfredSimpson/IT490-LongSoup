@@ -1,6 +1,17 @@
-# Database
+# Database Server
+
+This is the database server. This handles the database and the data within it.
+
+## Languages and frameworks used:
+
+- MySQL
+
+## Setup
+
+Information coming soon
 
 
+## Planning Documentation:
 ## First table - users
 
 This table is a baseline for users.
