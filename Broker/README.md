@@ -52,6 +52,7 @@ Information coming soon.
 
 
 ## Change Log:
+- worker.py Now is assigned to tempQueue and related hosts. will need workers on each of the queues/responses
 
 ### 10/7/2023:
 - Renamed directory from Rabbit to Broker. Deleted old files. Starting from scratch with a new direction

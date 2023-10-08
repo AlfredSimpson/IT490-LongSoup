@@ -1,26 +1,28 @@
 #!/usr/bin/env python3
 import time
-
 import pika
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost"))
+vHost = "tempHost"
+queue_name = "tempQueue"
+exchange_name = "tempExchange"
+
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(host="localhost", virtual_host=vHost)
+)
 channel = connection.channel()
 
-# channel.queue_declare(queue="task_queue", durable=True)
-channel.queue_bind(exchange="tempExchange", queue="tempQueue")
+channel.queue_declare(queue=queue_name, durable=True)
+channel.queue_bind(exchange=exchange_name, queue=queue_name)
 print(" [*] Waiting for messages. To exit press CTRL+C")
 
 
 def callback(ch, method, properties, body):
     print(f" [x] Received {body.decode()}")
-    time.sleep(body.count(b"."))
     print(" [x] Done")
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
 channel.basic_qos(prefetch_count=1)
-channel.basic_consume(queue="task_queue", on_message_callback=callback)
+channel.basic_consume(queue=queue_name, on_message_callback=callback)
 
 channel.start_consuming()
-
-# These came from the tutorials
