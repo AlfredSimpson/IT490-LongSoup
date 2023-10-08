@@ -6,7 +6,8 @@ import pika
 connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost"))
 channel = connection.channel()
 
-channel.queue_declare(queue="task_queue", durable=True)
+# channel.queue_declare(queue="task_queue", durable=True)
+channel.queue_bind(exchange="tempExchange", queue="tempQueue")
 print(" [*] Waiting for messages. To exit press CTRL+C")
 
 
