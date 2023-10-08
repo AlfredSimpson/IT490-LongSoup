@@ -13,7 +13,7 @@ sudo cp -r ./Testing/* "$destination_dir"
 
 # For some reason the .inc files don't copy, so let's do them manually
 
-sudo cp  
+#
 
 # Change ownership of copied files and directories to the web server user. We can change this if we need or want to though.
 sudo chown -R www-data:www-data "$destination_dir"
