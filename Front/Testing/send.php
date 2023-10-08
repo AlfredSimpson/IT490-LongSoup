@@ -1,4 +1,3 @@
-
 <?php
 require_once('path.inc');
 require_once('get_host_info.inc');
@@ -13,7 +12,6 @@ if (isset($argv[1])) {
 }
 
 $request = array();
-//$request['message'] = "Button Pressed";
 $request['type'] = "Login";
 $request['username'] = "steve";
 $request['password'] = "password";
