@@ -8,10 +8,10 @@ CREATE TABLE users (
     usermail VARCHAR(50) UNIQUE
 );
 
--- Create a table, userpass, with a foreign key, userid, and a field, userpass.
+-- Create a table, userpass, with a foreign key, userid, and a field, userpass. userid INT is a foreign key from the users table. userpass is hashed using the SHA2 algorithm.
 CREATE TABLE userpass (
     userid INT,
-    userpass VARCHAR(255),
+    userpass VARCHAR(64),
     FOREIGN KEY (userid) REFERENCES users(userid)
 );
 
@@ -22,3 +22,9 @@ CREATE TABLE userinfo (
     userlname VARCHAR(50),
     FOREIGN KEY (userid) REFERENCES users(userid)
 );
+
+-- Prepopulate the table users with a single user, longsoup, which uses the username longsoup and the usermail nicc-group@njit.edu.
+INSERT INTO
+    users (username, usermail)
+VALUES
+    ('longsoup', 'nicc-group@njit.edu');

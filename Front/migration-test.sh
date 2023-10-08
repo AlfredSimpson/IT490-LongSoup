@@ -9,6 +9,7 @@ if [ ! -d "$destination_dir" ]; then
 fi
 
 # Copy all files and directories recursively from the current directory to the destination
+# Note --- This currently goes to /Testing/, just remove it when we're moving back to the main.
 sudo cp -r ./Testing/* "$destination_dir"
 
 # For some reason the .inc files don't copy, so let's do them manually
