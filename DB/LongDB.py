@@ -53,14 +53,15 @@ class LongDB:
             "Select useremail from " + table + " where useremail = '" + useremail + "'"
         )
         emailResult = self.mycursor.fetchall()
-        passResult = self.mycursor.execute(
+        email = emailResult[0]
+        self.mycursor.execute(
             "Select password from " + table + " where useremail ='" + useremail + "';"
         )
         passResult = self.mycursor.fetchall()
-        # print(f"passResult is {passResult}")
-        if useremail in emailResult[0]:
+        pwd = passResult[0]
+        if useremail in email:
             emailMatch = True
-            if password in passResult[0]:
+            if password in pwd:
                 # print(
                 #     f"Supplied password {password} matched passResult: {passResult[0]}"
                 # )
