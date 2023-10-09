@@ -9,11 +9,11 @@ $client = new rabbitMQClient("rabbit.ini", "tempServer");
 
 
 
-//  This stays
+//  This stays, but only bc message needs defined. This takes command line args.
 if (isset($argv[1])) {
     $msg = $argv[1];
 } else {
-    $msg = "test message";
+    $msg = "Testing testing test";
 }
 
 
@@ -24,9 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Existing RabbitMQ code
     $request = array();
     $request['type'] = "Login";
-    $request['username'] = $useremail;
+    $request['useremail'] = $useremail;
     $request['password'] = $password;
-    // ... Rest of your code ...
+    $request['message'] = "email = " . $useremail . " and password " . $password;
 
     $response = $client->send_request($request);
     echo JSON_encode($response);
