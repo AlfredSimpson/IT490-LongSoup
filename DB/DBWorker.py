@@ -24,6 +24,7 @@ def do_login(useremail, password):
 def request_processor(ch, method, properties, body):
     print("Received request")
     request = eval(body.decode("utf-8"))
+    # print(request)
 
     if "type" not in request:
         response = "ERROR: unsupported message type"

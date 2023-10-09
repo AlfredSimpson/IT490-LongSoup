@@ -20,17 +20,17 @@
         <label for="somethingButton">Get user from database</label>
         <input type="submit" name="somethingButton" value="button pressed">
     </form>
-    <form id="login" class="login">
+    <form id="login" class="login" action="send.php" method="post" onsubmit="return sendFormData()">
         <div>
-            <label for="uname"><b>Username</b></label>
-            <input id="username" name="uname" required />
+            <label for="useremail"><b>Your Email@domain.com </b></label>
+            <input id="useremail" name="useremail" required>
         </div>
         <div>
             <label for="password"><b>Password</b></label>
-            <input id="password" type="password" name="password" required />
+            <input id="password" type="password" name="password" required>
         </div>
         <div>
-            <input type="submit" value="Login" />
+            <input type="submit" value="Login">
         </div>
     </form>
     <p id="textResponse">
@@ -38,7 +38,7 @@
 
     <!-- After pressing the somethingButton, if a user is found, it will display the user's name. If not, it will display "no user found" -->
     <script>
-        function SendLoginRequest(username, password) {
+        function SendLoginRequest(useremail, password) {
             var request = new XMLHttpRequest();
             request.open("POST", "send.php", true);
             request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -48,8 +48,8 @@
                     HandleLoginResponse(this.responseText);
                 }
             }
-            if (username != null && password != null) {
-                request.send("type=login&uname=" + username + "&password=" + password);
+            if (useremail != null && password != null) {
+                request.send("type=login&uname=" + useremail + "&password=" + password);
             }
         }
     </script>
@@ -76,13 +76,28 @@
         }
 
     </script>
-    <script>   const params = new Proxy(new URLSearchParams(window.location.search), {
+    <script> function sendFormData() {
+            // Prevent default form submission
+            event.preventDefault();
+
+            // Get username and password from form
+            var useremail = document.getElementById('useremail').value;
+            var password = document.getElementById('password').value;
+
+            // Call your existing function to send the data
+            SendLoginRequest(useremail, password);
+
+            // Return false to prevent normal form submission
+            return false;
+        }
+    </script>
+    <!-- <script>   const params = new Proxy(new URLSearchParams(window.location.search), {
             get: (searchParams, prop) => searchParams.get(prop),
         });
-        const username = params.uname;
+        const useremail = params.useremail;
         const password = params.password;
-        SendLoginRequest(username, password);    
-    </script>
+        SendLoginRequest(useremail, password);    
+    </script> -->
 
 </body>
 
