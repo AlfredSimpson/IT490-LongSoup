@@ -67,6 +67,7 @@ class LongDB:
         print(myresult)
         print(f"Did {myresult[0]} match {useremail}?")
         # Note, it did not. It returned [('test@example',)]We need index0
+        print(f"The length of myresult[0] is {len(myresult[0])}")
         if myresult[0] == useremail:
             print(
                 f"It looks like myresult is {myresult[0]} and useremail is {useremail}"
