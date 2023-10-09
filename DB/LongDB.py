@@ -53,6 +53,8 @@ class LongDB:
             "Select useremail from " + table + " where useremail = '" + useremail + "'"
         )
         emailResult = self.mycursor.fetchall()
+        if len(emailResult) == 0:
+            return False
         email = emailResult[0]
         print(f"Passed by email")
         self.mycursor.execute(

@@ -59,7 +59,7 @@
             console.log(response);
             //    document.getElementById("textResponse").innerHTML = response+"<p>";
             console.log(text);
-            document.getElementById("textResponse").innerHTML = "Login Here!" + "<p>";
+            document.getElementById("textResponse").innerHTML = "Login Result 1!" + "<p>";
             if (text.errorMessage) {
                 document.getElementById("textResponse").innerHTML = text.errorMessage + "<p>";
             }
@@ -70,7 +70,7 @@
                 }
 
                 if (text.returnCode == 0) {
-                    document.getElementById("textResponse").innerHTML = "Invalid Login" + "<p>";
+                    document.getElementById("textResponse").innerHTML = "Login Result 0" + "<p>";
                 }
             }
         }
