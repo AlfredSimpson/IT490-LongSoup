@@ -18,6 +18,7 @@ def test_LongDB():
 def runTest():
     db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
     ans = db.validate_user(table="users", useremail="test@example.com", password="test")
+    return ans
 
 
 # test_LongDB()
