@@ -11,3 +11,6 @@ def test_LongDB():
 
     tryadding = db.add_user("users", "test", "test")
     print(tryadding)
+
+
+test_LongDB()
