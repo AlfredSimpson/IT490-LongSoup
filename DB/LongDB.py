@@ -42,7 +42,7 @@ class LongDB:
         myresult = self.mycursor.fetchall()
         return myresult
 
-    def validate_user(self, table, useremail, password):
+    def auth_user(self, table, useremail, password):
         """
         validate_user is a function that returns a user from the database.
         It requires the following parameters:
@@ -50,16 +50,30 @@ class LongDB:
         password: the password of the user to return
         """
         self.mycursor.execute(
-            "SELECT * FROM "
-            + table
-            + " WHERE useremail = '"
-            + useremail
-            + "' AND password = '"
-            + password
-            + "'"
+            "Select useremail from " + table + " where useremail = '" + useremail + "'"
         )
-        myresult = self.mycursor.fetchall()
-        return myresult
+        emailResult = self.mycursor.fetchall()
+        if len(emailResult) == 0:
+            return False
+        email = emailResult[0]
+        print(f"Passed by email")
+        self.mycursor.execute(
+            "Select password from " + table + " where useremail ='" + useremail + "';"
+        )
+        passResult = self.mycursor.fetchall()
+        pwd = passResult[0]
+        if useremail in email:
+            emailMatch = True
+            if password in pwd:
+                # print(
+                #     f"Supplied password {password} matched passResult: {passResult[0]}"
+                # )
+                passMatch = True
+        else:
+            emailMatch = False
+            return False
+
+        return emailMatch and passMatch
 
     def add_user(self, table, useremail, password):
         """
