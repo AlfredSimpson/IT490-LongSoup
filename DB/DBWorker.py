@@ -4,6 +4,9 @@ import LongDB
 
 # Function to perform login
 def do_login(useremail, password):
+    print(f"do_login: useremail is {useremail}")
+    print(f"do_login: password is {password}")
+    print(f"Checking credentials...")
     # Connect to the database
     db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
     # Validate the user
@@ -27,8 +30,10 @@ def request_processor(ch, method, properties, body):
     else:
         request_type = request["type"]
         if request_type == "login":
+            print("Received login request")
             response = do_login(request["username"], request["password"])
         elif request_type == "validate_session":
+            print("Received session validation request")
             response = do_validate(request["sessionId"])
         else:
             response = {
