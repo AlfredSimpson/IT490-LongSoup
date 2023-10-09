@@ -49,23 +49,31 @@ class LongDB:
         useremail: the useremail of the user to return
         password: the password of the user to return
         """
+        # self.mycursor.execute(
+        #     "SELECT * FROM "
+        #     + table
+        #     + " WHERE useremail = '"
+        #     + useremail
+        #     + "' AND password = '"
+        #     + password
+        #     + "'"
+        # )
+        # myresult = self.mycursor.fetchall()
+        # print(myresult)
         self.mycursor.execute(
-            "SELECT * FROM "
-            + table
-            + " WHERE useremail = '"
-            + useremail
-            + "' AND password = '"
-            + password
-            + "'"
+            "Select useremail from " + table + " where useremail = '" + useremail + "'"
         )
         myresult = self.mycursor.fetchall()
         print(myresult)
-
-        if useremail in myresult:
-            if password in myresult:
-                myresult = True
-        else:
-            myresult = False
+        print(f"Did {myresult} match {useremail}?")
+        if myresult == useremail:
+            print(f"It looks like myresult is {myresult} and useremail is {useremail}")
+            myresult = True
+        # if useremail in myresult:
+        #     if password in myresult:
+        #         myresult = True
+        # else:
+        #     myresult = False
         return myresult
 
     def add_user(self, table, useremail, password):
