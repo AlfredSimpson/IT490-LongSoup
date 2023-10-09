@@ -65,9 +65,12 @@ class LongDB:
         )
         myresult = self.mycursor.fetchall()
         print(myresult)
-        print(f"Did {myresult} match {useremail}?")
-        if myresult == useremail:
-            print(f"It looks like myresult is {myresult} and useremail is {useremail}")
+        print(f"Did {myresult[0]} match {useremail}?")
+        # Note, it did not. It returned [('test@example',)]We need index0
+        if myresult[0] == useremail:
+            print(
+                f"It looks like myresult is {myresult[0]} and useremail is {useremail}"
+            )
             myresult = True
         # if useremail in myresult:
         #     if password in myresult:
