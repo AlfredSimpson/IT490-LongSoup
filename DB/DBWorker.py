@@ -5,8 +5,6 @@ import pika, mysql.connector, os, sys, json
 def do_login(username, password):
     return True
 
-def do_validate(request['sessionId']):
-    return True
 
 # Define a callback function for processing requests
 def request_processor(ch, method, properties, body):
