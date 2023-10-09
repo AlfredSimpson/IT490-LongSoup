@@ -9,7 +9,9 @@ def test_LongDB():
     # answer = db.validate_user("test", "test")
     # print(answer)
 
-    tryadding = db.add_user("users", "test", "test")
+    tryadding = db.add_user(
+        table="users", useremail="test@example.com", password="test"
+    )
     print(tryadding)
 
 

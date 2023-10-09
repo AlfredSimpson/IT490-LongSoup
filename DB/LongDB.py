@@ -59,16 +59,16 @@ class LongDB:
         myresult = self.mycursor.fetchall()
         return myresult
 
-    def add_user(self, table, username, password):
+    def add_user(self, table, useremail, password):
         """
         add_user is a function that adds a user to the database.
         It requires the following parameters:
         table: the table to add the user to
-        username: the username of the user to add
+        useremail: the username of the user to add
         password: the password of the user to add
         """
-        sql = "INSERT INTO " + table + " (username, password) VALUES (%s, %s)"
-        val = (username, password)
+        sql = "INSERT INTO " + table + " (useremail, password) VALUES (%s, %s)"
+        val = (useremail, password)
         self.mycursor.execute(sql, val)
         self.mydb.commit()
-        return self.mycursor.rowcount, f"{username} added!"
+        return self.mycursor.rowcount, f"{useremail} added!"
