@@ -64,20 +64,17 @@ class LongDB:
             "Select useremail from " + table + " where useremail = '" + useremail + "'"
         )
         myresult = self.mycursor.fetchall()
-        print(myresult)
+        # strip the tuple, leaving behind only the useremail
+        myresult = myresult[0]
+
         print(f"Did {myresult[0]} match {useremail}?")
         # Note, it did not. It returned [('test@example',)]We need index0
         print(f"The length of myresult[0] is {len(myresult[0])}")
-        if myresult[0] == useremail:
+        if useremail in myresult:
             print(
-                f"It looks like myresult is {myresult[0]} and useremail is {useremail}"
+                f"It looks like myresult is {myresult}. Useremail {useremail} matches {myresult}."
             )
             myresult = True
-        # if useremail in myresult:
-        #     if password in myresult:
-        #         myresult = True
-        # else:
-        #     myresult = False
         return myresult
 
     def add_user(self, table, useremail, password):
