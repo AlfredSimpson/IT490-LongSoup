@@ -59,9 +59,10 @@ class LongDB:
             + "'"
         )
         myresult = self.mycursor.fetchall()
+        print(myresult)
 
-        if myresult.contains(useremail):
-            if myresult.contains(password):
+        if useremail in myresult:
+            if password in myresult:
                 myresult = True
         else:
             myresult = False
