@@ -10,6 +10,9 @@ USER = os.getenv("USER")
 PASSWORD = os.getenv("PASS")
 DB = os.getenv("DB")
 
+
+# - This starts the rmq connection
+
 # Set the rabbit credentials
 creds = pika.PlainCredentials(username="test", password="test")
 # Establish a connection to rabbitmq
@@ -28,9 +31,23 @@ print("sent message")
 # Close the connection
 connection.close()
 
-# This is connecting the db
+# This starts the mysql connection
 mydb = mysql.connector.connect(
     host="localhost", user="example", password="exampl3!", database="tester"
 )
 
-print(mydb)
+# print(mydb)
+
+mycursor = mydb.cursor()
+
+# Now use the cursor to execute a query on the db
+mycursor.execute("SELECT * FROM test")
+
+DB_results = mycursor.fetchall()
+
+for x in DB_results:
+    print(x)
+
+#  Now we can close the connection
+mydb.close()
+# Also, this does nothing really so it needs real code.
