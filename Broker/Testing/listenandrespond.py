@@ -1,4 +1,4 @@
-import pika, mysql.connector
+import pika, mysql.connector, os, sys, json
 
 vHost = "tempHost"
 queue2 = "tempQueue"
@@ -25,5 +25,15 @@ def callback(ch, method, properties, body):
 
 channel.basic_qos(prefetch_count=1)
 channel.basic_consume(queue=queue2, on_message_callback=callback)
-channel.basic_publish(exchange=exchange2, routing_key=queue2, body="It's me")
+# Now send a message through the queue to the websert with delivery mode 2. Delivery mode 2 means it will be saved to disk.
+msg = json.JSONEncoder().encode(
+    {"Type": "Login", "Username": "test", "Password": "test"}
+)
+channel.basic_publish(
+    exchange=exchange2,
+    routing_key=queue2,
+    properties=pika.BasicProperties(delivery_mode=2),
+    body=msg,
+)
+
 channel.start_consuming()

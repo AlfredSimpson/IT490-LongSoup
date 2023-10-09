@@ -6,6 +6,8 @@ vHost = "tempHost"
 queue_name = "tempQueue"
 exchange_name = "tempExchange"
 
+creds = pika.PlainCredentials(username="test", password="test")
+
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(host="localhost", virtual_host=vHost)
 )
