@@ -13,7 +13,7 @@ class LongDB:
         """
         __init__ is the constructor for the LongDB class. It requires the following parameters:
         host: the host of the mysql database
-        user: the username of the mysql database
+        user: the username of the mysql database user.
         password: the password of the mysql database
         database: the name of the database to connect to
         """
@@ -22,7 +22,7 @@ class LongDB:
         )
         self.mycursor = self.mydb.cursor()
 
-    def get_user(self, username):
+    def get_user_by_username(self, username):
         """
         get_user is a function that returns a user from the database.
         It requires the following parameters:
@@ -42,16 +42,18 @@ class LongDB:
         myresult = self.mycursor.fetchall()
         return myresult
 
-    def validate_user(self, username, password):
+    def validate_user(self, table, useremail, password):
         """
         validate_user is a function that returns a user from the database.
         It requires the following parameters:
-        username: the username of the user to return
+        useremail: the useremail of the user to return
         password: the password of the user to return
         """
         self.mycursor.execute(
-            "SELECT * FROM users WHERE username = '"
-            + username
+            "SELECT * FROM "
+            + table
+            + " WHERE useremail = '"
+            + useremail
             + "' AND password = '"
             + password
             + "'"
