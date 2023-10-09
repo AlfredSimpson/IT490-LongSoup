@@ -26,5 +26,4 @@ echo JSON_encode($response);
 //echo "\n\n";
 //echo $argv[0] . " END" . PHP_EOL;
 exit();
-
 ?>
