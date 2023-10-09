@@ -59,6 +59,12 @@ class LongDB:
             + "'"
         )
         myresult = self.mycursor.fetchall()
+
+        if myresult.contains(useremail):
+            if myresult.contains(password):
+                myresult = True
+        else:
+            myresult = False
         return myresult
 
     def add_user(self, table, useremail, password):
