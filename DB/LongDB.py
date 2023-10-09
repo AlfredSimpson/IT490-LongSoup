@@ -63,19 +63,23 @@ class LongDB:
         self.mycursor.execute(
             "Select useremail from " + table + " where useremail = '" + useremail + "'"
         )
-        myresult = self.mycursor.fetchall()
-        # strip the tuple, leaving behind only the useremail
-        myresult = myresult[0]
+        emailResult = self.mycursor.fetchall()
+        passResult = self.mycursor.execute(
+            "Select password from " + table + " where password = '" + password + "'"
+            and "useremail = '" + useremail + "'"
+        )
+        passResult = self.mycursor.fetchall()
+        print(f"passResult is {passResult}")
+        print(f"The length of myresult[0] is {len(emailResult[0])}")
+        if useremail in emailResult[0]:
+            emailMatch = True
+            if password in passResult[0]:
+                passMatch = True
+        else:
+            emailMatch = False
+            return False
 
-        print(f"Did {myresult[0]} match {useremail}?")
-        # Note, it did not. It returned [('test@example',)]We need index0
-        print(f"The length of myresult[0] is {len(myresult[0])}")
-        if useremail in myresult:
-            print(
-                f"It looks like myresult is {myresult}. Useremail {useremail} matches {myresult}."
-            )
-            myresult = True
-        return myresult
+        return emailMatch and passMatch
 
     def add_user(self, table, useremail, password):
         """
