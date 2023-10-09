@@ -54,6 +54,7 @@ class LongDB:
         )
         emailResult = self.mycursor.fetchall()
         email = emailResult[0]
+        print(f"Passed by email")
         self.mycursor.execute(
             "Select password from " + table + " where useremail ='" + useremail + "';"
         )
