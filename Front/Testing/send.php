@@ -6,11 +6,15 @@ require_once('rabbitMQLib.inc');
 // Per Prof - we can probably comment out most of this shit.
 // Note, rabbit.ini and tempServer are *currently being used* for testing purposes.
 $client = new rabbitMQClient("rabbit.ini", "tempServer");
-if (isset($argv[1])) {
-    $msg = $argv[1];
-} else {
-    $msg = "test message";
-}
+print($_POST['type']);
+print($username);
+print($_POST['username']);
+
+// if (isset($argv[1])) {
+//     $msg = $argv[1];
+// } else {
+//     $msg = "test message";
+// }
 
 // Note, this doesn't pass the username or password yet, only these fake ones.
 $request = array();
