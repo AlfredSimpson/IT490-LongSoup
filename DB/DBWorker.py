@@ -1,9 +1,17 @@
 import pika, mysql.connector, os, sys, json
+import LongDB
 
 
 # Function to perform login
-def do_login(username, password):
-    return True
+def do_login(useremail, password):
+    # Connect to the database
+    db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
+    # Validate the user
+    result = db.auth_user(table="users", useremail=useremail, password=password)
+    if result:
+        return {"returnCode": "0", "message": "Login successful"}
+    else:
+        return "ERROR: Invalid username/password"
 
 
 # Define a callback function for processing requests
