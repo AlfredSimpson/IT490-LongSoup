@@ -3,7 +3,7 @@ import pika, mysql.connector, os, sys, json
 vHost = "tempHost"
 queue2 = "tempQueue"
 exchange2 = "tempExchange"
-creds = pika.PlainCredentials(username="test", password="test")
+creds = pika.PlainCredentials(username="longsoup", password="puosgnol")
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
         host="192.168.1.25", port=5672, credentials=creds, virtual_host=vHost

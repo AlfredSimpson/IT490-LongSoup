@@ -64,6 +64,7 @@
                 document.getElementById("textResponse").innerHTML = text.errorMessage + "<p>";
             }
             else {
+                // Note, we didn't create this yet. We will create it in the next step.
                 if (text.returnCode == 1) {
                     window.location.href = "/userprofile.php";
                 }

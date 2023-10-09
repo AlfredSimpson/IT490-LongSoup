@@ -24,6 +24,5 @@ $response = $client->send_request($request);
 echo JSON_encode($response);
 // var_dump($response);
 //echo "\n\n";
-//echo $argv[0] . " END" . PHP_EOL;
-exit();
+echo $argv[0] . " END" . PHP_EOL;
 ?>
