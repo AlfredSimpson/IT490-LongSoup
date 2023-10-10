@@ -14,38 +14,18 @@ if (isset($argv[1])) {
     $msg = "Testing testing test";
 }
 
-//$useremail = $uname;
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $useremail = $_POST['useremail'] ?? null;
     $password = $_POST['password'] ?? null;
-	
+
     // Existing RabbitMQ code
     $request = array();
     $request['type'] = "Login";
     $request['useremail'] = $useremail;
     $request['password'] = $password;
-    $request['message'] = "email = " . $useremail . " and password " . $password . ". and this was uname: ".$_POST;
+    $request['message'] = "email = " . $useremail . " and password " . $password . ". and this was uname: " . $_POST;
 
     $response = $client->send_request($request);
     echo JSON_encode($response);
 }
-
-
-// // Note, this doesn't pass the username or password yet, only these fake ones.
-// $request = array();
-// echo $request['username'];
-// $request['type'] = "Login";
-// $request['username'] = "test@example.com";
-// $request['password'] = "test";
-// $request['message'] = $msg;
-// $response = $client->send_request($request);
-// //$response = $client->publish($request);
-
-// //echo "client received response: " . PHP_EOL;
-// //print_r($response);
-// echo JSON_encode($response);
-// // var_dump($response);
-// //echo "\n\n";
-// echo $argv[0] . " END" . PHP_EOL;
 ?>

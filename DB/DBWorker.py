@@ -13,10 +13,8 @@ def do_login(useremail, password):
     result = db.auth_user(table="users", useremail=useremail, password=password)
     # print(f"result is {result}")
     if result:
-        # print(f"Positive result")
         return {"returnCode": "0", "message": "Login successful"}
     else:
-        # print(f"Negative result")
         return "ERROR: Invalid username/password"
 
 
@@ -24,14 +22,12 @@ def do_login(useremail, password):
 def request_processor(ch, method, properties, body):
     print("Received request")
     request = eval(body.decode("utf-8"))
-    # print(request)
 
     if "type" not in request:
         response = "ERROR: unsupported message type"
     else:
         request_type = request["type"]
         if request_type == "login":
-            # print("Received login request")
             response = do_login(request["username"], request["password"])
         elif request_type == "validate_session":
             print("Received session validation request")
