@@ -63,6 +63,8 @@ class LongDB:
         )
         passResult = self.mycursor.fetchall()
         pwd = passResult[0]
+        emailMatch = False
+        passMatch = False
         if useremail in email:
             emailMatch = True
             if password in pwd:
@@ -72,7 +74,7 @@ class LongDB:
             emailMatch = False
             return False
 
-        return emailMatch and passMatch
+        return (emailMatch and passMatch)
 
     def add_user(self, table, useremail, password):
         """

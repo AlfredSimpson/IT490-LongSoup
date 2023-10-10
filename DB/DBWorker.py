@@ -4,17 +4,19 @@ import LongDB
 
 # Function to perform login
 def do_login(useremail, password):
-    # print(f"do_login: useremail is {useremail}")
-    # print(f"do_login: password is {password}")
+    print(f"do_login: useremail is {useremail}")
+    print(f"do_login: password is {password}")
     print(f"Checking credentials...")
     # Connect to the database
     db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
     # Validate the user
     result = db.auth_user(table="users", useremail=useremail, password=password)
-    # print(f"result is {result}")
+    print(f"result is {result}")
     if result:
+        print("return code 0 should return with a message saying login successful");
         return {"returnCode": "0", "message": "Login successful"}
     else:
+        print("And here we see it fails")
         return "ERROR: Invalid username/password"
 
 
@@ -24,11 +26,13 @@ def request_processor(ch, method, properties, body):
     request = eval(body.decode("utf-8"))
 
     if "type" not in request:
+        print("type error: not found.")
         response = "ERROR: unsupported message type"
     else:
         request_type = request["type"]
-        if request_type == "login":
-            response = do_login(request["username"], request["password"])
+        if request_type == "Login":
+            print("trying to see if we can login!")
+            response = do_login(request["useremail"], request["password"])
         elif request_type == "validate_session":
             print("Received session validation request")
             response = do_validate(request["sessionId"])
@@ -39,6 +43,7 @@ def request_processor(ch, method, properties, body):
             }
 
     # Send the response back to the client
+    print(f"We should have a response here if we're publishing...{response}")
     ch.basic_publish(
         exchange="",
         routing_key=properties.reply_to,
