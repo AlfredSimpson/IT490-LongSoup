@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Existing RabbitMQ code
     $request = array();
     $request['type'] = "Login";
-    $request['useremail'] = $useremail;
+    $request['username'] = $useremail;
     $request['password'] = $password;
     $request['message'] = "email = " . $useremail . " and password " . $password;
 
