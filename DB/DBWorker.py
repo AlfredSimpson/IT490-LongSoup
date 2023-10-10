@@ -8,31 +8,40 @@ def do_login(useremail, password):
     db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
     # Validate the user - consider adding a try catch.
     result = db.auth_user(table="users", useremail=useremail, password=password)
-    print(f"result is {result}")
     if result:
-        print("return code 0 should return with a message saying login successful");
         return {"returnCode": "0", "message": "Login successful"}
     else:
         print("And here we see it fails")
         return "ERROR: Invalid username/password"
 
+
 def return_error(ch, method, properties, body, msg):
     ch.basic_public(
-            exchange="",
-            routing_key=properties.reply_to,
-            properties=pika.BasicProperties(correlation_id=properties.correlation_id),
-            body=json.dumps(msg))
+        exchange="",
+        routing_key=properties.reply_to,
+        properties=pika.BasicProperties(correlation_id=properties.correlation_id),
+        body=json.dumps(msg),
+    )
     ch.basic_ack(delivery_tag=method.deliver_tag)
-    
 
-# Define a callback function for processing requests
+
+def do_validate(sessionId):
+    pass
+
+
 def request_processor(ch, method, properties, body):
+    """
+    The request_processor() method takes in the channel, method, properties, and body of the message.
+    This method is called whenever a message is received from the web server.
+    It takes the message, decodes it, and then processes it. It then sends a response back to the web server.
+    """
+    # Try / except added just in case bad JSON is received
     try:
         request = json.loads(body.decode("utf-8"))
     except json.JSONDecodeError:
         print("Error decoding incoming JSON")
-        response = {"ERROR" : "Invalid JSON Format Received"}
-        return return_error(ch,method,properties,body,response)
+        response = {"ERROR": "Invalid JSON Format Received"}
+        return return_error(ch, method, properties, body, response)
     if "type" not in request:
         response = "ERROR: unsupported message type"
     else:
