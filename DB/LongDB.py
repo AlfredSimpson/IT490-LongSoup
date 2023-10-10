@@ -54,6 +54,7 @@ class LongDB:
         )
         emailResult = self.mycursor.fetchall()
         if len(emailResult) == 0:
+            print(f"No email found for {useremail}")
             return False
         email = emailResult[0]
         print(f"Passed by email")
@@ -65,9 +66,7 @@ class LongDB:
         if useremail in email:
             emailMatch = True
             if password in pwd:
-                # print(
-                #     f"Supplied password {password} matched passResult: {passResult[0]}"
-                # )
+                print(f"Supplied password {password} matched passResult: {pwd}")
                 passMatch = True
         else:
             emailMatch = False
