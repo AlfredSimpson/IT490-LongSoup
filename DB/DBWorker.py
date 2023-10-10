@@ -4,12 +4,9 @@ import LongDB
 
 # Function to perform login
 def do_login(useremail, password):
-    print(f"do_login: useremail is {useremail}")
-    print(f"do_login: password is {password}")
-    print(f"Checking credentials...")
     # Connect to the database
     db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
-    # Validate the user
+    # Validate the user - consider adding a try catch.
     result = db.auth_user(table="users", useremail=useremail, password=password)
     print(f"result is {result}")
     if result:
@@ -19,19 +16,28 @@ def do_login(useremail, password):
         print("And here we see it fails")
         return "ERROR: Invalid username/password"
 
+def return_error(ch, method, properties, body, msg):
+    ch.basic_public(
+            exchange="",
+            routing_key=properties.reply_to,
+            properties=pika.BasicProperties(correlation_id=properties.correlation_id),
+            body=json.dumps(msg))
+    ch.basic_ack(delivery_tag=method.deliver_tag)
+    
 
 # Define a callback function for processing requests
 def request_processor(ch, method, properties, body):
-    print("Received request")
-    request = eval(body.decode("utf-8"))
-
+    try:
+        request = json.loads(body.decode("utf-8"))
+    except json.JSONDecodeError:
+        print("Error decoding incoming JSON")
+        response = {"ERROR" : "Invalid JSON Format Received"}
+        return return_error(ch,method,properties,body,response)
     if "type" not in request:
-        print("type error: not found.")
         response = "ERROR: unsupported message type"
     else:
         request_type = request["type"]
         if request_type == "Login":
-            print("trying to see if we can login!")
             response = do_login(request["useremail"], request["password"])
         elif request_type == "validate_session":
             print("Received session validation request")
@@ -48,7 +54,7 @@ def request_processor(ch, method, properties, body):
         exchange="",
         routing_key=properties.reply_to,
         properties=pika.BasicProperties(correlation_id=properties.correlation_id),
-        body=str(response),
+        body=json.dumps(response),
     )
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
