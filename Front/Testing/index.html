@@ -23,7 +23,7 @@
     <form id="login" class="login" action="send.php" method="post" onsubmit="return sendFormData()">
         <div>
             <label for="useremail"><b>Your Email@domain.com </b></label>
-            <input id="useremail" name="useremail" required>
+            <input id="useremail" type="useremail" name="useremail" required>
         </div>
         <div>
             <label for="password"><b>Password</b></label>
@@ -43,13 +43,18 @@
             request.open("POST", "send.php", true);
             request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             request.onreadystatechange = function () {
-
+		console.log("Index.html says User email is : " + useremail);
+		console.log(password);
                 if ((this.readyState == 4) && (this.status == 200)) {
                     HandleLoginResponse(this.responseText);
                 }
             }
             if (useremail != null && password != null) {
-                request.send("type=login&uname=" + useremail + "&password=" + password);
+		console.log("we just passed the if user email isn't null part, so...");
+				console.log(useremail);
+                request.send("type=Login&useremail=" + useremail + "&password=" + password);
+		console.log("For good measure, this is after request.send");
+				console.log(useremail);
             }
         }
     </script>
