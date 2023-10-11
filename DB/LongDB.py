@@ -165,7 +165,7 @@ class LongDB:
 
     # These are ways to confirm if a user is in the database or not:
 
-    def user_exists(self, username):
+    def user_exists_uname(self, username):
         """
         user_exists(username) is a function that checks if a user exists in the database.
         This method returns a boolean statement.
@@ -179,13 +179,13 @@ class LongDB:
         else:
             return True
 
-    def user_exists(self, email):
+    def user_exists_email(self, email):
         """
         user_exists(email) is a function that checks if a user exists in the database.
         This method returns a boolean statement.
         It requires only the email of the user to check.
         """
-        sql = "SELECT * FROM users WHERE email = '" + email + "'"
+        sql = "SELECT * FROM users WHERE useremail = '" + email + "'"
         self.mycursor.execute(sql)
         result = self.mycursor.fetchall()
         if len(result) == 0:
@@ -193,13 +193,13 @@ class LongDB:
         else:
             return True
 
-    def user_exists(self, id):
+    def user_exists_id(self, id):
         """
         user_exists(id) is a function that checks if a user exists in the database.
         This method returns a boolean statement.
         It requires only the id of the user to check.
         """
-        sql = "SELECT * FROM users WHERE id = '" + id + "'"
+        sql = "SELECT * FROM users WHERE userid = '" + id + "'"
         self.mycursor.execute(sql)
         result = self.mycursor.fetchall()
         if len(result) == 0:

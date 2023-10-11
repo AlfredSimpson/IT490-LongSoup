@@ -27,7 +27,8 @@ def do_register(useremail, password):
     # Connect to the database
     db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
     # See if the user exists already
-    exists = db.user_exists(table="users", useremail=useremail)
+    exists = db.user_exists_email(useremail)
+    print(exists)
     if exists:
         e = {"ERROR": "User already exists"}
         return e
@@ -71,7 +72,9 @@ def request_processor(ch, method, properties, body):
         print("Error decoding incoming JSON")
         response = {"ERROR": "Invalid JSON Format Received"}
         return return_error(ch, method, properties, body, response)
+    print(f'incoming request: {request}')
     if "type" not in request:
+        print(f'{request}')
         response = "ERROR: unsupported message type"
     else:
         request_type = request["type"]
