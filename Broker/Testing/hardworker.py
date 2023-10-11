@@ -43,7 +43,7 @@ exchange2 = "tempExchange"
 creds = pika.PlainCredentials(username="longsoup", password="puosgnol")
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
-        host="192.168.1.25", port=5672, credentials=creds, virtual_host=vHost
+        host="192.168.68.65", port=5672, credentials=creds, virtual_host=vHost
     )
 )
 channel = connection.channel()

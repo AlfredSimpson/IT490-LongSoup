@@ -55,7 +55,7 @@ sudo vim cgs.conf
 
 ```
 
-Inside the file, we'll need to change the DocumentRoot to the directory where our files are. In my case, it's /var/www/cgs. We'll also need to change the ServerName to the IP address of the server. Our front end server is 192.168.1.13 - but I chose commongrounds.localhost. It was available so why not. The file should look like this:
+Inside the file, we'll need to change the DocumentRoot to the directory where our files are. In my case, it's /var/www/cgs. We'll also need to change the ServerName to the IP address of the server. Our front end server is 192.168.68.66.The file should look like this:
 
 ```bash
 
@@ -63,7 +63,7 @@ Inside the file, we'll need to change the DocumentRoot to the directory where ou
 
     ServerAdmin nicc-group@njit.edu
     DocumentRoot /var/www/cgs/
-    ServerName  commongrounds.localhost
+    ServerName  192.168.68.66
 
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
@@ -72,7 +72,7 @@ Inside the file, we'll need to change the DocumentRoot to the directory where ou
 
 ```
 
-With our virtualhost set up in apache we now need to enable it.
+With our virtualhost set up in apache we now need to enable it. This is done with a2ensite.
 
 
 ```bash
@@ -81,7 +81,7 @@ sudo a2ensite cgs.conf
 
 ```
 
-We'll get a response saying to reload it, so we should
+We'll get a response saying to reload it, so we should. We'll also restart it to make sure it's running. This can be automated using apache-startup.sh, a script in the Front directory here.
 
 
 ```bash
@@ -90,5 +90,5 @@ sudo systemctl reload apache2
 sudo systemctl restart apache2
 ```
 
-You could also use service instead of systemctl. From here we can access the website by going to commongrounds.localhost OR to the IP address of the server. If you want to use the IP address, you'll need to add it to your hosts file. On linux, this is /etc/hosts. 
+You could also use service instead of systemctl. From here we can access the website by going to 192.168.68.66 OR to a web address if it has one. Before you do this, you'll need to edit your hosts file to make sure that it is listed there. On linux, this is /etc/hosts. 
 

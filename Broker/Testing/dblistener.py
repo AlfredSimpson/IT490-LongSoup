@@ -4,7 +4,7 @@ vHost = "tempHost"
 queue2 = "tempQueue"
 exchange2 = "tempExchange"
 connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host="192.168.1.25", virtual_host=vHost)
+    pika.ConnectionParameters(host="192.168.68.65", virtual_host=vHost)
 )
 
 channel = connection.channel()
