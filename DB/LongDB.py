@@ -95,7 +95,7 @@ class LongDB:
         self.mydb.commit()
         return self.mycursor.rowcount, f"{useremail} added!"
 
-    def update_user(self, table, useremail, password):
+    def update_user_password(self, table, useremail, password):
         """
         update_user is a function that updates a user in the database.
         It requires the following parameters:
@@ -117,33 +117,25 @@ class LongDB:
         return self.mycursor.rowcount, f"{useremail} updated!"
 
     # update first name
-    def update_user(self, table, useremail, fname):
+    def update_user_fname(self, table, useremail, fname):
         """
-        update_user isn't built yet - but takes useremail and a first name.
+        update_user_fname isn't built yet - but takes useremail and a first name.
         I'll need to know how we list the names in the database to update them.
         """
         pass
 
     # update last name
-    def update_user(self, table, useremail, lname):
+    def update_user_lname(self, table, useremail, lname):
         """
-        update_user isn't built yet - but takes useremail and a last name.
+        update_user_lname isn't built yet - but takes useremail and a last name.
         I'll need to know how we list the names in the database to update them.
         """
         pass
 
     # update email address
-    def update_user(self, table, useremail):
+    def update_user_email(self, table, useremail):
         """
         update_user isn't built yet - but takes useremail and an email address.
-        I'll need to know how we list the names in the database to update them.
-        """
-        pass
-
-    # update password
-    def update_user(self, table, useremail, password):
-        """
-        update_user isn't built yet - but takes useremail and a password.
         I'll need to know how we list the names in the database to update them.
         """
         pass
