@@ -17,21 +17,27 @@ if (isset($argv[1])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $useremail = $_POST['useremail'] ?? null;
     $password = $_POST['password'] ?? null;
+    $type = $_POST['type'] ?? null;
 
     // Existing RabbitMQ code
     $request = array();
-    if ($request['type'] == "login") {
+    if ($type == "login") {
         $request['type'] = "login";
         $request['useremail'] = $useremail;
         $request['password'] = $password;
         $request['message'] = "email = " . $useremail . " and password " . $password . ". and this was uname: " . $_POST;
-    } elseif ($request['type'] == "register") {
-        $request['type'] = "register";
-        $request['first_name'] = $first_name;
-        $request['last_name'] = $last_name;
-        $request['useremail'] = $useremail;
-        $request['password'] = $password;
-        $request['message'] = "A new user is attempting to register.";
+    } elseif ($type == "register") {
+	    $fname = $_POST['firstname'] ?? null;
+	    $lname = $_POST['lastname'] ?? null;
+	    $email = $_POST['useremail'] ?? null;
+	    $pass  = $_POST['password'] ??null;
+
+            $request['type'] = "register";
+            $request['first_name'] = $fname;
+        $request['last_name'] = $lname;
+        $request['useremail'] = $email;
+        $request['password'] = $pass;
+        $request['message'] = $_POST['first_name']."is a new user is attempting to register.";
     }
 
     $response = $client->send_request($request);
