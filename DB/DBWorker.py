@@ -12,7 +12,7 @@ def do_login(useremail, password):
         return {"returnCode": "0", "message": "Login successful"}
     else:
         print("And here we see it fails")
-        return "ERROR: Invalid username/password"
+        return {"returnCode": "1", "message": "You have failed to login."}
 
 
 def do_register(useremail, password):
@@ -72,9 +72,9 @@ def request_processor(ch, method, properties, body):
         print("Error decoding incoming JSON")
         response = {"ERROR": "Invalid JSON Format Received"}
         return return_error(ch, method, properties, body, response)
-    print(f'incoming request: {request}')
+    print(f"incoming request: {request}")
     if "type" not in request:
-        print(f'{request}')
+        print(f"{request}")
         response = "ERROR: unsupported message type"
     else:
         request_type = request["type"]

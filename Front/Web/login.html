@@ -15,8 +15,7 @@
         <div class="row">
             <h1 class="text-center">Login</h1>
             <div class="col-md-6 offset-md-3">
-                <form id="login-form" method="post" class="login" action="send.php"
-                    onsubmit="return sendFormData()">
+                <form id="login-form" method="post" class="login" action="send.php" onsubmit="return sendFormData()">
                     <div class="form-group">
                         <label for="useremail">Email address</label>
                         <input type="useremail" class="form-control" id="useremail" name="useremail" required>
@@ -27,8 +26,9 @@
                     </div>
                     <button type="submit" class="btn btn-primary" value="login">Login</button>
                 </form>
+                <p id="textResponse" style="font-weight:700;""></p>
                 <hr>
-                <h1 class="text-center">Register</h1>
+                <h1 class=" text-center">Register</h1>
                 <form id="register-form" class="register" action="send.php" method="post"
                     onsubmit="return sendRegisterFormData()">
                     <div class="form-group">

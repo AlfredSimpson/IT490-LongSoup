@@ -18,12 +18,12 @@ function sendRegisterRequest(useremail, password, firstname, lastname) {
     var request = new XMLHttpRequest();
     request.open("POST", "send.php", true);
     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-   // console.log("user_email",user_email,password,firstname,lastname)
+    // console.log("user_email",user_email,password,firstname,lastname)
     console.log(useremail);
-	console.log(password);
-	console.log(firstname);
-	console.log(lastname);
-	request.onreadystatechange = function () {
+    console.log(password);
+    console.log(firstname);
+    console.log(lastname);
+    request.onreadystatechange = function () {
         if ((this.readyState == 4) && (this.status == 200)) {
             HandleRegisterResponse(this.responseText);
         }
@@ -44,12 +44,12 @@ function HandleLoginResponse(response) {
     }
     else {
         // Note, we didn't create this yet. We will create it in the next step. This would *actually be the the login*
-        if (text.returnCode == 1) {
-            console.log("redirecting to user profile");
-            window.location.href = "/userprofile.php";
-        }
         if (text.returnCode == 0) {
-            document.getElementById("textResponse").innerHTML = "Login Result 0 - No meaning yet." + "<p>";
+            console.log("redirecting to user profile");
+            window.location.href = "/success.html";
+        }
+        if (text.returnCode == 1) {
+            document.getElementById("textResponse").innerHTML = "You have failed to login. Please check your email and password." + "<p>";
         }
     }
 }
@@ -75,9 +75,9 @@ function sendRegisterFormData() {
 
     // Get username and password from form
     var useremail = document.getElementById('regemail').value;
-	console.log("useremail in sendRegForm", useremail);
+    console.log("useremail in sendRegForm", useremail);
     var password = document.getElementById('regpassword').value;
-	console.log("password in sendRegForm", password);
+    console.log("password in sendRegForm", password);
     var firstname = document.getElementById('first_name').value;
     var lastname = document.getElementById('last_name').value;
 
