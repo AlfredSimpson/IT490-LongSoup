@@ -15,6 +15,36 @@ def do_login(useremail, password):
         return "ERROR: Invalid username/password"
 
 
+def do_register(useremail, password):
+    """
+    do_register takes useremail and password as arguments and attempts to register the user.
+    It returns a message indicating whether the registration was successful or not.
+    However, it does not log the user in.
+    Also, the password is not yet hashed.
+    TODO: hash the password
+    """
+
+    # Connect to the database
+    db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
+    # See if the user exists already
+    exists = db.user_exists_email(useremail)
+    print(exists)
+    if exists:
+        e = {"ERROR": "User already exists"}
+        return e
+    else:
+        try:
+            result = db.add_user(table="users", useremail=useremail, password=password)
+            if result:
+                return {"returnCode": "0", "message": "Registration successful"}
+            else:
+                print("And here we see it fails")
+                return "ERROR: Invalid username/password"
+        except:
+            print("Error adding user to database")
+            return "ERROR: Unable to add user to database"
+
+
 def return_error(ch, method, properties, body, msg):
     ch.basic_public(
         exchange="",
@@ -42,15 +72,20 @@ def request_processor(ch, method, properties, body):
         print("Error decoding incoming JSON")
         response = {"ERROR": "Invalid JSON Format Received"}
         return return_error(ch, method, properties, body, response)
+    print(f'incoming request: {request}')
     if "type" not in request:
+        print(f'{request}')
         response = "ERROR: unsupported message type"
     else:
         request_type = request["type"]
-        if request_type == "Login":
+        if request_type == "login":
             response = do_login(request["useremail"], request["password"])
         elif request_type == "validate_session":
             print("Received session validation request")
             response = do_validate(request["sessionId"])
+        elif request_type == "register":
+            print("Received registration request")
+            response = do_register(request["useremail"], request["password"])
         else:
             response = {
                 "returnCode": "0",

@@ -17,7 +17,6 @@ if (isset($argv[1])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $useremail = $_POST['useremail'] ?? null;
     $password = $_POST['password'] ?? null;
-
     // Existing RabbitMQ code
     $request = array();
     $request['type'] = "Login";
