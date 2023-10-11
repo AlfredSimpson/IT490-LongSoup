@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login | LongSoup</title>
+    <style>
+        /* Styles for the user links */
+        .user-links {
+            text-align: right;
+            padding: 10px;
+        }
+
+        .user-links a {
+            margin: 0 20px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        /* Styles for the banner */
+        .banner {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .banner a {
+            margin: 0 20px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        /* Styles for the alternating content blocks */
+        .content-block {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .content-block:nth-child(even) img {
+            order: 2;
+            margin-left: 20px;
+        }
+
+        .content-block img {
+            width: 300px;
+            height: 200px;
+        }
+
+        .content-text {
+            flex: 1;
+        }
+        .logo{
+            text-align:  center;
+            text-decoration: bold;
+        }
+    /* special to login.html */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        flex-direction: column;
+    }
+
+    h1 {
+        color: #333;
+    }
+
+    .login {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        width: 300px;
+    }
+
+    .login div {
+        margin-bottom: 15px;
+        padding-right: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+    }
+
+    input[type="text"], input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    input[type="submit"] {
+        background-color: #008CBA;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #005f5f;
+    }
+
+    #textResponse {
+        margin-top: 20px;
+    }
+
+    /*end to login.html styling*/
+         
+    </style>
+</head>
+
+<body>
+    <h1 class="logo">Welcome Back</h1>
+    <h2 class="logo">Your community awaits!</h2>
+    <!-- User Links -->
+    <div class="user-links">
+        <a href="./landing.html">Home</a>
+        <span>|</span>
+        <a href="./new_user.html">New User?</a>
+    </div>
+
+    <form id="login" class="login">
+        <div>
+            <label for="uname"><b>Username</b></label>
+            <input id="username" type="text" name="uname" required />
+        </div>
+        <div>
+            <label for="password"><b>Password</b></label>
+            <input id="password" type="password" name="password" required />
+        </div>
+        <div>
+            <input type="submit" value="Login" />
+        </div>
+        </form>
+        
+    
+    <p id="textResponse"></p>
+    
+    <!-- After pressing the somethingButton, if a user is found, it will display the user's name. If not, it will display "no user found" -->
+    <script>
+        function SendLoginRequest(username, password) {
+            var request = new XMLHttpRequest();
+            request.open("POST", "send.php", true);
+            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            request.onreadystatechange = function () {
+
+                if ((this.readyState == 4) && (this.status == 200)) {
+                    HandleLoginResponse(this.responseText);
+                }
+            }
+            if (username != null && password != null) {
+                request.send("type=login&uname=" + username + "&password=" + password);
+            }
+        }
+    </script>
+    <script>
+        function HandleLoginResponse(response) {
+            var text = JSON.parse(response);
+            console.log(response);
+            //    document.getElementById("textResponse").innerHTML = response+"<p>";
+            console.log(text);
+            document.getElementById("textResponse").innerHTML = "Login Here!" + "<p>";
+            if (text.errorMessage) {
+                document.getElementById("textResponse").innerHTML = text.errorMessage + "<p>";
+            }
+            else {
+                // Note, we didn't create this yet. We will create it in the next step.
+                if (text.returnCode == 1) {
+                    window.location.href = "/userprofile.php";
+                }
+
+                if (text.returnCode == 0) {
+                    document.getElementById("textResponse").innerHTML = "Invalid Login" + "<p>";
+                }
+            }
+        }
+
+    </script>
+    <script>   const params = new Proxy(new URLSearchParams(window.location.search), {
+            get: (searchParams, prop) => searchParams.get(prop),
+        });
+        const username = params.uname;
+        const password = params.password;
+        SendLoginRequest(username, password);    
+    </script>
+
+
+    <footer>
+        <p>Except where otherwise noted, content on this site is licensed under a Creative Commons Attribution 4.0 International license. Longsoup.com, 2023.</p>
+        <p>Ricky Hernandez - Alfred Simpson - Justin Tecson - David Villafranca -
+            IT 490-001 -
+            Fall 2023 -
+            Semester Project
+        </p>
+    </footer>
+</body>
+
+</html>
