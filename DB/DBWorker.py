@@ -15,7 +15,7 @@ def do_login(useremail, password):
         return {"returnCode": "1", "message": "You have failed to login."}
 
 
-def do_register(useremail, password):
+def do_register(useremail, password, fname, lname):
     """
     do_register takes useremail and password as arguments and attempts to register the user.
     It returns a message indicating whether the registration was successful or not.
@@ -34,7 +34,13 @@ def do_register(useremail, password):
         return e
     else:
         try:
-            result = db.add_user(table="users", useremail=useremail, password=password)
+            result = db.add_user(
+                table="users",
+                useremail=useremail,
+                password=password,
+                fname=fname,
+                lname=lname,
+            )
             if result:
                 return {"returnCode": "0", "message": "Registration successful"}
             else:
@@ -85,7 +91,12 @@ def request_processor(ch, method, properties, body):
             response = do_validate(request["sessionId"])
         elif request_type == "register":
             print("Received registration request")
-            response = do_register(request["useremail"], request["password"])
+            response = do_register(
+                request["useremail"],
+                request["password"],
+                request["first_name"],
+                request["last_name"],
+            )
         else:
             response = {
                 "returnCode": "0",
