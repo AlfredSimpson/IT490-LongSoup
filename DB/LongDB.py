@@ -81,7 +81,7 @@ class LongDB:
 
     # User modification methods
 
-    def add_user(self, table, useremail, password):
+    def add_user(self, table, useremail, password, fname, lname):
         """
         add_user is a function that adds a user to the database.
         It requires the following parameters:
@@ -93,6 +93,27 @@ class LongDB:
         val = (useremail, password)
         self.mycursor.execute(sql, val)
         self.mydb.commit()
+
+        id_num = "SELECT userid FROM users WHERE useremail = '" + useremail + "'"
+        new_user_table = "" + id_num + "_profile"
+        sql = (
+            "CREATE TABLE "
+            + new_user_table
+            + " (profile_element VARCHAR(255) UNIQUE PRIMARY KEY, value VARCHAR(255))"
+        )
+        self.mycursor.execute(sql)
+        self.mydb.commit()
+        sql = (
+            "Insert into "
+            + new_user_table
+            + " (profile_element, value) VALUES (%s, %s)"
+        )
+        val = ("fname", fname)
+        self.mycursor.execute(sql, val)
+        self.mydb.commit()
+        val = ("lname", lname)
+        self.mycursor.execute(sql, val)
+
         return self.mycursor.rowcount, f"{useremail} added!"
 
     def update_user_password(self, table, useremail, password):
