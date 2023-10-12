@@ -92,30 +92,7 @@ class LongDB:
         sql = "INSERT INTO " + table + " (useremail, password) VALUES (%s, %s)"
         val = (useremail, password)
         self.mycursor.execute(sql, val)
-        self.mycursor.execute(";")  # this might work??
-
-        id_num = "SELECT userid FROM users WHERE useremail = '" + useremail + "'"
-        new_user_table = "" + id_num + "_profile"
-        print(f"Attempting to create new user table with {new_user_table}")
-
-        sql = (
-            "CREATE TABLE "
-            + new_user_table
-            + " (profile_element VARCHAR(255) UNIQUE PRIMARY KEY, value VARCHAR(255))"
-        )
-        self.mycursor.execute(sql)
-        # self.mycursor.execute(";")
         self.mydb.commit()
-        sql = (
-            "Insert into "
-            + new_user_table
-            + " (profile_element, value) VALUES (%s, %s)"
-        )
-        val = ("fname", fname)
-        self.mycursor.execute(sql, val)
-        self.mydb.commit()
-        val = ("lname", lname)
-        self.mycursor.execute(sql, val)
 
         return self.mycursor.rowcount, f"{useremail} added!"
 
