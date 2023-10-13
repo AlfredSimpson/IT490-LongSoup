@@ -23,6 +23,49 @@ class LongUser:
     # Setters - what should we set for the user
     # Examples: new password, first name, last name, city, etc.
     def set_user_city(self, userid, location):
+        """
+        Adds the user's zip code
+        """
+        #return user_location
+        pass
+    
+    def set_user_songlist(self, songs):
+        """
+        Adds the user's songlist/playlist
+        """
+        #return user_songlist
         pass
 
+    def set_user_fname(self, userid, fname):
+        """
+        Adds the user's first name in the DB
+        """
+        #return user_fname
+        pass
+
+    def set_user_lname(self, userid, lname):
+        """
+        Adds the user's last name in the DB
+        """
+        #return user_lname
+        pass
+
+    def set_user_username(self, userid, username):
+        """
+        Adds the user's username to the DB
+        """
+        #return user_username
+        pass
+
+    def set_user_bio(self, userid, bio):
+        #return user_bio
+        pass
+
+    def set_user_liked_songs(self, userid, songs, likes):
+        #return user_likes
+        pass
+
+    def set_user_dislike_songs(self, userid, songs, dislikes):
+        #return user_dislikes
+        pass
     pass
