@@ -19,3 +19,5 @@ Source Code initially copied from [engineerOfLies](https://github.com/engineerOf
 This project is pulling multiple APIs to create a music/concert app.
 
 ## Additional Resources
+APIs Used:
+Spotify
