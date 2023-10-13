@@ -16,4 +16,6 @@ Source Code initially copied from [engineerOfLies](https://github.com/engineerOf
 
 ## Project Summary
 
+This project is pulling multiple APIs to create a music/concert app.
+
 ## Additional Resources
