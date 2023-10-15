@@ -5,3 +5,7 @@
 *env*
 .pyc
 *.pyc
+
+# Node
+
+node_modules/
