@@ -52,7 +52,7 @@ def do_register(useremail, password, fname, lname):
 
 
 def return_error(ch, method, properties, body, msg):
-    ch.basic_public(
+    ch.basic_publish(
         exchange="",
         routing_key=properties.reply_to,
         properties=pika.BasicProperties(correlation_id=properties.correlation_id),
