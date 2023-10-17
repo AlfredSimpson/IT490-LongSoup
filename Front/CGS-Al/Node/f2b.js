@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
-var amqp = require('amqplib/callback_api');
+const amqp = require('amqplib/callback_api');
+const testConf = require('./rmqConfig.conf');
+
+console.log(`${testConf.TEST}`);
+
+console.log(`${testConf.TESTREQUEST}`);
 
 const rmqConf = {
 	host: '192.168.68.65',
