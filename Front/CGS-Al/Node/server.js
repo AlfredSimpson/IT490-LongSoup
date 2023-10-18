@@ -19,10 +19,12 @@ app.post('/login', (req, res) => {
             return;
         }
         conn.createChannel(function (err, ch) {
-            const q = 'loginQueue';
-            const msg = JSON.stringify({ useremail, userpassword });
+            const q = 'tempQueue';
+            let type = 'login';
+            let message = '';
+            const msg = JSON.stringify({ type, useremail, userpassword, message });
 
-            ch.assertQueue(q, { durable: false });
+            ch.assertQueue(q, { durable: True });
             ch.sendToQueue(q, Buffer.from(msg));
         });
     });
@@ -30,6 +32,9 @@ app.post('/login', (req, res) => {
     // Redirect to getstarted.html after successful login
     res.redirect('/getstarted.html');
 });
+
+// Register endpoint
+// TODO: create it lol
 
 // Serve static files from a folder named 'public'
 app.use(express.static(path.join(__dirname, 'public')));
