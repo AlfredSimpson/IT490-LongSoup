@@ -9,12 +9,22 @@
     <title>Get Started</title>
     <!-- Bootstrap 5 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
 
 <body>
-    <div class="container">
+    <div class="container-fluid core-style auth-card">
         <h1>Get Started</h1>
-        <form>
+        <p>In order to give you the best experience, we need a little information.</p>
+        <p>Click the icon to give us all of your Spotify data!</p>
+        <div class="oAuth-container">
+            <p>
+            <div class="oAuth-img">
+                <a href="authorizespotify" id="spotAuth"><img src="./img/SpotifyoAuth.png" id="spotPic"></a>
+            </div>
+            </p>
+        </div>
+        <!-- <form>
             <div class="mb-3">
                 <label for="name" class="form-label">Username</label>
                 <input type="text" class="form-control" id="Username" placeholder="Okay, so let's get a username">
@@ -37,7 +47,7 @@
                 </select>
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+        </form> -->
     </div>
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>

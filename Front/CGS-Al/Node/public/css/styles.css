@@ -1,0 +1,24 @@
+.core-style {
+  background-color: #232323;
+  color: white;
+}
+
+.oAuth-container {
+  width: 20%;
+  height: 20%;
+}
+
+.oAuth-image > a > img {
+  width: 100%;
+  height: 100%;
+}
+
+.auth-card {
+  width: 60%;
+  height: 100%;
+}
+
+#spotPic {
+  width: 100%;
+  height: 100%;
+}
