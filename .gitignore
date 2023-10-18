@@ -1,0 +1,11 @@
+.env
+.venv
+.venv/
+.venv/*
+*env*
+.pyc
+*.pyc
+
+# Node
+
+node_modules/

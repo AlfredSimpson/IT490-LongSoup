@@ -20,13 +20,35 @@ class LongUser:
 
         pass
 
+    def getGenre(self, songGenre):
+        """
+        get genere will function where it 
+        will get the genre of said song
+        """
+        pass
+
+    def getCommunity(self, userid, username, artist, song):
+        """
+        creates a community of users based upon
+        artist and song
+        """
+        pass
+
+    def getEvent(self, userid, username, zipcode, artist):
+        """
+        gets events related to an artist
+        within the area of a zipcode
+        """
+        pass
+    
+
     # Setters - what should we set for the user
     # Examples: new password, first name, last name, city, etc.
-    def set_user_city(self, userid, location):
+    def set_user_zip(self, userid, zipcode):
         """
         Adds the user's zip code
         """
-        #return user_location
+        #return user_zipcode
         pass
     
     def set_user_songlist(self, songs):
@@ -68,4 +90,14 @@ class LongUser:
     def set_user_dislike_songs(self, userid, songs, dislikes):
         #return user_dislikes
         pass
+
+    def set_song_rank(self, sRank):
+        #return songRank
+        pass
+
+    def set_artist_rank(self, artRank):
+        #return artistRank
+        pass
+
+
     pass
