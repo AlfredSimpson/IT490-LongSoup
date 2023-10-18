@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const amqp = require('amqplib/callback_api');
+const path = require('path');
 
 const app = express();
 app.use(bodyParser.json());
@@ -8,13 +9,18 @@ app.use(bodyParser.json());
 // Read RabbitMQ config
 const rmqConfig = require('./rmqConfig.conf');
 
+// Login endpoint
 app.post('/login', (req, res) => {
-    const { username, password } = req.body;
+    const { useremail, userpassword } = req.body;
 
-    amqp.connect(rmqConfig.url, function (err, conn) {
+    amqp.connect(`amqp://${rmqConfig.TESTREQUEST}`, function (err, conn) {
+        if (err) {
+            console.error(err);
+            return;
+        }
         conn.createChannel(function (err, ch) {
             const q = 'loginQueue';
-            const msg = JSON.stringify({ username, password });
+            const msg = JSON.stringify({ useremail, userpassword });
 
             ch.assertQueue(q, { durable: false });
             ch.sendToQueue(q, Buffer.from(msg));
@@ -25,8 +31,13 @@ app.post('/login', (req, res) => {
     res.redirect('/getstarted.html');
 });
 
-// Serve static files
-app.use(express.static('public'));
+// Serve static files from a folder named 'public'
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Fallback for root URL to serve index.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // Start the server
 const port = 3000;
