@@ -10,7 +10,7 @@ class Taste:
 
     # Getters
     # Getters get info about their activities and interactions with music/communities/etc.
-    
+
     #These group of getters relate to information about Spotify users
     def getUsersTopProfile(user, spotify_username):
         #return topuser_profile
@@ -35,6 +35,7 @@ class Taste:
     def getIfFollowedPlaylist(user, spotify_username, artist_name, playlist_name):
         #return if_followed_playlist
         pass
+
 
     #This group of getters relates to tracks on Spotify
     def getSeveralTracks(user, spotify_username, tracks):
