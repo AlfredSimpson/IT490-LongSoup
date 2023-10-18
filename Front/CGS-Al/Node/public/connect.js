@@ -4,21 +4,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     loginForm.addEventListener("submit", function (event) {
         event.preventDefault();
-        const type = "login";
         const useremail = document.getElementById("useremail").value;
         const password = document.getElementById("password").value;
-        const message = "";
-	console.log(password came as `${password}`);
-        sendData("/login", { type, useremail, password, message });
+	const type = "login";
+        sendData("/login", { type, useremail, password });
     });
 
     registerForm.addEventListener("submit", function (event) {
         event.preventDefault();
-        const type = "register";
         const regemail = document.getElementById("regemail").value;
         const regpassword = document.getElementById("regpassword").value;
-        const message = "";
-        sendData("/register", { type, regemail, regpassword, message });
+	const type = "register";
+        sendData("/register", { regemail, regpassword });
     });
 
     function sendData(endpoint, data) {
