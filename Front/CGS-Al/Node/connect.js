@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     loginForm.addEventListener("submit", function (event) {
         event.preventDefault();
+        const type = "login";
         const useremail = document.getElementById("useremail").value;
         const userpassword = document.getElementById("userpassword").value;
         sendData("/login", { useremail, userpassword });
@@ -11,6 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     registerForm.addEventListener("submit", function (event) {
         event.preventDefault();
+        const type = "register";
         const regemail = document.getElementById("regemail").value;
         const regpassword = document.getElementById("regpassword").value;
         sendData("/register", { regemail, regpassword });
