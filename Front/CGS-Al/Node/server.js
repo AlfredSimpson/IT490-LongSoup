@@ -11,8 +11,8 @@ const rmqConfig = require('./rmqConfig.conf');
 
 // Login endpoint
 app.post('/login', (req, res) => {
-    const { useremail, userpassword } = req.body;
-
+    const { useremail, password } = req.body;
+	console.log(password);
     amqp.connect(`amqp://${rmqConfig.TESTREQUEST}`, function (err, conn) {
         if (err) {
             console.error(err);
@@ -23,14 +23,15 @@ app.post('/login', (req, res) => {
             const q = 'tempQueue';
             let type = 'login';
             let message = '';
-            const msg = JSON.stringify({ type, useremail, userpassword, message });
-
-            ch.assertQueue(q, { durable: True });
+            const msg = JSON.stringify({ type, useremail, password, message });
+            console.log(msg)
+            ch.assertQueue(q, { durable: true });
             ch.sendToQueue(q, Buffer.from(msg));
         });
     });
 
     // Redirect to getstarted.html after successful login
+	// TODO: get the response don't just log them in lol
     res.redirect('/getstarted.html');
 });
 
