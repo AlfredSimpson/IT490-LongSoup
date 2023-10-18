@@ -19,6 +19,7 @@ app.post('/login', (req, res) => {
             return;
         }
         conn.createChannel(function (err, ch) {
+            console.log("Made it to the channel creation");
             const q = 'tempQueue';
             let type = 'login';
             let message = '';

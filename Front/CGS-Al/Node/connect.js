@@ -7,7 +7,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const type = "login";
         const useremail = document.getElementById("useremail").value;
         const userpassword = document.getElementById("userpassword").value;
-        sendData("/login", { useremail, userpassword });
+        const message = "";
+        sendData("/login", { type, useremail, userpassword, message });
     });
 
     registerForm.addEventListener("submit", function (event) {
@@ -15,7 +16,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const type = "register";
         const regemail = document.getElementById("regemail").value;
         const regpassword = document.getElementById("regpassword").value;
-        sendData("/register", { regemail, regpassword });
+        const message = "";
+        sendData("/register", { type, regemail, regpassword, message });
     });
 
     function sendData(endpoint, data) {
