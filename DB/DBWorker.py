@@ -76,11 +76,13 @@ def request_processor(ch, method, properties, body):
         request = json.loads(body.decode("utf-8"))
     except json.JSONDecodeError:
         print("Error decoding incoming JSON")
+        # TODO: save this as a log file as well
         response = {"ERROR": "Invalid JSON Format Received"}
         return return_error(ch, method, properties, body, response)
     print(f"incoming request: {request}")
     if "type" not in request:
         print(f"{request}")
+        # TODO: save this as a log file as well
         response = "ERROR: unsupported message type"
     else:
         request_type = request["type"]
