@@ -11,6 +11,7 @@ const rmqConfig = require('./rmqConfig.conf');
 
 // Connect to RabbitMQ, send it a type authorizeSpotify
 app.post('/authorizeSpotify', (req, res) => {
+    console.log("Made it to the authorizeSpotify endpoint")
     amqp.connect(`amqp://${rmqConfig.TESTREQUEST}`, function (err, conn) {
         if (err) {
             console.error(err);

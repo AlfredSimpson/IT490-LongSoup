@@ -72,6 +72,9 @@ def request_processor(ch, method, properties, body):
     This method is called whenever a message is received from the web server.
     It takes the message, decodes it, and then processes it. It then sends a response back to the web server.
     """
+    print(
+        f"Properties displaying as {properties}, with routing key {properties.reply_to}"
+    )
     # Try / except added just in case bad JSON is received
     try:
         request = json.loads(body.decode("utf-8"))
