@@ -127,6 +127,7 @@ def request_processor(ch, method, properties, body):
 
 # TODO: sort out auto creation of queue and assignment to spotVHOST, update rmq to reflect autodelete once done
 
+# creds = pika.PlainCredentials(username=SPOT_USER, password=SPOT_PASS)
 creds = pika.PlainCredentials(username=SPOT_USER, password=SPOT_PASS)
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
