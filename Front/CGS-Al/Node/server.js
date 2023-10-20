@@ -18,7 +18,7 @@ app.post('/authorizeSpotify', (req, res) => {
         }
         conn.createChannel(function (err, ch) {
             console.log("Attempting to send authorization request to RabbitMQ");
-            const q = 'tempQueue';
+            const q = 'spotQueue';
             let type = 'authorizeSpotify';
             let message = '';
             const msg = JSON.stringify({ type, message });

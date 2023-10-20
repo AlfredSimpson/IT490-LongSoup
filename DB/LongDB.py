@@ -19,7 +19,7 @@ class LongDB:
         database: the name of the database to connect to
         """
         self.mydb = mysql.connector.connect(
-            host=host, user=user, password=password, database=database
+            host=host, user=user, password=password, database=database, port=42069
         )
         self.mycursor = self.mydb.cursor()
 
