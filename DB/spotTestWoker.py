@@ -61,7 +61,7 @@ def authorizeSpotify():
         "redirect_uri": "http://localhost:8080/account.html",
         "show_dialog": True,
     }
-
+    return SP_AUTH_URL + "?" + "&".join([f"{key}={val}" for key, val in params.items()])
     # spot = spotipy.Spotify(
     #     auth_manager=SpotifyOAuth(
     #         client_id=spotClient,
