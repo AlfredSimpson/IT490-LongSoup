@@ -53,7 +53,7 @@ app.post('/login', (req, res) => {
     });
 
     // Redirect to getstarted.html after successful login
-
+    console.log("Should redirect to authorizeSpotify.html...")
     // res.redirect('/getstarted.html');
     res.redirect('/authorizeSpotify.html')
 });

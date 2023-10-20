@@ -5,7 +5,7 @@ import LongDB
 # Function to perform login
 def do_login(useremail, password):
     # Connect to the database
-    db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
+    db = LongDB.LongDB("localhost:42069", "example", "exampl3!", "tester")
     # Validate the user - consider adding a try catch.
     result = db.auth_user(table="users", useremail=useremail, password=password)
     if result:

@@ -51,7 +51,7 @@ def authorizeSpotify():
     authorizeSpotify uses spotipy to use oAuth to authorize a user to use the spotify API
     it will process the data and return the ncessary information to the webserver so that the webserver can return that to the spotify client
     """
-
+    print(f"Congrats, we made it into authorizeSpotify()")
     sc = Scopes.Scopes()
     allScopes = f"{sc.read_collab_playlist} {sc.read_currently_playing} {sc.read_email} {sc.read_following} {sc.read_library} {sc.read_playback_state} {sc.read_private_playlists} {sc.read_recent} {sc.read_subscription} {sc.read_top} {sc.upload_img} {sc.mod_following} {sc.mod_library} {sc.mod_playback_state} {sc.mod_priv_playlist} {sc.mod_pub_playlist} {sc.mod_user_entitlements} {sc.mod_user_soa} {sc.mod_user_soa_unlink}"
     params = {
@@ -92,6 +92,7 @@ def request_processor(ch, method, properties, body):
         request_type = request["type"]
         if request_type == "authorizeSpotify":
             # response = do_login(request["useremail"], request["password"])
+            print(f'{"="*20} Authorizing Spotify {"="*20}')
             response = authorizeSpotify()
         elif request_type == "":
             # print("Received session validation request")
