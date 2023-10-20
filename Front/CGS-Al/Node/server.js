@@ -9,10 +9,32 @@ app.use(bodyParser.json());
 // Read RabbitMQ config
 const rmqConfig = require('./rmqConfig.conf');
 
+// Connect to RabbitMQ, send it a type authorizeSpotify
+app.post('/authorizeSpotify', (req, res) => {
+    amqp.connect(`amqp://${rmqConfig.TESTREQUEST}`, function (err, conn) {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        conn.createChannel(function (err, ch) {
+            console.log("Attempting to send authorization request to RabbitMQ");
+            const q = 'tempQueue';
+            let type = 'authorizeSpotify';
+            let message = '';
+            const msg = JSON.stringify({ type, message });
+            console.log(msg);
+            ch.assertQueue(q, { durable: true });
+            ch.sendToQueue(q, Buffer.from(msg));
+        });
+    });
+    console.log(res.body);
+    res.redirect('/success.html');
+});
+
 // Login endpoint
 app.post('/login', (req, res) => {
     const { useremail, password } = req.body;
-	console.log(password);
+    console.log(password);
     amqp.connect(`amqp://${rmqConfig.TESTREQUEST}`, function (err, conn) {
         if (err) {
             console.error(err);
@@ -31,12 +53,13 @@ app.post('/login', (req, res) => {
     });
 
     // Redirect to getstarted.html after successful login
-	// TODO: get the response don't just log them in lol
-    res.redirect('/getstarted.html');
+
+    // res.redirect('/getstarted.html');
+    res.redirect('/authorizeSpotify.html')
 });
 
 // Register endpoint
-// TODO: create it lol
+// TODO: create it
 
 // Serve static files from a folder named 'public'
 app.use(express.static(path.join(__dirname, 'public')));
@@ -45,6 +68,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+
+
 
 // Start the server
 const port = 3000;
