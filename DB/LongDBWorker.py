@@ -1,6 +1,10 @@
 import pika, mysql.connector, os, sys, json
 import LongDB
+import logging
 
+#Logging Function
+logging.basicConfig(filename='longsoup.log', level=logging.DEBUG,
+                    format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 
 # Function to perform login
 def do_login(useremail, password):
