@@ -23,7 +23,7 @@ const statusMessageHandler = (req, res, next) => {
 };
 
 const trafficLogger = (req, res, next) => {
-    timber.logAndSend(`Incoming request: ${req.method} ${req.url}`);
+    timber.logAndSend(`Incoming request: \ ${req.method} ${req.url}`);
 
     const send = res.send;
     res.send = function (string) {
