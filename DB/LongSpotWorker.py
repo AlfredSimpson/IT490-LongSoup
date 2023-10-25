@@ -28,6 +28,7 @@ SPOT_PORT = os.getenv("SPOT_PORT")
 SPOT_HOST = os.getenv("SPOT_HOST")
 
 
+
 def spot_login(spotify_username):
     # Connect to the database
     db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")

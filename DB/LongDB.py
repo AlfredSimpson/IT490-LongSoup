@@ -1,6 +1,7 @@
 # A python class called LongDB that accesses a mysql database and performs queries. We should eventually simplify this and make it more secure.
 # This should also be used to extend the functionality of other, subsequent classes
 
+
 import mysql.connector as mysql
 import os, sys, json
 
