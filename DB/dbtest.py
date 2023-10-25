@@ -1,21 +1,12 @@
-import LongDB
-
-
-def test_LongDB():
-    db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
-    # assert db.mydb is not None
-    # assert db.mycursor is not None
-
-    # answer = db.validate_user("test", "test")
-    # print(answer)
-
-    tryadding = db.add_user(
-        table="users", useremail="test@example.com", password="test"
-    )
-    print(tryadding)
+def test_LongDB(p1, p2):
+    result = p1 + p2
+    print(result)
 
 
 def runTest():
-    db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
-    ans = db.auth_user(table="users", useremail="test@example.com", password="test")
-    return ans
+    p1 = 5
+    p2 = 10
+    return test_LongDB(p1, p2)
+
+
+print(runTest())

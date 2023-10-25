@@ -14,10 +14,11 @@ const logAndSend = async (message) => {
     const LOG_URL = `amqp://${LOGUSER}:${LOGPASS}@${LOGHOST}:${LOGPORT}/${encodeURIComponent(LOGvHOST)}`;
 
     const logMessage = message;
-    console.log(logMessage);
+    // console.log(logMessage);
     const source_of_log = 'Webserver';
     const d = new Date();
     let date_of_log = d.toISOString();
+    // Set outmessage to a JSON string with type, source, date, log_message.
     const outmsg = JSON.stringify({ type: "log", source: source_of_log, date: date_of_log, log_message: logMessage });
     // try catch to write the log message to our internal logs
     try {
@@ -31,7 +32,7 @@ const logAndSend = async (message) => {
         connection = await amqp.connect(LOG_URL);
         const channel = await connection.createChannel();
         await channel.assertExchange(LOGX, 'fanout', { durable: false });
-        console.log(outmsg);
+        // console.log(outmsg);
         channel.publish(LOGX, '', Buffer.from(outmsg));
     } catch (error) {
         console.error('An error occured while connecting to RMQ:', error);

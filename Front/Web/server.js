@@ -68,6 +68,7 @@ app.use((err, req, res, next) => {
 
 
 app.post('/login', (req, res) => {
+    // TODO: use dotenv
     const useremail = req.body.useremail;
     const password = req.body.password;
     const tempHost = "tempHost";
@@ -76,6 +77,7 @@ app.post('/login', (req, res) => {
 
     amqp.connect(amqpUrl, (error, connection) => {
         if (error) {
+            // TODO: specify this is an rmq error
             throw error;
         }
         connection.createChannel((error1, channel) => {
@@ -95,7 +97,7 @@ app.post('/login', (req, res) => {
                     if (msg.properties.correlationId === correlationId) {
                         const response = JSON.parse(msg.content.toString());
                         if (response.returnCode === '0') {
-                            res.redirect('/about');  // Redirect to 'thispage' if login is successful
+                            res.redirect('/account');  // Redirect to 'thispage' if login is successful
                         } else {
                             res.status(401).send('You have failed to login.');  // Send failure message otherwise
                         }
@@ -180,14 +182,62 @@ app.post('/register', (req, res) => {
 
 
 function generateUuid() {
+    /**
+     * generateUuid() is a helper function that generates a random UUID
+     * This helps us to identify the correlation between the request and the response
+     */
     return Math.random().toString() +
         Math.random().toString() +
         Math.random().toString();
 }
 
+function handleActions() {
+    /**
+     * handleActions() is a helper function that handles the actions from the form
+     * It is used to determine what action to take based on the form
+     */
+    switch (req.body.action) {
+        case 'sendMessage':
+            sendMessage(req, res);
+            break;
+        case 'receiveMessage':
+            receiveMessage(req, res);
+            break;
+        case 'addToPlaylist':
+            addToPlaylist(req, res);
+            break;
+        case 'removeFromPlaylist':
+            removeFromPlaylist(req, res);
+            break;
+        case 'likethis':
+            likethis(req, res);
+            break;
+        case 'dislikethis':
+            dislikethis(req, res);
+            break;
+        case 'getRecommendations':
+            getRecommendations(req, res);
+            break;
+        case 'followArtist':
+            followArtist(req, res);
+            break;
+        case 'unfollowArtist':
+            unfollowArtist(req, res);
+            break;
+        case 'followUser':
+            followUser(req, res);
+            break;
+        case 'unfollowUser':
+            unfollowUser(req, res);
+            break;
+        default:
+            //TODO: write to log
+            console.log('Invalid action');
+            break;
+    }
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}.`);
-})
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}.`);
+    })
 
 

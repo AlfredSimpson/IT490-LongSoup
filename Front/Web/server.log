@@ -1,1 +1,11 @@
 {"type":"log","source":"Webserver","date":"2023-10-25T14:42:39.380Z","log_message":"Incoming request:  GET /about"}
+{"type":"log","source":"Webserver","date":"2023-10-25T15:04:18.969Z","log_message":"Incoming request:  GET /thiscoolpage"}
+{"type":"log","source":"Webserver","date":"2023-10-25T15:04:18.974Z","log_message":"Outgoing response: 404 Not Found! This does *not* rock."}
+{"type":"log","source":"Webserver","date":"2023-10-25T15:13:07.440Z","log_message":"Incoming request:  GET /login"}
+{"type":"log","source":"Webserver","date":"2023-10-25T15:13:33.508Z","log_message":"Incoming request:  POST /login"}
+{"type":"log","source":"Webserver","date":"2023-10-25T15:13:33.631Z","log_message":"Incoming request:  GET /about"}
+{"type":"log","source":"Webserver","date":"2023-10-25T15:14:43.168Z","log_message":"Incoming request:  GET /testing"}
+{"type":"log","source":"Webserver","date":"2023-10-25T15:14:43.169Z","log_message":"Outgoing response: 404 Not Found! This does *not* rock."}
+{"type":"log","source":"Webserver","date":"2023-10-25T15:18:20.679Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-10-25T15:18:38.084Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-10-25T15:18:38.258Z","log_message":"Incoming request:  GET /account"}
