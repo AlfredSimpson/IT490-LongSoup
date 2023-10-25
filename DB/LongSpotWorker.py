@@ -2,7 +2,7 @@
     LongSpotWorker is a worker file that will run to handle spotify related messages on the queue
 """
 import pika
-import mysql.connector
+import mysql.connector as mysql
 import json
 import spotipy
 import spotipy.util as util
@@ -13,6 +13,7 @@ import os
 from dotenv import load_dotenv
 
 import LongDB
+import LongTaste
 
 load_dotenv()
 
@@ -27,6 +28,18 @@ SPOT_PORT = os.getenv("SPOT_PORT")
 SPOT_HOST = os.getenv("SPOT_HOST")
 
 
+def spot_login(spotify_username):
+    # Connect to the database
+    db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
+    # Validate the user - consider adding a try catch.
+    result = db.auth_user(table="spotusers", spotify_username=spotify_username)
+    if result:
+        return {"returnCode": "0", "message": "Login successful"}
+    else:
+        print("And here we see it fails")
+        return {"returnCode": "1", "message": "You have failed to login."}
+    
+
 def return_error(ch, method, properties, body, msg):
     ch.basic_publish(
         exchange="",
@@ -35,6 +48,35 @@ def return_error(ch, method, properties, body, msg):
         body=json.dumps(msg),
     )
 
+
+def check_user(spotify_username):
+    # Connect to the database
+    db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
+    # See if the user exists already
+    exists = db.get_user_by_username(spotify_username)
+    print(exists)
+    if exists:
+        e = {"ERROR": "User already exists"}
+        return e
+    else:
+        try:
+            result = db.get_user_by_username(
+                table="spotusers",
+                spotify_username=spotify_username
+            )
+            if result:
+                return {"returnCode": "0", "message": "Registration successful"}
+            else:
+                print("And here we see it fails")
+                return "ERROR: Invalid Spotify username"
+        except:
+            print("Error adding user to database")
+            return "ERROR: Unable to add user to database"
+
+
+
+def do_validate(sessionId):
+    pass
 
 # TODO: Fill out the request processor with necessary info
 def request_processor(ch, method, properties, body):
@@ -53,18 +95,15 @@ def request_processor(ch, method, properties, body):
     else:
         request_type = request["type"]
         if request_type == "":
-            # response = do_login(request["useremail"], request["password"])
+            response = spot_login(request["spotify_username"])
         elif request_type == "":
-            # print("Received session validation request")
-            # response = do_validate(request["sessionId"])
+            print("Received session validation request")
+            response = do_validate(request["sessionId"])
         elif request_type == "":
-            # print("Received registration request")
-            # response = do_register(
-            #     request["useremail"],
-            #     request["password"],
-            #     request["first_name"],
-            #     request["last_name"],
-            # )
+            print("Spotify credentials were able to be pulled")
+            response = check_user(
+                request["spotify_username"]
+            )
         else:
             response = {
                 "returnCode": "0",
