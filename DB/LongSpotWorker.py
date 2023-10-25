@@ -1,6 +1,7 @@
 """__sumary__
     LongSpotWorker is a worker file that will run to handle spotify related messages on the queue
 """
+
 import pika
 import mysql.connector as mysql
 import json
