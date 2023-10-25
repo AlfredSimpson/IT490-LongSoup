@@ -1,0 +1,252 @@
+24-Oct-23 02:43:23 - Using SelectPoller
+24-Oct-23 02:43:23 - Created default connection workflow <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x000001967FF038F0>
+24-Oct-23 02:43:23 - Starting AMQP Connection workflow asynchronously.
+24-Oct-23 02:43:23 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000001967D8E5F60> with deadline=97318.796 and callback=functools.partial(<bound method AMQPConnectionWorkflow._start_new_cycle_async of <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x000001967FF038F0>>, first=True); now=97318.796; delay=0
+24-Oct-23 02:43:23 - Beginning a new AMQP connection workflow cycle; attempts remaining after this: 0
+24-Oct-23 02:43:23 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000001967F8B29B0> with deadline=97318.796 and callback=<bound method AMQPConnectionWorkflow._try_next_config_async of <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x000001967FF038F0>>; now=97318.796; delay=0
+24-Oct-23 02:43:23 - _try_next_config_async: '192.168.68.65':5672
+24-Oct-23 02:43:23 - add_callback_threadsafe: added callback=<bound method _AddressResolver._dispatch_result of <pika.adapters.utils.selector_ioloop_adapter._AddressResolver object at 0x000001967FF03980>>
+24-Oct-23 02:43:23 - process_timeouts: invoking callback=<bound method _AddressResolver._dispatch_result of <pika.adapters.utils.selector_ioloop_adapter._AddressResolver object at 0x000001967FF03980>>
+24-Oct-23 02:43:23 - Invoking asynchronous getaddrinfo() completion callback; host='192.168.68.65'
+24-Oct-23 02:43:23 - getaddrinfo returned 1 records
+24-Oct-23 02:43:23 - Attempting to connect using address record (<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))
+24-Oct-23 02:43:23 - Pika version 1.3.2 connecting to ('192.168.68.65', 5672)
+24-Oct-23 02:43:23 - add_callback_threadsafe: added callback=<bound method _AsyncSocketConnector._start_async of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x000001967F7115B0>>
+24-Oct-23 02:43:23 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000001967D898DC0> with deadline=97328.796 and callback=<bound method AMQPConnector._on_tcp_connection_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x000001967DDA0410>>; now=97318.796; delay=10.0
+24-Oct-23 02:43:23 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000001967FF03CD0> with deadline=97333.796 and callback=<bound method AMQPConnector._on_overall_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x000001967DDA0410>>; now=97318.796; delay=15.0
+24-Oct-23 02:43:23 - process_timeouts: invoking callback=<bound method _AsyncSocketConnector._start_async of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x000001967F7115B0>>
+24-Oct-23 02:43:23 - SelectorIOServicesAdapter.set_writer(952, <bound method _AsyncSocketConnector._on_writable of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x000001967F7115B0>>)
+24-Oct-23 02:43:23 - set_writer(952, _) added handler Wr
+24-Oct-23 02:43:23 - Connection-establishment is in progress for <socket.socket fd=952, family=2, type=1, proto=6, laddr=('0.0.0.0', 65092), raddr=('192.168.68.65', 5672)>.
+24-Oct-23 02:43:33 - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))")
+24-Oct-23 02:43:33 - remove_timeout: removing timeout <pika.adapters.select_connection._Timeout object at 0x000001967FF03CD0> with deadline=97333.796 and callback=<bound method AMQPConnector._on_overall_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x000001967DDA0410>>
+24-Oct-23 02:43:33 - User canceled connection request for <socket.socket fd=952, family=2, type=1, proto=6, laddr=('0.0.0.0', 65092), raddr=('192.168.68.65', 5672)> to ('192.168.68.65', 5672)
+24-Oct-23 02:43:33 - SelectorIOServicesAdapter.remove_writer(952)
+24-Oct-23 02:43:33 - remove_writer(952) removed handler
+24-Oct-23 02:43:33 - Connection attempt completed with AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))")
+24-Oct-23 02:43:33 - _try_next_resolved_address: continuing with next config.
+24-Oct-23 02:43:33 - _try_next_config_async: starting a new cycle.
+24-Oct-23 02:43:33 - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None.
+24-Oct-23 02:43:33 - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None
+24-Oct-23 02:43:33 - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None
+24-Oct-23 02:43:33 - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Justin's Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+24-Oct-23 02:44:18 - Using SelectPoller
+24-Oct-23 02:44:18 - Created default connection workflow <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x000002896CD33950>
+24-Oct-23 02:44:18 - Starting AMQP Connection workflow asynchronously.
+24-Oct-23 02:44:18 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000002896A6A5F60> with deadline=97373.828 and callback=functools.partial(<bound method AMQPConnectionWorkflow._start_new_cycle_async of <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x000002896CD33950>>, first=True); now=97373.828; delay=0
+24-Oct-23 02:44:18 - Beginning a new AMQP connection workflow cycle; attempts remaining after this: 0
+24-Oct-23 02:44:18 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000002896CD33A30> with deadline=97373.828 and callback=<bound method AMQPConnectionWorkflow._try_next_config_async of <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x000002896CD33950>>; now=97373.828; delay=0
+24-Oct-23 02:44:18 - _try_next_config_async: '192.168.68.65':5672
+24-Oct-23 02:44:18 - add_callback_threadsafe: added callback=<bound method _AddressResolver._dispatch_result of <pika.adapters.utils.selector_ioloop_adapter._AddressResolver object at 0x000002896CD33AA0>>
+24-Oct-23 02:44:18 - process_timeouts: invoking callback=<bound method _AddressResolver._dispatch_result of <pika.adapters.utils.selector_ioloop_adapter._AddressResolver object at 0x000002896CD33AA0>>
+24-Oct-23 02:44:18 - Invoking asynchronous getaddrinfo() completion callback; host='192.168.68.65'
+24-Oct-23 02:44:18 - getaddrinfo returned 1 records
+24-Oct-23 02:44:18 - Attempting to connect using address record (<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))
+24-Oct-23 02:44:18 - Pika version 1.3.2 connecting to ('192.168.68.65', 5672)
+24-Oct-23 02:44:18 - add_callback_threadsafe: added callback=<bound method _AsyncSocketConnector._start_async of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x000002896CACE930>>
+24-Oct-23 02:44:18 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000002896CD33E50> with deadline=97383.828 and callback=<bound method AMQPConnector._on_tcp_connection_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x000002896C465D00>>; now=97373.828; delay=10.0
+24-Oct-23 02:44:18 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000002896CD31D80> with deadline=97388.828 and callback=<bound method AMQPConnector._on_overall_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x000002896C465D00>>; now=97373.828; delay=15.0
+24-Oct-23 02:44:18 - process_timeouts: invoking callback=<bound method _AsyncSocketConnector._start_async of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x000002896CACE930>>
+24-Oct-23 02:44:18 - SelectorIOServicesAdapter.set_writer(804, <bound method _AsyncSocketConnector._on_writable of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x000002896CACE930>>)
+24-Oct-23 02:44:18 - set_writer(804, _) added handler Wr
+24-Oct-23 02:44:18 - Connection-establishment is in progress for <socket.socket fd=804, family=2, type=1, proto=6, laddr=('0.0.0.0', 65110), raddr=('192.168.68.65', 5672)>.
+24-Oct-23 02:44:28 - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))")
+24-Oct-23 02:44:28 - remove_timeout: removing timeout <pika.adapters.select_connection._Timeout object at 0x000002896CD31D80> with deadline=97388.828 and callback=<bound method AMQPConnector._on_overall_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x000002896C465D00>>
+24-Oct-23 02:44:28 - User canceled connection request for <socket.socket fd=804, family=2, type=1, proto=6, laddr=('0.0.0.0', 65110), raddr=('192.168.68.65', 5672)> to ('192.168.68.65', 5672)
+24-Oct-23 02:44:28 - SelectorIOServicesAdapter.remove_writer(804)
+24-Oct-23 02:44:28 - remove_writer(804) removed handler
+24-Oct-23 02:44:28 - Connection attempt completed with AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))")
+24-Oct-23 02:44:28 - _try_next_resolved_address: continuing with next config.
+24-Oct-23 02:44:28 - _try_next_config_async: starting a new cycle.
+24-Oct-23 02:44:28 - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None.
+24-Oct-23 02:44:28 - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None
+24-Oct-23 02:44:28 - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None
+24-Oct-23 02:44:28 - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Justin's Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+24-Oct-23 02:44:33 - Using SelectPoller
+24-Oct-23 02:44:33 - Created default connection workflow <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x00000263C2331D60>
+24-Oct-23 02:44:33 - Starting AMQP Connection workflow asynchronously.
+24-Oct-23 02:44:33 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x00000263BFDD5F60> with deadline=97388.015 and callback=functools.partial(<bound method AMQPConnectionWorkflow._start_new_cycle_async of <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x00000263C2331D60>>, first=True); now=97388.015; delay=0
+24-Oct-23 02:44:33 - Beginning a new AMQP connection workflow cycle; attempts remaining after this: 0
+24-Oct-23 02:44:33 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x00000263C2333A90> with deadline=97388.015 and callback=<bound method AMQPConnectionWorkflow._try_next_config_async of <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x00000263C2331D60>>; now=97388.015; delay=0
+24-Oct-23 02:44:33 - _try_next_config_async: '192.168.68.65':5672
+24-Oct-23 02:44:33 - add_callback_threadsafe: added callback=<bound method _AddressResolver._dispatch_result of <pika.adapters.utils.selector_ioloop_adapter._AddressResolver object at 0x00000263C2333B90>>
+24-Oct-23 02:44:33 - process_timeouts: invoking callback=<bound method _AddressResolver._dispatch_result of <pika.adapters.utils.selector_ioloop_adapter._AddressResolver object at 0x00000263C2333B90>>
+24-Oct-23 02:44:33 - Invoking asynchronous getaddrinfo() completion callback; host='192.168.68.65'
+24-Oct-23 02:44:33 - getaddrinfo returned 1 records
+24-Oct-23 02:44:33 - Attempting to connect using address record (<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))
+24-Oct-23 02:44:33 - Pika version 1.3.2 connecting to ('192.168.68.65', 5672)
+24-Oct-23 02:44:33 - add_callback_threadsafe: added callback=<bound method _AsyncSocketConnector._start_async of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x00000263C2333EC0>>
+24-Oct-23 02:44:33 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x00000263C2333CD0> with deadline=97398.015 and callback=<bound method AMQPConnector._on_tcp_connection_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x00000263C21EDE20>>; now=97388.015; delay=10.0
+24-Oct-23 02:44:33 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x00000263C2333D90> with deadline=97403.015 and callback=<bound method AMQPConnector._on_overall_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x00000263C21EDE20>>; now=97388.015; delay=15.0
+24-Oct-23 02:44:33 - process_timeouts: invoking callback=<bound method _AsyncSocketConnector._start_async of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x00000263C2333EC0>>
+24-Oct-23 02:44:33 - SelectorIOServicesAdapter.set_writer(604, <bound method _AsyncSocketConnector._on_writable of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x00000263C2333EC0>>)
+24-Oct-23 02:44:33 - set_writer(604, _) added handler Wr
+24-Oct-23 02:44:33 - Connection-establishment is in progress for <socket.socket fd=604, family=2, type=1, proto=6, laddr=('0.0.0.0', 65115), raddr=('192.168.68.65', 5672)>.
+24-Oct-23 02:44:43 - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))")
+24-Oct-23 02:44:43 - remove_timeout: removing timeout <pika.adapters.select_connection._Timeout object at 0x00000263C2333D90> with deadline=97403.015 and callback=<bound method AMQPConnector._on_overall_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x00000263C21EDE20>>
+24-Oct-23 02:44:43 - User canceled connection request for <socket.socket fd=604, family=2, type=1, proto=6, laddr=('0.0.0.0', 65115), raddr=('192.168.68.65', 5672)> to ('192.168.68.65', 5672)
+24-Oct-23 02:44:43 - SelectorIOServicesAdapter.remove_writer(604)
+24-Oct-23 02:44:43 - remove_writer(604) removed handler
+24-Oct-23 02:44:43 - Connection attempt completed with AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))")
+24-Oct-23 02:44:43 - _try_next_resolved_address: continuing with next config.
+24-Oct-23 02:44:43 - _try_next_config_async: starting a new cycle.
+24-Oct-23 02:44:43 - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None.
+24-Oct-23 02:44:43 - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None
+24-Oct-23 02:44:43 - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None
+24-Oct-23 02:44:43 - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Justin's Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+24-Oct-23 02:44:52 - Using SelectPoller
+24-Oct-23 02:44:52 - Created default connection workflow <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x00000206362138C0>
+24-Oct-23 02:44:52 - Starting AMQP Connection workflow asynchronously.
+24-Oct-23 02:44:52 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x0000020633C45F60> with deadline=97407.781 and callback=functools.partial(<bound method AMQPConnectionWorkflow._start_new_cycle_async of <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x00000206362138C0>>, first=True); now=97407.781; delay=0
+24-Oct-23 02:44:52 - Beginning a new AMQP connection workflow cycle; attempts remaining after this: 0
+24-Oct-23 02:44:52 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x0000020635FADCC0> with deadline=97407.781 and callback=<bound method AMQPConnectionWorkflow._try_next_config_async of <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x00000206362138C0>>; now=97407.781; delay=0
+24-Oct-23 02:44:52 - _try_next_config_async: '192.168.68.65':5672
+24-Oct-23 02:44:52 - add_callback_threadsafe: added callback=<bound method _AddressResolver._dispatch_result of <pika.adapters.utils.selector_ioloop_adapter._AddressResolver object at 0x00000206362139B0>>
+24-Oct-23 02:44:52 - process_timeouts: invoking callback=<bound method _AddressResolver._dispatch_result of <pika.adapters.utils.selector_ioloop_adapter._AddressResolver object at 0x00000206362139B0>>
+24-Oct-23 02:44:52 - Invoking asynchronous getaddrinfo() completion callback; host='192.168.68.65'
+24-Oct-23 02:44:52 - getaddrinfo returned 1 records
+24-Oct-23 02:44:52 - Attempting to connect using address record (<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))
+24-Oct-23 02:44:52 - Pika version 1.3.2 connecting to ('192.168.68.65', 5672)
+24-Oct-23 02:44:52 - add_callback_threadsafe: added callback=<bound method _AsyncSocketConnector._start_async of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x0000020635FAE930>>
+24-Oct-23 02:44:52 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x0000020636213D30> with deadline=97417.781 and callback=<bound method AMQPConnector._on_tcp_connection_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x0000020635A1C050>>; now=97407.781; delay=10.0
+24-Oct-23 02:44:52 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x0000020636213B20> with deadline=97422.781 and callback=<bound method AMQPConnector._on_overall_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x0000020635A1C050>>; now=97407.781; delay=15.0
+24-Oct-23 02:44:52 - process_timeouts: invoking callback=<bound method _AsyncSocketConnector._start_async of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x0000020635FAE930>>
+24-Oct-23 02:44:52 - SelectorIOServicesAdapter.set_writer(868, <bound method _AsyncSocketConnector._on_writable of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x0000020635FAE930>>)
+24-Oct-23 02:44:52 - set_writer(868, _) added handler Wr
+24-Oct-23 02:44:52 - Connection-establishment is in progress for <socket.socket fd=868, family=2, type=1, proto=6, laddr=('0.0.0.0', 65126), raddr=('192.168.68.65', 5672)>.
+24-Oct-23 02:45:02 - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))")
+24-Oct-23 02:45:02 - remove_timeout: removing timeout <pika.adapters.select_connection._Timeout object at 0x0000020636213B20> with deadline=97422.781 and callback=<bound method AMQPConnector._on_overall_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x0000020635A1C050>>
+24-Oct-23 02:45:02 - User canceled connection request for <socket.socket fd=868, family=2, type=1, proto=6, laddr=('0.0.0.0', 65126), raddr=('192.168.68.65', 5672)> to ('192.168.68.65', 5672)
+24-Oct-23 02:45:02 - SelectorIOServicesAdapter.remove_writer(868)
+24-Oct-23 02:45:02 - remove_writer(868) removed handler
+24-Oct-23 02:45:02 - Connection attempt completed with AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))")
+24-Oct-23 02:45:02 - _try_next_resolved_address: continuing with next config.
+24-Oct-23 02:45:02 - _try_next_config_async: starting a new cycle.
+24-Oct-23 02:45:02 - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None.
+24-Oct-23 02:45:02 - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None
+24-Oct-23 02:45:02 - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None
+24-Oct-23 02:45:02 - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Justin's Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+24-Oct-23 02:45:03 - Using SelectPoller
+24-Oct-23 02:45:03 - Created default connection workflow <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x000001B377AB3950>
+24-Oct-23 02:45:03 - Starting AMQP Connection workflow asynchronously.
+24-Oct-23 02:45:03 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000001B375545F60> with deadline=97418.109 and callback=functools.partial(<bound method AMQPConnectionWorkflow._start_new_cycle_async of <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x000001B377AB3950>>, first=True); now=97418.109; delay=0
+24-Oct-23 02:45:03 - Beginning a new AMQP connection workflow cycle; attempts remaining after this: 0
+24-Oct-23 02:45:03 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000001B377AB3A30> with deadline=97418.109 and callback=<bound method AMQPConnectionWorkflow._try_next_config_async of <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x000001B377AB3950>>; now=97418.109; delay=0
+24-Oct-23 02:45:03 - _try_next_config_async: '192.168.68.65':5672
+24-Oct-23 02:45:03 - add_callback_threadsafe: added callback=<bound method _AddressResolver._dispatch_result of <pika.adapters.utils.selector_ioloop_adapter._AddressResolver object at 0x000001B377AB3AA0>>
+24-Oct-23 02:45:03 - process_timeouts: invoking callback=<bound method _AddressResolver._dispatch_result of <pika.adapters.utils.selector_ioloop_adapter._AddressResolver object at 0x000001B377AB3AA0>>
+24-Oct-23 02:45:03 - Invoking asynchronous getaddrinfo() completion callback; host='192.168.68.65'
+24-Oct-23 02:45:03 - getaddrinfo returned 1 records
+24-Oct-23 02:45:03 - Attempting to connect using address record (<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))
+24-Oct-23 02:45:03 - Pika version 1.3.2 connecting to ('192.168.68.65', 5672)
+24-Oct-23 02:45:03 - add_callback_threadsafe: added callback=<bound method _AsyncSocketConnector._start_async of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x000001B37784E930>>
+24-Oct-23 02:45:03 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000001B377AB3E50> with deadline=97428.109 and callback=<bound method AMQPConnector._on_tcp_connection_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x000001B377295D00>>; now=97418.109; delay=10.0
+24-Oct-23 02:45:03 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000001B377AB1D80> with deadline=97433.109 and callback=<bound method AMQPConnector._on_overall_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x000001B377295D00>>; now=97418.109; delay=15.0
+24-Oct-23 02:45:03 - process_timeouts: invoking callback=<bound method _AsyncSocketConnector._start_async of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x000001B37784E930>>
+24-Oct-23 02:45:03 - SelectorIOServicesAdapter.set_writer(724, <bound method _AsyncSocketConnector._on_writable of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x000001B37784E930>>)
+24-Oct-23 02:45:03 - set_writer(724, _) added handler Wr
+24-Oct-23 02:45:03 - Connection-establishment is in progress for <socket.socket fd=724, family=2, type=1, proto=6, laddr=('0.0.0.0', 65133), raddr=('192.168.68.65', 5672)>.
+24-Oct-23 02:45:13 - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))")
+24-Oct-23 02:45:13 - remove_timeout: removing timeout <pika.adapters.select_connection._Timeout object at 0x000001B377AB1D80> with deadline=97433.109 and callback=<bound method AMQPConnector._on_overall_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x000001B377295D00>>
+24-Oct-23 02:45:13 - User canceled connection request for <socket.socket fd=724, family=2, type=1, proto=6, laddr=('0.0.0.0', 65133), raddr=('192.168.68.65', 5672)> to ('192.168.68.65', 5672)
+24-Oct-23 02:45:13 - SelectorIOServicesAdapter.remove_writer(724)
+24-Oct-23 02:45:13 - remove_writer(724) removed handler
+24-Oct-23 02:45:13 - Connection attempt completed with AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))")
+24-Oct-23 02:45:13 - _try_next_resolved_address: continuing with next config.
+24-Oct-23 02:45:13 - _try_next_config_async: starting a new cycle.
+24-Oct-23 02:45:13 - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None.
+24-Oct-23 02:45:13 - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None
+24-Oct-23 02:45:13 - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None
+24-Oct-23 02:45:13 - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Justin's Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+24-Oct-23 02:55:52 - Using SelectPoller
+24-Oct-23 02:55:52 - Created default connection workflow <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x000001BE54383B00>
+24-Oct-23 02:55:52 - Starting AMQP Connection workflow asynchronously.
+24-Oct-23 02:55:52 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000001BE54383B20> with deadline=98067.031 and callback=functools.partial(<bound method AMQPConnectionWorkflow._start_new_cycle_async of <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x000001BE54383B00>>, first=True); now=98067.031; delay=0
+24-Oct-23 02:55:52 - Beginning a new AMQP connection workflow cycle; attempts remaining after this: 0
+24-Oct-23 02:55:52 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000001BE51E69240> with deadline=98067.031 and callback=<bound method AMQPConnectionWorkflow._try_next_config_async of <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x000001BE54383B00>>; now=98067.031; delay=0
+24-Oct-23 02:55:52 - _try_next_config_async: '192.168.68.65':5672
+24-Oct-23 02:55:52 - add_callback_threadsafe: added callback=<bound method _AddressResolver._dispatch_result of <pika.adapters.utils.selector_ioloop_adapter._AddressResolver object at 0x000001BE54383B90>>
+24-Oct-23 02:55:52 - process_timeouts: invoking callback=<bound method _AddressResolver._dispatch_result of <pika.adapters.utils.selector_ioloop_adapter._AddressResolver object at 0x000001BE54383B90>>
+24-Oct-23 02:55:52 - Invoking asynchronous getaddrinfo() completion callback; host='192.168.68.65'
+24-Oct-23 02:55:52 - getaddrinfo returned 1 records
+24-Oct-23 02:55:52 - Attempting to connect using address record (<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))
+24-Oct-23 02:55:52 - Pika version 1.3.2 connecting to ('192.168.68.65', 5672)
+24-Oct-23 02:55:52 - add_callback_threadsafe: added callback=<bound method _AsyncSocketConnector._start_async of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x000001BE5423E390>>
+24-Oct-23 02:55:52 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000001BE54383FA0> with deadline=98077.046 and callback=<bound method AMQPConnector._on_tcp_connection_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x000001BE51D89880>>; now=98067.046; delay=10.0
+24-Oct-23 02:55:52 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000001BE54383D90> with deadline=98082.046 and callback=<bound method AMQPConnector._on_overall_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x000001BE51D89880>>; now=98067.046; delay=15.0
+24-Oct-23 02:55:52 - process_timeouts: invoking callback=<bound method _AsyncSocketConnector._start_async of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x000001BE5423E390>>
+24-Oct-23 02:55:52 - SelectorIOServicesAdapter.set_writer(960, <bound method _AsyncSocketConnector._on_writable of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x000001BE5423E390>>)
+24-Oct-23 02:55:52 - set_writer(960, _) added handler Wr
+24-Oct-23 02:55:52 - Connection-establishment is in progress for <socket.socket fd=960, family=2, type=1, proto=6, laddr=('0.0.0.0', 65287), raddr=('192.168.68.65', 5672)>.
+24-Oct-23 02:56:02 - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))")
+24-Oct-23 02:56:02 - remove_timeout: removing timeout <pika.adapters.select_connection._Timeout object at 0x000001BE54383D90> with deadline=98082.046 and callback=<bound method AMQPConnector._on_overall_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x000001BE51D89880>>
+24-Oct-23 02:56:02 - User canceled connection request for <socket.socket fd=960, family=2, type=1, proto=6, laddr=('0.0.0.0', 65287), raddr=('192.168.68.65', 5672)> to ('192.168.68.65', 5672)
+24-Oct-23 02:56:02 - SelectorIOServicesAdapter.remove_writer(960)
+24-Oct-23 02:56:02 - remove_writer(960) removed handler
+24-Oct-23 02:56:02 - Connection attempt completed with AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))")
+24-Oct-23 02:56:02 - _try_next_resolved_address: continuing with next config.
+24-Oct-23 02:56:02 - _try_next_config_async: starting a new cycle.
+24-Oct-23 02:56:02 - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None.
+24-Oct-23 02:56:02 - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None
+24-Oct-23 02:56:02 - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None
+24-Oct-23 02:56:02 - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Justin's Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+24-Oct-23 02:56:15 - Using SelectPoller
+24-Oct-23 02:56:15 - Created default connection workflow <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x000002E637923AA0>
+24-Oct-23 02:56:15 - Starting AMQP Connection workflow asynchronously.
+24-Oct-23 02:56:15 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000002E637875870> with deadline=98090.312 and callback=functools.partial(<bound method AMQPConnectionWorkflow._start_new_cycle_async of <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x000002E637923AA0>>, first=True); now=98090.312; delay=0
+24-Oct-23 02:56:15 - Beginning a new AMQP connection workflow cycle; attempts remaining after this: 0
+24-Oct-23 02:56:15 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000002E637690040> with deadline=98090.312 and callback=<bound method AMQPConnectionWorkflow._try_next_config_async of <pika.adapters.utils.connection_workflow.AMQPConnectionWorkflow object at 0x000002E637923AA0>>; now=98090.312; delay=0
+24-Oct-23 02:56:15 - _try_next_config_async: '192.168.68.65':5672
+24-Oct-23 02:56:15 - process_timeouts: invoking callback=<bound method _AddressResolver._dispatch_result of <pika.adapters.utils.selector_ioloop_adapter._AddressResolver object at 0x000002E6376900E0>>
+24-Oct-23 02:56:15 - add_callback_threadsafe: added callback=<bound method _AddressResolver._dispatch_result of <pika.adapters.utils.selector_ioloop_adapter._AddressResolver object at 0x000002E6376900E0>>
+24-Oct-23 02:56:15 - Invoking asynchronous getaddrinfo() completion callback; host='192.168.68.65'
+24-Oct-23 02:56:15 - getaddrinfo returned 1 records
+24-Oct-23 02:56:15 - Attempting to connect using address record (<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))
+24-Oct-23 02:56:15 - Pika version 1.3.2 connecting to ('192.168.68.65', 5672)
+24-Oct-23 02:56:15 - add_callback_threadsafe: added callback=<bound method _AsyncSocketConnector._start_async of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x000002E635238E90>>
+24-Oct-23 02:56:15 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000002E637923EB0> with deadline=98100.328 and callback=<bound method AMQPConnector._on_tcp_connection_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x000002E635239880>>; now=98090.328; delay=10.0
+24-Oct-23 02:56:15 - call_later: added timeout <pika.adapters.select_connection._Timeout object at 0x000002E637923CD0> with deadline=98105.328 and callback=<bound method AMQPConnector._on_overall_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x000002E635239880>>; now=98090.328; delay=15.0
+24-Oct-23 02:56:15 - process_timeouts: invoking callback=<bound method _AsyncSocketConnector._start_async of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x000002E635238E90>>
+24-Oct-23 02:56:15 - SelectorIOServicesAdapter.set_writer(908, <bound method _AsyncSocketConnector._on_writable of <pika.adapters.utils.io_services_utils._AsyncSocketConnector object at 0x000002E635238E90>>)
+24-Oct-23 02:56:15 - set_writer(908, _) added handler Wr
+24-Oct-23 02:56:15 - Connection-establishment is in progress for <socket.socket fd=908, family=2, type=1, proto=6, laddr=('0.0.0.0', 65294), raddr=('192.168.68.65', 5672)>.
+24-Oct-23 02:56:25 - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))")
+24-Oct-23 02:56:25 - remove_timeout: removing timeout <pika.adapters.select_connection._Timeout object at 0x000002E637923CD0> with deadline=98105.328 and callback=<bound method AMQPConnector._on_overall_timeout of <pika.adapters.utils.connection_workflow.AMQPConnector object at 0x000002E635239880>>
+24-Oct-23 02:56:25 - User canceled connection request for <socket.socket fd=908, family=2, type=1, proto=6, laddr=('0.0.0.0', 65294), raddr=('192.168.68.65', 5672)> to ('192.168.68.65', 5672)
+24-Oct-23 02:56:25 - SelectorIOServicesAdapter.remove_writer(908)
+24-Oct-23 02:56:25 - remove_writer(908) removed handler
+24-Oct-23 02:56:25 - Connection attempt completed with AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))")
+24-Oct-23 02:56:25 - _try_next_resolved_address: continuing with next config.
+24-Oct-23 02:56:25 - _try_next_config_async: starting a new cycle.
+24-Oct-23 02:56:25 - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None.
+24-Oct-23 02:56:25 - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None
+24-Oct-23 02:56:25 - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.68.65'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.68.65', 5672))"); first exception - None
+24-Oct-23 02:56:25 - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Justin's Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
