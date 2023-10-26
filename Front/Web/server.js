@@ -51,6 +51,7 @@ app.get('/', (req, res, next) => {
     });
 });
 
+
 app.get('/:page', (req, res, next) => {
     const filePath = path.join(__dirname, 'public', req.params.page + '.html');
     res.sendFile(filePath, (err) => {
@@ -191,6 +192,12 @@ function generateUuid() {
         Math.random().toString();
 }
 
+function sendPost() {
+};
+function getData() {
+
+};
+
 function handleActions() {
     /**
      * handleActions() is a helper function that handles the actions from the form
@@ -235,9 +242,10 @@ function handleActions() {
             console.log('Invalid action');
             break;
     }
+};
 
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}.`);
-    })
+app.listen(PORT, "192.168.68.66", () => {
+    console.log(`Server is running on port ${PORT}.`);
+});
 
 
