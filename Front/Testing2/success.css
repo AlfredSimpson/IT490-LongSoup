@@ -1,0 +1,66 @@
+
+.user-links {
+    text-align: right;
+    padding: 10px;
+}
+
+.user-links a {
+    margin: 0 20px;
+    color: #333;
+    text-decoration: none;
+}
+
+/* Styles for the banner */
+.banner {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.banner a {
+    margin: 0 20px;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Styles for the alternating content blocks */
+.content-block {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.content-block:nth-child(even) img {
+    order: 2;
+    margin-left: 20px;
+}
+
+.content-block img {
+    width: 300px;
+    height: 200px;
+}
+
+.content-text {
+    flex: 1;
+}
+.logo{
+    text-align:  center;
+    text-decoration: bold;
+}
+#container {
+    width: 50%;
+    margin: auto;
+    background-color: #ffffff;
+    padding: 20px;
+    text-align: center;
+    }
+.interest-group {
+    margin-bottom: 10px;
+    }
+.welcome-text {
+    display: flex;        
+    flex-direction: column;  /* vertical direction */
+    align-items: center;    /* horizontal direction */
+    justify-content: center; /* elements will be vertical */
+    }
