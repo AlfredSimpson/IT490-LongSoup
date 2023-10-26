@@ -27,7 +27,7 @@
 <body>
     <nav class="navbar navbar-expand-sm navbar-dark bg-dark" aria-label="Third navbar example">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#">LongSoup</a>
+          <a class="navbar-brand" href="index.html">LongSoup</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -35,59 +35,85 @@
           <div class="collapse navbar-collapse" id="navbarsExample03">
             <ul class="navbar-nav me-auto mb-2 mb-sm-0">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="./index.html">Home</a>
+                <a class="nav-link active" aria-current="page" href="dashboard.html">Dashboard</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="./login.html">Login</a>
+                <a class="nav-link" href="./notifications.html">Notifications</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="./register.html">Register</a>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-bs-toggle="dropdown" aria-expanded="false">More</a>
-                <ul class="dropdown-menu" aria-labelledby="dropdown03">
-                    <li><a class="dropdown-item" href="#">Discover</a></li>
-                  <li><a class="dropdown-item" href="#">Dashboard</a></li>
-                  <li><a class="dropdown-item" href="#">Discussion Boards</a></li>
-                </ul>
+                <a class="nav-link" href="./profile.html">Profile</a>
               </li>
             </ul>
-            <form>
+            <<form action ="/searchBar.php" method="get">
               <input class="form-control" type="text" placeholder="Search" aria-label="Search">
             </form>
           </div>
         </div>
       </nav>
+      <div class="nav-scroller bg-body shadow-sm">
+        <nav class="nav nav-underline" aria-label="Secondary navigation">
+          <a class="nav-link active" aria-current="page" href="#">Dashboard</a>
+          <a class="nav-link" href="friendlist.html">
+            Friends
+          </a>
+          <a class="nav-link" href="discover.html">Discover</a>
+          <a class="nav-link" href="suggestions.html">Suggestions</a>
+          <a class="nav-link" href="forum.html">Forums</a>
+          <a class="nav-link" href="user_stats.html">Stats</a>
+        </nav>
+      </div>
+      
     <main>
-      <h2 class="mt-4">The Forums</h2>
-      <p>Get three columns <strong>starting at desktops and scaling to large desktops</strong> of various widths. Remember, grid columns should add up to twelve for a single horizontal block. More than that, and columns start stacking no matter the viewport.</p>
-      <div class="d-flex gap-1 col-md-2 mx-auto center>">
+      <h2 class="mt-4">The Longsoup Forums</h2>
+      <p>Connect with other users. <strong>Please follow community guidelines!</strong> Welcome to your soup bowl.</p>
+      <div class="d-flex gap-1 col-md-2 mx-auto justify-content-center">
+        <!-- These buttons will redirect according to timespams, comment frequency, tags -->
         <a class="btn btn-primary" href="#" role="button">Latest</a>
         <a class="btn btn-primary" href="#" role="button">Top</a>
         <a class="btn btn-primary" href="#" role="button">Categories</a>
-        <a class="btn btn-primary" href="#" role="button">Random!</a>
       </div>
-      <div class="row mb-3">
-        <div class="col-md-2 themed-grid-col">Author</div>
-        <div class="col-md-6 themed-grid-col">Topic Subject</div>
-        <div class="col-md-4 themed-grid-col">Associated Tags</div>
-      </div>
-      <div class="row mb-3">
-        <div class="col-md-2 themed-grid-col">Author</div>
-        <div class="col-md-6 themed-grid-col">Topic Subject</div>
-        <div class="col-md-4 themed-grid-col">Associated Tags</div>
-      </div>
-      <div class="row mb-3">
-        <div class="col-md-2 themed-grid-col">Author</div>
-        <div class="col-md-6 themed-grid-col">Topic Subject</div>
-        <div class="col-md-4 themed-grid-col">Associated Tags</div>
-      </div>
-      <div class="row mb-3">
-        <div class="col-md-2 themed-grid-col">Author</div>
-        <div class="col-md-6 themed-grid-col">Topic Subject</div>
-        <div class="col-md-4 themed-grid-col">Associated Tags</div>
-      </div>
-  
+
+
+    
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <h1>Forum Discussions</h1>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main">
+            <ol id="thread-list">
+              <a href="forumPost1.html"><div class="row mb-3">
+                  <div class="col-md-2 themed-grid-col">Author</div>
+                  <div class="col-md-4 themed-grid-col">Topic Subject</div>
+                  <div class="col-md-2 themed-grid-col">Associated Tags</div>
+                  <div class="col-md-2 themed-grid-col">Timestamp</div>
+                  <div class="col-md-2 themed-grid-col">Comments</div>
+              </div></a>
+              <a href="forumPost2.html"><div class="row mb-3">
+                <div class="col-md-2 themed-grid-col">Author</div>
+                <div class="col-md-4 themed-grid-col">Topic Subject</div>
+                <div class="col-md-2 themed-grid-col">Associated Tags</div>
+                <div class="col-md-2 themed-grid-col">Timestamp</div>
+                <div class="col-md-2 themed-grid-col">Comments</div>
+              </div></a>
+            </ol>
+        </div>
+        <div class="main text-center"> 
+          <div class="header">
+            <h2>Make a Post!</h2>
+            <form action="/newForumPost.php" method="get">
+              <label for="newPostTitle">Title:</label><br>
+              <input type="text" id="newForumPostTitle" name="newForumPostTitle"><br>
+              <label for="newPostTitle">Post:</label><br>
+              <textarea id="newForumPostBody" name="newForumPostBody" rows="4" cols="50"></textarea>
+              <input type="submit" value="Submit">
+          </div>
+
+    
+
+    
+
       
     </main>
 </body>

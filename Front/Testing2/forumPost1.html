@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Longsoup|Forums</title>
+        <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.css">
+        <style>
+          .themed-grid-col {
+            padding-top: 15px;
+            padding-bottom: 15px;
+            background-color: rgba(86, 61, 124, .15);
+            border: 1px solid rgba(86, 61, 124, .2);
+          }
+
+          .themed-container {
+            padding: 15px;
+            margin-bottom: 30px;
+            background-color: rgba(0, 123, 255, .15);
+            border: 1px solid rgba(0, 123, 255, .2);
+          }
+
+    </style>
+          
+        </style>
+    </head>
+<body>
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark" aria-label="Third navbar example">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">LongSoup</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+    
+          <div class="collapse navbar-collapse" id="navbarsExample03">
+            <ul class="navbar-nav me-auto mb-2 mb-sm-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="./index.html">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="./login.html">Login</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="./register.html">Register</a>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-bs-toggle="dropdown" aria-expanded="false">More</a>
+                <ul class="dropdown-menu" aria-labelledby="dropdown03">
+                  <li><a class="dropdown-item" href="discover.html">Discover</a></li>
+                  <li><a class="dropdown-item" href="dashboard.html">Dashboard</a></li>
+                  <li><a class="dropdown-item" href="forum.html">Discussion Boards</a></li>
+                </ul>
+              </li>
+            </ul>
+            <form>
+              <input class="form-control" type="text" placeholder="Search" aria-label="Search">
+            </form>
+          </div>
+        </div>
+      </nav>
+    <main>
+    <br>
+      <body>
+        <!-- Top Bar -->
+        <div class="top-bar text-center">
+            <h1>{postTitle}</h1>
+            <h2>{author}</h2>
+            <h3>{timestamp}</h3>
+            <br>
+            <h4>{tags}</h4>
+            <br>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-8 themed-grid-col">
+                <p>{timestamp}</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</p>
+                <div class="pb-3"> 
+                <button class="btn btn-block btn-primary"><i class="fa fa-thumbs-up">Like</i> </button>
+                <button class="btn btn-block btn-primary"><i class="fa fa-thumbs-up">Dislike</i> </button>
+                <button class="btn btn-block btn-primary" style="float:right;"><i class="fa fa-thumbs-up">Reply</i> </button>
+              </div>
+            </div>
+            <div class="col-md-4 themed-grid-col">
+                <p>{username}</p>
+                <p>{accountAge}</p>
+                <img alt="profile_image" class="img-thumbnail">
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-8 themed-grid-col">
+                <p>{timestamp}</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</p>
+              
+                <div class="pb-3"> 
+                <button class="btn btn-block btn-primary"><i class="fa fa-thumbs-up">Like</i> </button>
+                <button class="btn btn-block btn-primary"><i class="fa fa-thumbs-up">Dislike</i> </button>
+                <button class="btn btn-block btn-primary" style="float:right;"><i class="fa fa-thumbs-up">Reply</i> </button>
+              </div>
+            </div>
+            <div class="col-md-4 themed-grid-col">
+                <p>{username}</p>
+                <p>{accountAge}</p>
+                <img alt="profile_image" class="img-thumbnail">
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-8 themed-grid-col">
+                <p>{timestamp}</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</p>
+                <button class="btn btn-block btn-primary"><i class="fa fa-thumbs-up">Like</i> </button>
+                <button class="btn btn-block btn-primary"><i class="fa fa-thumbs-up">Dislike</i> </button>
+                <button class="btn btn-block btn-primary" style="float:right;"><i class="fa fa-thumbs-up">Reply</i> </button>
+                <div class="pb-3"> 
+              </div>
+            </div>
+            <div class="col-md-4 themed-grid-col">
+                <p>{username}</p>
+                <p>{accountAge}</p>
+                <img alt="profile_image" class="img-thumbnail">
+            </div>
+          </div>
+          <div class="main text-center"> 
+            <div class="header">
+              <h2>Reply to Thread</h2>
+              <form action="/newForumComment.php" method="get">
+                <label for="newForumComment">Comment:</label><br>
+                <textarea type="text" id="newForumComment" name="newForumComment" rows="4" cols="50"></textarea>
+                <input type="submit" value="Submit">
+            </div>
+    </body>

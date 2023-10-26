@@ -24,7 +24,7 @@
 <body>
     <nav class="navbar navbar-expand-sm navbar-dark bg-dark" aria-label="Third navbar example">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#">LongSoup</a>
+          <a class="navbar-brand" href="index.html">LongSoup</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -32,13 +32,13 @@
           <div class="collapse navbar-collapse" id="navbarsExample03">
             <ul class="navbar-nav me-auto mb-2 mb-sm-0">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="./index.html">Home</a>
+                <a class="nav-link active" aria-current="page" href="dashboard.html">Dashboard</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="./login.html">Login</a>
+                <a class="nav-link" href="./notifications.html">Notifications</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="./register.html">Register</a>
+                <a class="nav-link" href="./profile.html">Profile</a>
               </li>
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-bs-toggle="dropdown" aria-expanded="false">More</a>
@@ -55,14 +55,27 @@
           </div>
         </div>
       </nav>
+      <div class="nav-scroller bg-body shadow-sm">
+        <nav class="nav nav-underline" aria-label="Secondary navigation">
+          <a class="nav-link active" aria-current="page" href="#">Dashboard</a>
+          <a class="nav-link" href="friendlist.html">
+            Friends
+            <span class="badge bg-light text-dark rounded-pill align-text-bottom">27</span>
+          </a>
+          <a class="nav-link" href="discover.html">Discover</a>
+          <a class="nav-link" href="suggestions.html">Suggestions</a>
+          <a class="nav-link" href="forum.html">Forums</a>
+          <a class="nav-link" href="user_stats.html">Stats</a>
+        </nav>
+      </div>
       <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
 
       <div class="grey-bg container-fluid">
         <section id="minimal-statistics">
           <div class="row">
             <div class="col-12 mt-3 mb-1">
-              <h4 class="text-uppercase">Minimal Statistics Cards</h4>
-              <p>Statistics on minimal cards.</p>
+              <h4 class="text-uppercase">Your Quick Stats</h4>
+              <p>You're on a roll.</p>
             </div>
           </div>
           <div class="row">
@@ -207,97 +220,13 @@
               </div>
             </div>
           </div>
-        
-          <div class="row">
-            <div class="col-xl-3 col-sm-6 col-12">
-              <div class="card">
-                <div class="card-content">
-                  <div class="card-body">
-                    <div class="media d-flex">
-                      <div class="media-body text-left">
-                        <h3 class="primary">278</h3>
-                        <span>New Posts</span>
-                      </div>
-                      <div class="align-self-center">
-                        <i class="icon-book-open primary font-large-2 float-right"></i>
-                      </div>
-                    </div>
-                    <div class="progress mt-1 mb-0" style="height: 7px;">
-                      <div class="progress-bar bg-primary" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-xl-3 col-sm-6 col-12">
-              <div class="card">
-                <div class="card-content">
-                  <div class="card-body">
-                    <div class="media d-flex">
-                      <div class="media-body text-left">
-                        <h3 class="warning">156</h3>
-                        <span>New Comments</span>
-                      </div>
-                      <div class="align-self-center">
-                        <i class="icon-bubbles warning font-large-2 float-right"></i>
-                      </div>
-                    </div>
-                    <div class="progress mt-1 mb-0" style="height: 7px;">
-                      <div class="progress-bar bg-warning" role="progressbar" style="width: 35%" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-        
-            <div class="col-xl-3 col-sm-6 col-12">
-              <div class="card">
-                <div class="card-content">
-                  <div class="card-body">
-                    <div class="media d-flex">
-                      <div class="media-body text-left">
-                        <h3 class="success">64.89 %</h3>
-                        <span>Bounce Rate</span>
-                      </div>
-                      <div class="align-self-center">
-                        <i class="icon-cup success font-large-2 float-right"></i>
-                      </div>
-                    </div>
-                    <div class="progress mt-1 mb-0" style="height: 7px;">
-                      <div class="progress-bar bg-success" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-xl-3 col-sm-6 col-12">
-              <div class="card">
-                <div class="card-content">
-                  <div class="card-body">
-                    <div class="media d-flex">
-                      <div class="media-body text-left">
-                        <h3 class="danger">423</h3>
-                        <span>Total Visits</span>
-                      </div>
-                      <div class="align-self-center">
-                        <i class="icon-direction danger font-large-2 float-right"></i>
-                      </div>
-                    </div>
-                    <div class="progress mt-1 mb-0" style="height: 7px;">
-                      <div class="progress-bar bg-danger" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </section>
         
         <section id="stats-subtitle">
         <div class="row">
           <div class="col-12 mt-3 mb-1">
-            <h4 class="text-uppercase">Statistics With Subtitle</h4>
-            <p>Statistics on minimal cards with Title &amp; Sub Title.</p>
+            <h4 class="text-uppercase">Your All-Time Stats</h4>
+            <p>Ever since you were a small noodle!</p>
           </div>
         </div>
       

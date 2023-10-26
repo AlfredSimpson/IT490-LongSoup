@@ -28,9 +28,9 @@
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-bs-toggle="dropdown" aria-expanded="false">More</a>
                 <ul class="dropdown-menu" aria-labelledby="dropdown03">
-                    <li><a class="dropdown-item" href="#">Discover</a></li>
-                  <li><a class="dropdown-item" href="#">Dashboard</a></li>
-                  <li><a class="dropdown-item" href="#">Discussion Boards</a></li>
+                    <li><a class="dropdown-item" href="discover.html">Discover</a></li>
+                  <li><a class="dropdown-item" href="dashboard.html">Dashboard</a></li>
+                  <li><a class="dropdown-item" href="forum.html">Forums</a></li>
                 </ul>
               </li>
             </ul>
@@ -50,8 +50,7 @@
             <div class="card-body p-5">
               <h2 class="text-uppercase text-center mb-5">Create an account</h2>
 
-              <form action="/submit_form" method="POST">
-
+              <form action="/registration.php" method="POST" class="register" id="register-form" onsubmit="return sendFormData()">
                 <div class="form-outline mb-4">
                   <input type="text" id="form3Example1cg" name="uname" class="form-control form-control-lg" />
                   <label class="form-label" for="form3Example1cg">Desired Username</label>
@@ -120,70 +119,6 @@
 
 </section>
 
-
-
-      <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
-    <!-- After pressing the somethingButton, if a user is found, it will display the user's name. If not, it will display "no user found" -->
-    <script>
-        // Function to generate a session token
-        function generateSessionToken() {
-            // GENERATING THE SESSION TOKEN FOR USER
-            const array = new Uint32Array(4);  // NEW LINE, makes a 128-bit session token, good enough for OWASP
-            window.crypto.getRandomValues(array); // NEW LINE, suitable enough for encryption
-            const sessionToken = Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join(''); // NEW LINE, decimal to hex, leading zero added, ensuring hex format
-        }
-    </script>
-    <script>
-        function HandleRegistrationResponse(response) {
-            var text = JSON.parse(response);
-            console.log(response);
-            document.getElementById("textResponse").innerHTML = "Registration Status: ";
-
-            if (text.errorMessage) {
-                document.getElementById("textResponse").innerHTML += text.errorMessage;
-            }
-            else {
-                if (text.returnCode == 1) {
-                    window.location.href = "/userprofile.php";  // send the user to their profile
-                }
-                if (text.returnCode == 0) {
-                    document.getElementById("textResponse").innerHTML += "Registration Failed";
-                }
-            }
-        }
-    </script>
-    <script>
-        function SendLoginRequest(username, password) {     //This is the function that must be modified to include session tokens 
-            var request = new XMLHttpRequest();
-            request.open("POST", "send.php", true);
-            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-            request.onreadystatechange = function () {
-
-                if ((this.readyState == 4) && (this.status == 200)) {
-                    HandleRegistrationResponse(this.responseText);
-                }
-            }
-            if (username != null && password != null) {  //if the credentials are valid
-                request.send("type=login&uname=" + username + "&password=" + password + "&session_token=" + sessionToken);  // NEW LINE, just concatanated the session token
-            }
-        }
-    </script>
-    <script>
-        const params = new Proxy(new URLSearchParams(window.location.search), {
-            get: (searchParams, prop) => searchParams.get(prop),
-        });
-        const username = params.uname;
-        const password = params.password;
-
-        // generate the session token
-        const sessionToken = generateSessionToken();
-
-        // sending it with the session token
-        SendLoginRequest(username, password, sessionToken);
-    </script>
-
-  
-      
+      <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>      
     </body>
   </html>

@@ -28,9 +28,9 @@
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-bs-toggle="dropdown" aria-expanded="false">More</a>
                 <ul class="dropdown-menu" aria-labelledby="dropdown03">
-                    <li><a class="dropdown-item" href="#">Discover</a></li>
-                  <li><a class="dropdown-item" href="#">Dashboard</a></li>
-                  <li><a class="dropdown-item" href="#">Discussion Boards</a></li>
+                  <li><a class="dropdown-item" href="discover.html">Discover</a></li>
+                  <li><a class="dropdown-item" href="dashboard.html">Dashboard</a></li>
+                  <li><a class="dropdown-item" href="forum.html">Discussion Boards</a></li>
                 </ul>
               </li>
             </ul>
@@ -44,7 +44,7 @@
       <div class="col-8 col-sm-6 col-lg-3 mx-auto">
         <div class= "container border-0 py-5">
 
-            <form id="login" class="login" action="login.php" method="POST">
+            <form id="login-form" class="login" action="login.php"  method="POST" onsubmit="return sendFormData()">
                 <div class="form-group">
                   <label for="exampleInputEmail1">Get to your favorite sounds.</label>
                   <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Email">
@@ -62,54 +62,6 @@
             </div>
 
       </div>
-
-        <!-- After pressing the somethingButton, if a user is found, it will display the user's name. If not, it will display "no user found" -->
-        <script>
-            function SendLoginRequest(username, password) {
-                var request = new XMLHttpRequest();
-                request.open("POST", "send.php", true);
-                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                request.onreadystatechange = function () {
-    
-                    if ((this.readyState == 4) && (this.status == 200)) {
-                        HandleLoginResponse(this.responseText);
-                    }
-                }
-                if (username != null && password != null) {
-                    request.send("type=login&uname=" + username + "&password=" + password);
-                }
-            }
-        </script>
-        <script>
-            function HandleLoginResponse(response) {
-                var text = JSON.parse(response);
-                console.log(response);
-                //    document.getElementById("textResponse").innerHTML = response+"<p>";
-                console.log(text);
-                document.getElementById("textResponse").innerHTML = "Login Here!" + "<p>";
-                if (text.errorMessage) {
-                    document.getElementById("textResponse").innerHTML = text.errorMessage + "<p>";
-                }
-                else {
-                    // Note, we didn't create this yet. We will create it in the next step.
-                    if (text.returnCode == 1) {
-                        window.location.href = "/userprofile.php";
-                    }
-    
-                    if (text.returnCode == 0) {
-                        document.getElementById("textResponse").innerHTML = "Invalid Login" + "<p>";
-                    }
-                }
-            }
-    
-        </script>
-        <script>   const params = new Proxy(new URLSearchParams(window.location.search), {
-                get: (searchParams, prop) => searchParams.get(prop),
-            });
-            const username = params.uname;
-            const password = params.password;
-            SendLoginRequest(username, password);    
-        </script>
 
     </body>
         
