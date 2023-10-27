@@ -5,6 +5,9 @@ const path = require('path');
 const timber = require('./lumberjack.js');
 const handshake = require('./formHelper.js');
 const amqp = require('amqplib/callback_api');
+const session = require('express-session');
+const bcrypt = require('bcrypt');
+require('dotenv').config();
 
 const PORT = process.env.PORT || 9001;
 
@@ -42,6 +45,17 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 
+const createSessionCookie = (req, res) => {
+    const saltRounds = 10;
+    const plains = process.env.SESSION_SECRET_ID;
+    let salt = bcrypt.genSaltSync(saltRounds);
+    let sessionId = bcrypt.hashSync(plains, salt);
+    req.session = { sessionId: sessionId };
+    res.cookie('sessionId', sessionId, { httpOnly: true });
+};
+
+
+
 
 app.get('/', (req, res, next) => {
     res.status(200).sendFile(path.join(__dirname, 'public', 'index.html'), err => {
@@ -72,10 +86,11 @@ app.post('/login', (req, res) => {
     // TODO: use dotenv
     const useremail = req.body.useremail;
     const password = req.body.password;
-    const tempHost = "tempHost";
-    const tempQueue = "tempQueue";
-    const amqpUrl = `amqp://longsoup:puosgnol@192.168.68.65:5672/${encodeURIComponent(tempHost)}`;
-
+    const tempHost = "tempHost"; // process.env.BROKER_VHOST;
+    const tempQueue = "tempQueue"; // process.env.BROKER_QUEUE;
+    const amqpUrl = `amqp://longsoup:puosgnol@192.168.68.65:5672/${encodeURIComponent(tempHost)}`; // process.env.TESTREQUEST;
+    createSessionCookie(req, res);
+    console.log(req.session);
     amqp.connect(amqpUrl, (error, connection) => {
         if (error) {
             // TODO: specify this is an rmq error
@@ -98,9 +113,9 @@ app.post('/login', (req, res) => {
                     if (msg.properties.correlationId === correlationId) {
                         const response = JSON.parse(msg.content.toString());
                         if (response.returnCode === '0') {
-                            res.redirect('/account');  // Redirect to 'thispage' if login is successful
+                            res.redirect('/account');
                         } else {
-                            res.status(401).send('You have failed to login.');  // Send failure message otherwise
+                            res.status(401).send('You have failed to login.');
                         }
                         setTimeout(() => {
                             connection.close();
@@ -198,6 +213,8 @@ function getData() {
 
 };
 
+
+
 function handleActions() {
     /**
      * handleActions() is a helper function that handles the actions from the form
@@ -244,7 +261,10 @@ function handleActions() {
     }
 };
 
-app.listen(PORT, "192.168.68.66", () => {
+// app.listen(PORT, "192.168.68.66", () => {
+//     console.log(`Server is running on port ${PORT}.`);
+// });
+app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
 });
 

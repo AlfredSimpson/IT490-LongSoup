@@ -1,4 +1,4 @@
-const logAndSend = async (message) => {
+const logAndSend = async (message, source = 'Webserver') => {
     const amqp = require('amqplib');
     const dotenv = require('dotenv');
     const fs = require('fs').promises;
@@ -15,14 +15,20 @@ const logAndSend = async (message) => {
 
     const logMessage = message;
     // console.log(logMessage);
-    const source_of_log = 'Webserver';
+    // const source_of_log = 'Webserver';
     const d = new Date();
     let date_of_log = d.toISOString();
     // Set outmessage to a JSON string with type, source, date, log_message.
-    const outmsg = JSON.stringify({ type: "log", source: source_of_log, date: date_of_log, log_message: logMessage });
+    const outmsg = JSON.stringify({ type: "log", source: source, date: date_of_log, log_message: logMessage });
+    let fileName = '_webserver.log';
+    // This will allow us to modularly log rmq and also webserver logs - to pinpoint origin
+    if (source === 'RMQ') {
+        fileName = '_webserver_rmq.log';
+    }
+
     // try catch to write the log message to our internal logs
     try {
-        await fs.appendFile('server.log', outmsg + '\n');
+        await fs.appendFile('_server.log', outmsg + '\n');
     } catch (err) {
         console.error('Error writing to log file:', err);
     }
