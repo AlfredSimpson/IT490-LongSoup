@@ -4,22 +4,9 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Longsoup|Forums</title>
-        <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.css">
-        <style>
-          .themed-grid-col {
-            padding-top: 15px;
-            padding-bottom: 15px;
-            background-color: rgba(86, 61, 124, .15);
-            border: 1px solid rgba(86, 61, 124, .2);
-          }
-
-          .themed-container {
-            padding: 15px;
-            margin-bottom: 30px;
-            background-color: rgba(0, 123, 255, .15);
-            border: 1px solid rgba(0, 123, 255, .2);
-          }
-    </style>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://getbootstrap.com/docs/5.2/assets/css/docs.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
     </head>
 <body>
     <nav class="navbar navbar-expand-sm navbar-dark bg-dark" aria-label="Third navbar example">
@@ -40,16 +27,8 @@
               <li class="nav-item">
                 <a class="nav-link" href="./profile.html">Profile</a>
               </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-bs-toggle="dropdown" aria-expanded="false">More</a>
-                <ul class="dropdown-menu" aria-labelledby="dropdown03">
-                    <li><a class="dropdown-item" href="#">Discover</a></li>
-                  <li><a class="dropdown-item" href="#">Dashboard</a></li>
-                  <li><a class="dropdown-item" href="#">Discussion Boards</a></li>
-                </ul>
-              </li>
             </ul>
-            <form>
+            <form action ="/searchBar.php" method="get">
               <input class="form-control" type="text" placeholder="Search" aria-label="Search">
             </form>
           </div>
@@ -57,10 +36,8 @@
       </nav>
       <div class="nav-scroller bg-body shadow-sm">
         <nav class="nav nav-underline" aria-label="Secondary navigation">
-          <a class="nav-link active" aria-current="page" href="#">Dashboard</a>
           <a class="nav-link" href="friendlist.html">
             Friends
-            <span class="badge bg-light text-dark rounded-pill align-text-bottom">27</span>
           </a>
           <a class="nav-link" href="discover.html">Discover</a>
           <a class="nav-link" href="suggestions.html">Suggestions</a>

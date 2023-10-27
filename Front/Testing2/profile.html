@@ -1,82 +1,58 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Longsoup|Dash</title>
-
-    <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.css">
-
-     <!-- Custom styles for this template -->
-     <link href="offcanvas.css" rel="stylesheet">
-     <link href="profile.css" rel="stylesheet">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Longsoup|Forums</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://getbootstrap.com/docs/5.2/assets/css/docs.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
     </head>
-    <body class="bg-light">
-      
-  <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark" aria-label="Main navigation">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">Longsoup</a>
-      <button class="navbar-toggler p-0 border-0" type="button" id="navbarSideCollapse" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-  
-      <div class="navbar-collapse offcanvas-collapse" id="navbarsExampleDefault">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="dashboard.html">Dashboard</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="notifications.html">Notifications</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="profile.html">Profile</a>
-          </li>
-        </ul>
-        <form class="d-flex">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
+<body>
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark" aria-label="Third navbar example">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="index.html">LongSoup</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+    
+          <div class="collapse navbar-collapse" id="navbarsExample03">
+            <ul class="navbar-nav me-auto mb-2 mb-sm-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="dashboard.html">Dashboard</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="./notifications.html">Notifications</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="./profile.html">Profile</a>
+              </li>
+            </ul>
+            <form action ="/searchBar.php" method="get">
+              <input class="form-control" type="text" placeholder="Search" aria-label="Search">
+            </form>
+          </div>
+        </div>
+      </nav>
+      <div class="nav-scroller bg-body shadow-sm">
+        <nav class="nav nav-underline" aria-label="Secondary navigation">
+          <a class="nav-link" href="friendlist.html">
+            Friends
+          </a>
+          <a class="nav-link" href="discover.html">Discover</a>
+          <a class="nav-link" href="suggestions.html">Suggestions</a>
+          <a class="nav-link" href="forum.html">Forums</a>
+          <a class="nav-link" href="user_stats.html">Stats</a>
+        </nav>
       </div>
-    </div>
-  </nav>
-  
-  <div class="nav-scroller bg-body shadow-sm">
-    <nav class="nav nav-underline" aria-label="Secondary navigation">
-      <a class="nav-link active" aria-current="page" href="#">Dashboard</a>
-      <a class="nav-link" href="friendlist.html">
-        Friends
-        <span class="badge bg-light text-dark rounded-pill align-text-bottom">27</span>
-      </a>
-      <a class="nav-link" href="discover.html">Discover</a>
-      <a class="nav-link" href="suggestions.html">Suggestions</a>
-      <a class="nav-link" href="forum.html">Forums</a>
-      <a class="nav-link" href="user_stats.html">Stats</a>
-    </nav>
-  </div>
-<div class="nav-scroller bg-body shadow-sm">
-  <nav class="nav nav-underline" aria-label="Secondary navigation">
-    <a class="nav-link active" aria-current="page" href="dashboard.html">Dashboard</a>
-    <a class="nav-link" href="friendlist.html">
-      Friends
-      <span class="badge bg-light text-dark rounded-pill align-text-bottom">27</span>
-    </a>
-    <a class="nav-link" href="discover.html">Discover</a>
-    <a class="nav-link" href="suggestions.html">Suggestions</a>
-    <a class="nav-link" href="forum.html">Forums</a>
-    <a class="nav-link" href="user_stats.html">Stats</a>
-  </nav>
-</div>
 
-
-
-<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
 <div class="container bootstrap snippets bootdey">
 <div class="row">
   <div class="profile-nav col-md-3">
       <div class="panel">
           <div class="user-heading round">
               <a href="#">
-                  <img src="https://bootdey.com/img/Content/avatar/avatar3.png" alt="">
+                  <img src="artist.jpg" width="250" height="250" alt="">
               </a>
               <h1>Camila Smith</h1>
               <p>{Social Media Buttons}</p>
@@ -86,18 +62,18 @@
   </div>
   <div class="profile-info col-md-9">
       <div class="panel">
+        <form action="/statusUpdate.php" method="post">
           <label for="statusUpdate">Status:</label><br>
-          <form>
-              <textarea placeholder="Whats in your mind today?" rows="2" class="form-control input-lg p-text-area"></textarea>
-          </form>
+              <input name="status" type="text" textarea placeholder="Whats in your mind today?" rows="2" class="form-control input-lg p-text-area"></textarea>
           <footer class="panel-footer">
-              <button class="btn btn-primary pull-left">Post</button>
+              <button type="submit" class="btn btn-primary pull-left">Post</button>
               <br>
+        </form>
         </div>
         <br>
         <br>
         <div class="panel">
-            <div class="bio-graph-heading">
+            <div class="bio-graph-heading text-center">
                 {favorite song lyric}
             </div>
             <div class="panel-body bio-graph-info">
