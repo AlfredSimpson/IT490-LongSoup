@@ -62,6 +62,8 @@ def return_error(ch, method, properties, body, msg):
 
 
 def do_validate(sessionId):
+    # This takes in the sessionID and validates it by checking the database. If the sessionTable shows that the session is valid for the user, then it returns a boolean True. Otherwise, it returns a boolean False.
+
     pass
 
 
@@ -83,7 +85,7 @@ def request_processor(ch, method, properties, body):
     if "type" not in request:
         print(f"{request}")
         # TODO: save this as a log file as well
-        response = "ERROR: unsupported message type"
+        response = "ERROR: No type specified by message"
     else:
         request_type = request["type"]
         if request_type == "login":
@@ -102,7 +104,7 @@ def request_processor(ch, method, properties, body):
         else:
             response = {
                 "returnCode": "0",
-                "message": "Server received request and processed",
+                "message": "Server received request and processed - no action taken. Unknown type",
             }
 
     # Send the response back to the client
