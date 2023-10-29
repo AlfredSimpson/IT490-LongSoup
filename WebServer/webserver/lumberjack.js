@@ -28,7 +28,7 @@ const logAndSend = async (message, source = 'Webserver') => {
 
     // try catch to write the log message to our internal logs
     try {
-        await fs.appendFile('_server.log', outmsg + '\n');
+        await fs.appendFile(fileName, outmsg + '\n');
     } catch (err) {
         console.error('Error writing to log file:', err);
     }
@@ -43,7 +43,7 @@ const logAndSend = async (message, source = 'Webserver') => {
     } catch (error) {
         console.error('An error occured while connecting to RMQ:', error);
         try {
-            await fs.appendFile('server.log', `Error connecting to RMQ: ${error}\n`);
+            await fs.appendFile(fileName, `Error connecting to RMQ: ${error}\n`);
         }
         catch (err) {
             console.error('Error writing to log file (no saved log available):', err);

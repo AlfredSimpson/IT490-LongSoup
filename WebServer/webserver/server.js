@@ -10,12 +10,30 @@ const amqp = require('amqplib/callback_api');
 const mustang = require('./mustang.js');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const { get } = require('http');
+
+app.use(cookieParser());
 
 const Port = process.env.PORT || 9001;
 
 // Load environment variables
 require('dotenv').config();
 
+
+// Middleware - check for cookies
+// function checkCookies(req, res, next) {
+//     if (req.cookies.usercookieid && req.cookies.sessionId) {
+//         next();
+//     } else {
+//         res.redirect('/login');
+//     }
+// }
+
+function getCookie(req) {
+    let cookie = req.headers.cookie;
+    console.log(cookie.split('; '));
+};
 
 // status codes
 
@@ -40,9 +58,8 @@ const trafficLogger = (req, res, next) => {
     const send = res.send;
     res.send = function (string) {
         //
-        const body = string instanceof Buffer ? string.toString() : string;
-
-        timber.logAndSend(`Outgoing response: ${res.statusCode} ${body}`);
+        // const body = string instanceof Buffer ? string.toString() : string;
+        timber.logAndSend(`Outgoing response: ${res.statusCode}`);
         send.call(this, string);
     };
     next();
@@ -56,6 +73,17 @@ const createSessionCookie = (req, res) => {
     let sessionId = bcrypt.hashSync(plains, salt);
     req.session = { sessionId: sessionId };
     res.cookie('sessionId', sessionId, { httpOnly: true });
+    return req.session.sessionId;
+};
+
+const createUserCookie = (req, res) => {
+    const saltRounds = 5;
+    const plains = process.env.USER_SECRET_ID;
+    let salt = bcrypt.genSaltSync(saltRounds);
+    let usercookieid = bcrypt.hashSync(plains, salt);
+    req.session = { usercookieid: usercookieid };
+    res.cookie('usercookieid', usercookieid, { httpOnly: true });
+    return req.session.usercookieid;
 };
 
 
@@ -90,6 +118,7 @@ app.use((err, req, res, next) => {
 
 // Non-session pages
 
+
 app.get('/', (req, res) => {
     res.status(200).render('index'), err => {
         if (err) {
@@ -100,15 +129,6 @@ app.get('/', (req, res) => {
     };
 });
 
-// app.get('login', (req, res) => {
-//     let errorMessage = '<p class="er-msg"> You have failed to login. <p>';
-//     res.status(200).render('login', errorMessage), err => {
-//         if (err) {
-//             timber.logAndSend(err);
-//             console.error(err);
-//         }
-//     }
-// });
 
 app.get('/:page', (req, res) => {
     const page = req.params.page;
@@ -125,7 +145,7 @@ app.get('/:page', (req, res) => {
     else {
         if (sessionPages.includes(page)) {
             if (page === 'account') {
-                name = 'Test User';
+                let name = 'Test User';
                 res.status(200).render(page, { data: { name: name } }), err => {
                     if (err) {
                         timber.logAndSend(err);
@@ -146,6 +166,10 @@ app.get('/:page', (req, res) => {
         }
         else {
             res.status(200).render(page), err => {
+                if (err) {
+                    timber.logAndSend(err);
+                    // console.error(err);
+                }
             }
             //     const filePath = path.join(__dirname, page + '.ejs');
             //     // check if session cookie exists
@@ -175,16 +199,27 @@ app.post('/login', (req, res) => {
     const password = req.body.password;
     const tempHost = process.env.BROKER_VHOST;
     const tempQueue = process.env.BROKER_QUEUE;
+    let session_id = createSessionCookie(req, res);
+    let usercookieid = createUserCookie(req, res);
+    console.log(`session cookie Created?: ${session_id}`);
+    console.log(`user cookie Created?: ${usercookieid}`);
     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
     console.log(amqpUrl);
+
+    getCookie(req);
 
     mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
         type: "login",
         useremail,
-        password
+        password,
+        session_id,
+        usercookieid
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
         if (response.returnCode === '0') {
+            console.log('Login successful!');
+            timber.logAndSend('User logged in successfully.');
+            // if (response.sessionValid === true) {} --- may not be necessary as cookie is set at login
             res.redirect('/account');
         } else {
             let errorMSG = '<p class="er-msg"> You have failed to login. <p>';
@@ -200,6 +235,8 @@ app.post('/register', (req, res) => {
     const password = req.body.password;
     const last_name = req.body.last_name;
     const first_name = req.body.first_name;
+    const session_id = req.session.sessionId;
+    const usercookieid = req.session.usercookieid;
     const tempHost = process.env.BROKER_VHOST;
     const tempQueue = process.env.BROKER_QUEUE;
     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
@@ -209,13 +246,18 @@ app.post('/register', (req, res) => {
         useremail,
         password,
         last_name,
-        first_name
+        first_name,
+        session_id,
+        usercookieid
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
         if (response.returnCode === '0') {
+            // Set a cookie for userid to track locally; this will be used to validate session
+
             res.redirect('/account');
         } else {
             res.status(401).send('You have failed to register.');
+            // add handling for render isntead that prints message to user
         }
     });
 });
