@@ -1,6 +1,14 @@
 import pika, mysql.connector, os, sys, json
 import LongDB
 
+# Import the spotify handler
+
+# Spotify info
+
+# get user top tracks
+# get user recommended tracks
+# get user recommended artists
+
 
 # Function to perform login
 def do_login(useremail, password, session_id, usercookieid):
@@ -16,13 +24,22 @@ def do_login(useremail, password, session_id, usercookieid):
         session_id=session_id,
         usercookieid=usercookieid,
     )
+
+    # Initialize the spotify handler
+
     name = db.get_name(usercookieid)
+    current_top = ""  # TODO: get user top tracks
+    recommended_tracks = ""  # TODO: get user recommended tracks
+    recommended_artists = ""  # TODO: get user recommended artists
     if result:
         return {
             "returnCode": "0",
             "message": "Login successful",
             "sessionValid": True,
             "name": name,
+            "currentTop": current_top,
+            "recommendedTracks": recommended_tracks,
+            "recommendedArtists": recommended_artists,
         }
     else:
         print("And here we see it fails")

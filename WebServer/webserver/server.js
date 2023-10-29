@@ -218,9 +218,14 @@ app.post('/login', (req, res) => {
         const response = JSON.parse(msg.content.toString());
         if (response.returnCode === '0') {
             console.log('Login successful!');
+            // console.log(response);
+            console.log(response.name);
+            let name = response.name;
+            name = name[0];
             timber.logAndSend('User logged in successfully.');
             // if (response.sessionValid === true) {} --- may not be necessary as cookie is set at login
-            res.redirect('/account');
+            res.render('account', { name });
+            // res.redirect('/account');
         } else {
             let errorMSG = '<p class="er-msg"> You have failed to login. <p>';
             const filePath = path.join(__dirname, 'public', 'login' + '.html');
