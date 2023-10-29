@@ -23,6 +23,7 @@ class LongDB:
             user=user,
             password=password,
             database=database,
+            port=42069,
         )
         self.mycursor = self.mydb.cursor()
 

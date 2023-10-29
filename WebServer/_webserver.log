@@ -144,3 +144,4 @@
 {"type":"log","source":"Webserver","date":"2023-10-29T20:27:20.441Z","log_message":"Incoming request:  GET /account"}
 {"type":"log","source":"Webserver","date":"2023-10-29T20:27:27.494Z","log_message":"Incoming request:  GET /login"}
 {"type":"log","source":"Webserver","date":"2023-10-29T20:27:27.495Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-29T20:44:59.905Z","log_message":"Incoming request:  POST /login"}
