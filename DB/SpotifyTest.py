@@ -8,7 +8,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="0333477c29
 
 results = sp.search(q='tobymac', limit=20)
 for idx, track in enumerate(results['tracks']['items']):
-    print(idx, track['name'], track['artists'], "/n")
+    print(idx, track['name'], track['artists'], "\n")
 
 
 # results = sp.search(q='rock', limit=20)
