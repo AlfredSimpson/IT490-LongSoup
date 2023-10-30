@@ -229,10 +229,11 @@ class LongDB:
         initialUpdate takes the first name, last name, and spotify username and adds it into userinfo after querying the userid from users.
         """
         sql = "SELECT uid FROM users WHERE useremail = '" + useremail + "'"
+
         self.mycursor.execute(sql)
         result = self.mycursor.fetchall()
-        userid = result[0]
-        sql = "INSERT INTO userinfo (uid, spotify_username, fname, lname, uses_spot) VALUES (%s, %s, %s, %s, %s, 1)"
+        userid = result[0][0]
+        sql = "INSERT INTO userinfo (uid, spotify_username, fname, lname) VALUES (%s, %s, %s, %s)"
         val = (userid, spot_name, fname, lname)
         self.mycursor.execute(sql, val)
         self.mydb.commit()

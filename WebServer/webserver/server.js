@@ -145,8 +145,9 @@ app.get('/:page', (req, res) => {
         if (sessionPages.includes(page)) {
             let checkSession = ""; // call the db server and see if the session is valid
             if (page === 'account') {
-                let data = { name: 'uhoh', loggedin: false };
+
                 console.log(data.name);
+                data = response.data;
                 res.status(200).render(page, data), err => {
                     if (err) {
                         timber.logAndSend(err);
@@ -218,15 +219,11 @@ app.post('/login', (req, res) => {
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
         if (response.returnCode === '0') {
-            console.log('Login successful!');
-            // console.log(response);
-            console.log(response.name);
-            let name = "uhoh";
-            let data = response;
+            console.log(response.data.name);
             timber.logAndSend('User logged in successfully.');
-            // if (response.sessionValid === true) {} --- may not be necessary as cookie is set at login
             data = response.data;
-            res.render('account', name, data);
+            console.log(data);
+            res.render('account', data);
             // res.redirect('/account');
         } else {
             let errorMSG = 'You have failed to login.';

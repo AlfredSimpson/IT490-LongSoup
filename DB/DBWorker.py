@@ -40,11 +40,12 @@ def do_login(useremail, password, session_id, usercookieid):
             "returnCode": "0",
             "message": "Login successful",
             "sessionValid": True,
-            "name": name,
+            # "name": name,
             "currentTop": current_top,
             "recommendedTracks": recommended_tracks,
             "recommendedArtists": recommended_artists,
             "data": {
+                "name": name,
                 "loggedin": True,
             },
         }
