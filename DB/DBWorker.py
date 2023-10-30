@@ -17,8 +17,8 @@ def do_login(useremail, password, session_id, usercookieid):
     # TODO: get password from justin - update appropriately
     db = LongDB.LongDB(
         host="localhost",
-        user="longadmin",
-        password="Longsoup490!",
+        user="longestsoup",
+        password="shortS0up!",
         database="securesoupdb",
     )
     # Validate the user - consider adding a try catch.
@@ -79,8 +79,8 @@ def do_register(
     # TODO: get password from justin - update appropriately
     db = LongDB.LongDB(
         host="localhost",
-        user="longadmin",
-        password="Longsoup490!",
+        user="longestsoup",
+        password="shortS0up!",
         database="securesoupdb",
     )
     # See if the user exists already

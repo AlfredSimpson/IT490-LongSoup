@@ -135,3 +135,4 @@ Error connecting to RMQ: Error: connect ECONNREFUSED 192.168.68.65:5672
 {"type":"log","source":"Webserver","date":"2023-10-30T03:41:16.324Z","log_message":"Outgoing response: 200"}
 {"type":"log","source":"Webserver","date":"2023-10-30T03:41:16.380Z","log_message":"Incoming request:  GET /register"}
 {"type":"log","source":"Webserver","date":"2023-10-30T03:41:16.382Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:42:53.068Z","log_message":"Incoming request:  POST /register"}
