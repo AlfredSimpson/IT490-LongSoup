@@ -1,10 +1,12 @@
-{"type":"log","source":"Webserver","date":"2023-10-30T00:43:31.533Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T00:43:31.534Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T00:43:31.574Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T00:43:31.576Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T00:43:34.413Z","log_message":"Incoming request:  POST /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T00:43:52.615Z","log_message":"User logged in successfully."}
-{"type":"log","source":"Webserver","date":"2023-10-30T00:50:57.776Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T00:50:57.777Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T00:51:03.298Z","log_message":"Incoming request:  POST /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T00:51:03.484Z","log_message":"User logged in successfully."}
+{"type":"log","source":"Webserver","date":"2023-10-30T01:33:07.188Z","log_message":"Incoming request:  POST /login"}
+{"type":"log","source":"Webserver","date":"2023-10-30T01:33:07.342Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-10-30T01:33:07.388Z","log_message":"Incoming request:  GET /login"}
+{"type":"log","source":"Webserver","date":"2023-10-30T01:33:07.389Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-30T01:34:45.229Z","log_message":"Incoming request:  POST /login"}
+{"type":"log","source":"Webserver","date":"2023-10-30T01:34:45.427Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-10-30T01:34:45.471Z","log_message":"Incoming request:  GET /login"}
+{"type":"log","source":"Webserver","date":"2023-10-30T01:34:45.474Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-30T01:35:40.924Z","log_message":"Incoming request:  POST /login"}
+{"type":"log","source":"Webserver","date":"2023-10-30T01:35:41.127Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-10-30T01:35:41.174Z","log_message":"Incoming request:  GET /login"}
+{"type":"log","source":"Webserver","date":"2023-10-30T01:35:41.180Z","log_message":"Outgoing response: 200"}

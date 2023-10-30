@@ -46,11 +46,17 @@
                 <form method="post" action="/login">
                     <div class="mb-3">
                         <% if (data.error_status) { %>
-                            <div class="err-msg" style="background-color: red; color: black">
-                                <%= data.error_output %>
+                            <div class="err-msg" style="background-color: rgb(0, 255, 34); color: black">
+                                <p>
+                                    <%= "Logging in" %>
+                                </p>
                             </div>
                             <% } else { %>
-                                <div class="err-msg"></div>
+
+                                <div class="err-msg" style="background-color: red; color: black; font-weight:500;">
+                                    <% console.log(data.error_output) %>
+                                        <%= data.error_output %>
+                                </div>
                                 <% } %>
                                     <label for="email" class="form-label">Email address</label>
                                     <input type="email" class="form-control" id="useremail" name="useremail" required>

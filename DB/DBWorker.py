@@ -52,6 +52,8 @@ def do_login(useremail, password, session_id, usercookieid):
             "sessionValid": False,
             "data": {
                 "loggedin": False,
+                "errorStatus": False,
+                "errorOutput": "Either the password or email provided does not match. Please try again.",
             },
         }
 
