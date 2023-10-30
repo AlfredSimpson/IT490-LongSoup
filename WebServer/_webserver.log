@@ -1,1 +1,10 @@
-
+{"type":"log","source":"Webserver","date":"2023-10-30T00:43:31.533Z","log_message":"Incoming request:  GET /login"}
+{"type":"log","source":"Webserver","date":"2023-10-30T00:43:31.534Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-30T00:43:31.574Z","log_message":"Incoming request:  GET /login"}
+{"type":"log","source":"Webserver","date":"2023-10-30T00:43:31.576Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-30T00:43:34.413Z","log_message":"Incoming request:  POST /login"}
+{"type":"log","source":"Webserver","date":"2023-10-30T00:43:52.615Z","log_message":"User logged in successfully."}
+{"type":"log","source":"Webserver","date":"2023-10-30T00:50:57.776Z","log_message":"Incoming request:  GET /login"}
+{"type":"log","source":"Webserver","date":"2023-10-30T00:50:57.777Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-30T00:51:03.298Z","log_message":"Incoming request:  POST /login"}
+{"type":"log","source":"Webserver","date":"2023-10-30T00:51:03.484Z","log_message":"User logged in successfully."}

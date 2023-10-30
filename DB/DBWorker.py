@@ -15,7 +15,7 @@ def do_login(useremail, password, session_id, usercookieid):
     # Connect to the database
     db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
     # TODO: get password from justin - update appropriately
-    # db = LongDB.LongDB(host="localhost", user="", password="", database="securesoupdb")
+    # db = LongDB.LongDB(host="localhost", user="longadmin", password="Longsoup490!", database="securesoupdb")
     # Validate the user - consider adding a try catch.
     result = db.auth_user(
         table="users",
@@ -40,6 +40,9 @@ def do_login(useremail, password, session_id, usercookieid):
             "currentTop": current_top,
             "recommendedTracks": recommended_tracks,
             "recommendedArtists": recommended_artists,
+            "data": {
+                "loggedin": True,
+            },
         }
     else:
         print("And here we see it fails")
@@ -47,6 +50,9 @@ def do_login(useremail, password, session_id, usercookieid):
             "returnCode": "1",
             "message": "You have failed to login.",
             "sessionValid": False,
+            "data": {
+                "loggedin": False,
+            },
         }
 
 
