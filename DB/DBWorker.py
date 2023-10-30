@@ -14,7 +14,6 @@ import LongDB
 def do_login(useremail, password, session_id, usercookieid):
     # Connect to the database
     # db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
-    # TODO: get password from justin - update appropriately
     db = LongDB.LongDB(
         host="localhost",
         user="longestsoup",
@@ -76,7 +75,6 @@ def do_register(
 
     # Connect to the database
     # db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
-    # TODO: get password from justin - update appropriately
     db = LongDB.LongDB(
         host="localhost",
         user="longestsoup",
@@ -98,11 +96,11 @@ def do_register(
                 password=password,
                 sessionid=session_id,
                 usercookieid=usercookieid,
-                fname=first_name,
-                lname=last_name,
-                spot_name=spot_name,
             )
             if result:
+                print(
+                    f"User {useremail} added to database, attempting to update userinfo next"
+                )
                 name = db.get_name(usercookieid)
                 db.initialUpdate(useremail, first_name, last_name, spot_name)
                 return {

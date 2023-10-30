@@ -136,3 +136,16 @@ Error connecting to RMQ: Error: connect ECONNREFUSED 192.168.68.65:5672
 {"type":"log","source":"Webserver","date":"2023-10-30T03:41:16.380Z","log_message":"Incoming request:  GET /register"}
 {"type":"log","source":"Webserver","date":"2023-10-30T03:41:16.382Z","log_message":"Outgoing response: 200"}
 {"type":"log","source":"Webserver","date":"2023-10-30T03:42:53.068Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:45:47.893Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:45:48.105Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:45:48.142Z","log_message":"Incoming request:  GET /favicon.ico"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:47:42.910Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:47:42.912Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:47:55.790Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:47:55.957Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:47:55.998Z","log_message":"Incoming request:  GET /favicon.ico"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:55:18.433Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:55:18.435Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:55:22.024Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:55:22.192Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:55:22.232Z","log_message":"Incoming request:  GET /favicon.ico"}

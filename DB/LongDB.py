@@ -203,9 +203,6 @@ class LongDB:
         password,
         sessionid,
         usercookieid,
-        fname,
-        lname,
-        spot_name,
     ):
         """
         add_user is a function that adds a user to the database.
@@ -231,12 +228,12 @@ class LongDB:
         """
         initialUpdate takes the first name, last name, and spotify username and adds it into userinfo after querying the userid from users.
         """
-        sql = "SELECT userid FROM users WHERE useremail = '" + useremail + "'"
+        sql = "SELECT uid FROM users WHERE useremail = '" + useremail + "'"
         self.mycursor.execute(sql)
         result = self.mycursor.fetchall()
         userid = result[0]
-        sql = "INSERT INTO userinfo (uid, fname, lname, spot_name, uses_spot) VALUES (%s, %s, %s, %s, %s)"
-        val = (userid, fname, lname, spot_name, 1)
+        sql = "INSERT INTO userinfo (uid, spotify_username, fname, lname, uses_spot) VALUES (%s, %s, %s, %s, %s)"
+        val = (userid, spot_name, fname, lname, 1)
         self.mycursor.execute(sql, val)
         self.mydb.commit()
         return self.mycursor.rowcount, f"{useremail} added to userinfo!"
