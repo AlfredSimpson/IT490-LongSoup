@@ -149,3 +149,8 @@ Error connecting to RMQ: Error: connect ECONNREFUSED 192.168.68.65:5672
 {"type":"log","source":"Webserver","date":"2023-10-30T03:55:22.024Z","log_message":"Incoming request:  POST /register"}
 {"type":"log","source":"Webserver","date":"2023-10-30T03:55:22.192Z","log_message":"Outgoing response: 401"}
 {"type":"log","source":"Webserver","date":"2023-10-30T03:55:22.232Z","log_message":"Incoming request:  GET /favicon.ico"}
+{"type":"log","source":"Webserver","date":"2023-10-30T04:01:20.216Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-10-30T04:01:20.219Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-30T04:01:31.483Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-10-30T04:01:31.826Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-10-30T04:01:31.887Z","log_message":"Incoming request:  GET /favicon.ico"}
