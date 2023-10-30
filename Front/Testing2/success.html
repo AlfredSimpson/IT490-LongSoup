@@ -45,33 +45,36 @@
           <a class="nav-link" href="user_stats.html">Stats</a>
         </nav>
       </div>
-
-      <div class="col-8 col-sm-6 col-lg-3 mx-auto">
-        <div class= "container border-0 py-5">
-
-            <form id="login-form" class="login" action="login.php"  method="POST" onsubmit="return sendFormData()">
-                <div class="form-group">
-                  <label for="exampleInputEmail1">Get to your favorite sounds.</label>
-                  <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Email">
-                </div>
-                <div class="form-group">
-                  <input type="password" name="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-                </div>
-                <div class="form-check">
-                  <input type="checkbox" name="showPassword" class="form-check-input" id="exampleCheck1">
-                  <label class="form-check-label" for="exampleCheck1">Show Password</label>
-                </div>
-                <button type="submit" class="btn btn-primary">Login</button>
-              </form>
-              
-            </div>
-
-      </div>
-
-    </body>
-        
-     <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
-</html>
+<div class="nav-scroller bg-body shadow-sm">
+  <nav class="nav nav-underline" aria-label="Secondary navigation">
+    <a class="nav-link active" aria-current="page" href="#">Dashboard</a>
+    <a class="nav-link" href="friendlist.html">
+      Friends
+      <span class="badge bg-light text-dark rounded-pill align-text-bottom">27</span>
+    </a>
+    <a class="nav-link" href="discover.html">Discover</a>
+    <a class="nav-link" href="suggestions.html">Suggestions</a>
+    <a class="nav-link" href="forum.html">Forums</a>
+    <a class="nav-link" href="user_stats.html">Stats</a>
+  </nav>
+</div>
 
 
-
+<body>
+    <h1 class="logo">LongSoup</h1>
+    <h2 class="logo">Pique and Pick Your Interests</h2>
+    <!-- User Links -->
+    <div class="user-links">
+        <a href="./landing.html">Home</a>
+        <span>|</span>
+        <a href="./dashboard.html">Your Dashboard</a>
+    </div>
+    <!-- Banner -->
+    <div class="banner">
+        <a href="#">API 1 intro</a>
+        <a href="#">API 2 intro</a>
+        <a href="#">API 3 intro</a>
+    </div>
+    <div class="welcome-text">
+        <h1>Login Successful!</h1>
+    </div>
