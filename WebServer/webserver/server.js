@@ -9,11 +9,22 @@ const handshake = require('./formHelper.js');
 const amqp = require('amqplib/callback_api');
 const mustang = require('./mustang.js');
 const bcrypt = require('bcrypt');
-const session = require('express-session');
+// const session = require('express-session');
+const sessions = require('express-session');
 const cookieParser = require('cookie-parser');
 const { get } = require('http');
 
+// const store = new sessions.MemoryStore();
+
 app.use(cookieParser());
+
+// app.use(sessions({
+//     secret: "secretkeylol",
+//     resave: false,
+//     saveUninitialized: false,
+//     store
+// })
+// );
 
 const Port = process.env.PORT || 9001;
 
@@ -65,6 +76,7 @@ const trafficLogger = (req, res, next) => {
     next();
 };
 
+
 // session Cookies for login/validation after
 const createSessionCookie = (req, res) => {
     const saltRounds = 10;
@@ -92,7 +104,8 @@ app.use(statusMessageHandler);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(__dirname + '../public'));
-app.use('/css', express.static(__dirname + '../public/css'));
+// app.use('/css', express.static(__dirname + '../public/css'));
+app.use('/css', express.static('public'));
 app.use('/js', express.static(__dirname + '../public/js'));
 app.use('img', express.static(__dirname + '../public/img'));
 
@@ -145,7 +158,7 @@ app.get('/:page', (req, res) => {
         if (sessionPages.includes(page)) {
             let checkSession = ""; // call the db server and see if the session is valid
             if (page === 'account') {
-
+                // req.session.data = response.data; //added to help retain data
                 console.log(data.name);
                 data = response.data;
                 res.status(200).render(page, data), err => {
@@ -193,7 +206,14 @@ app.get('/:page', (req, res) => {
 });
 
 
-
+app.post('/getrecked', (req, res) => {
+    console.log(req.body);
+    const genre = req.body.genre;
+    const popularity = req.body.pop;
+    const valence = req.body.vibe;
+    console.log(req.body.vibe);
+    console.log(valence);
+});
 
 
 app.post('/login', (req, res) => {
