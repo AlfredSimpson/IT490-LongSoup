@@ -1,15 +1,17 @@
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Longsoup</title>
-    <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.css">
-</head>
-
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Longsoup|Forums</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://getbootstrap.com/docs/5.2/assets/css/docs.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
+    </head>
 <body>
     <nav class="navbar navbar-expand-sm navbar-dark bg-dark" aria-label="Third navbar example">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#">LongSoup</a>
+          <a class="navbar-brand" href="index.html">LongSoup</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -17,29 +19,32 @@
           <div class="collapse navbar-collapse" id="navbarsExample03">
             <ul class="navbar-nav me-auto mb-2 mb-sm-0">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="./index.html">Home</a>
+                <a class="nav-link active" aria-current="page" href="dashboard.html">Dashboard</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="./login.html">Login</a>
+                <a class="nav-link" href="./notifications.html">Notifications</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="./register.html">Register</a>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-bs-toggle="dropdown" aria-expanded="false">More</a>
-                <ul class="dropdown-menu" aria-labelledby="dropdown03">
-                    <li><a class="dropdown-item" href="#">Discover</a></li>
-                  <li><a class="dropdown-item" href="#">Dashboard</a></li>
-                  <li><a class="dropdown-item" href="#">Discussion Boards</a></li>
-                </ul>
+                <a class="nav-link" href="./profile.html">Profile</a>
               </li>
             </ul>
-            <form>
+            <form action ="/searchBar.php" method="get">
               <input class="form-control" type="text" placeholder="Search" aria-label="Search">
             </form>
           </div>
         </div>
       </nav>
+      <div class="nav-scroller bg-body shadow-sm">
+        <nav class="nav nav-underline" aria-label="Secondary navigation">
+          <a class="nav-link" href="friendlist.html">
+            Friends
+          </a>
+          <a class="nav-link" href="discover.html">Discover</a>
+          <a class="nav-link" href="suggestions.html">Suggestions</a>
+          <a class="nav-link" href="forum.html">Forums</a>
+          <a class="nav-link" href="user_stats.html">Stats</a>
+        </nav>
+      </div>
 
       <section class="vh-100 bg-image">
   <div class="mask d-flex align-items-center h-100 gradient-custom-3">
@@ -50,8 +55,7 @@
             <div class="card-body p-5">
               <h2 class="text-uppercase text-center mb-5">Create an account</h2>
 
-              <form action="/submit_form" method="POST">
-
+              <form action="/registration.php" method="POST" class="register" id="register-form" onsubmit="return sendFormData()">
                 <div class="form-outline mb-4">
                   <input type="text" id="form3Example1cg" name="uname" class="form-control form-control-lg" />
                   <label class="form-label" for="form3Example1cg">Desired Username</label>
@@ -120,70 +124,6 @@
 
 </section>
 
-
-
-      <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
-    <!-- After pressing the somethingButton, if a user is found, it will display the user's name. If not, it will display "no user found" -->
-    <script>
-        // Function to generate a session token
-        function generateSessionToken() {
-            // GENERATING THE SESSION TOKEN FOR USER
-            const array = new Uint32Array(4);  // NEW LINE, makes a 128-bit session token, good enough for OWASP
-            window.crypto.getRandomValues(array); // NEW LINE, suitable enough for encryption
-            const sessionToken = Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join(''); // NEW LINE, decimal to hex, leading zero added, ensuring hex format
-        }
-    </script>
-    <script>
-        function HandleRegistrationResponse(response) {
-            var text = JSON.parse(response);
-            console.log(response);
-            document.getElementById("textResponse").innerHTML = "Registration Status: ";
-
-            if (text.errorMessage) {
-                document.getElementById("textResponse").innerHTML += text.errorMessage;
-            }
-            else {
-                if (text.returnCode == 1) {
-                    window.location.href = "/userprofile.php";  // send the user to their profile
-                }
-                if (text.returnCode == 0) {
-                    document.getElementById("textResponse").innerHTML += "Registration Failed";
-                }
-            }
-        }
-    </script>
-    <script>
-        function SendLoginRequest(username, password) {     //This is the function that must be modified to include session tokens 
-            var request = new XMLHttpRequest();
-            request.open("POST", "send.php", true);
-            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-            request.onreadystatechange = function () {
-
-                if ((this.readyState == 4) && (this.status == 200)) {
-                    HandleRegistrationResponse(this.responseText);
-                }
-            }
-            if (username != null && password != null) {  //if the credentials are valid
-                request.send("type=login&uname=" + username + "&password=" + password + "&session_token=" + sessionToken);  // NEW LINE, just concatanated the session token
-            }
-        }
-    </script>
-    <script>
-        const params = new Proxy(new URLSearchParams(window.location.search), {
-            get: (searchParams, prop) => searchParams.get(prop),
-        });
-        const username = params.uname;
-        const password = params.password;
-
-        // generate the session token
-        const sessionToken = generateSessionToken();
-
-        // sending it with the session token
-        SendLoginRequest(username, password, sessionToken);
-    </script>
-
-  
-      
+      <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>      
     </body>
   </html>
