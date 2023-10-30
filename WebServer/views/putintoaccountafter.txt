@@ -14,6 +14,12 @@
                             <td>
                                 <%= item.top_track_name %>
                             </td>
+                            <td>
+                                <% if (data.loggedin) { %>
+                                <a class="nav-link active" aria-current="page" href="<%='/like' %>">
+                                <a class="nav-link" href="/<%= 'dislike' %>">Home</a>
+                                    <% } %>
+                            </td>
                         </tr>
                         <% }); %>
                 </tbody>

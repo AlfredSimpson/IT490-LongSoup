@@ -134,9 +134,8 @@ app.get('/:page', (req, res) => {
     const page = req.params.page;
     let sessionPages = ['account', 'dashboard', 'profile', 'forum', 'logout']
     if (page === 'login' || page === 'register') {
-        let errorStatus = false;
-        let errorOutput = 'Whoa - not so fast. That a fake ID? Check your details and try again.';
-        // console.log(errorOutput);
+        let errorStatus = null;
+        let errorOutput = '';
         res.status(200).render(page, { data: { error_status: errorStatus, error_output: errorOutput } }), err => {
             timber.logAndSend(err);
 
@@ -144,9 +143,12 @@ app.get('/:page', (req, res) => {
     }
     else {
         if (sessionPages.includes(page)) {
+            let checkSession = ""; // call the db server and see if the session is valid
             if (page === 'account') {
-                let name = 'Test User';
-                res.status(200).render(page, { data: { name: name } }), err => {
+
+                console.log(data.name);
+                data = response.data;
+                res.status(200).render(page, data), err => {
                     if (err) {
                         timber.logAndSend(err);
                         console.error(err);
@@ -217,19 +219,22 @@ app.post('/login', (req, res) => {
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
         if (response.returnCode === '0') {
-            console.log('Login successful!');
-            // console.log(response);
-            console.log(response.name);
-            let name = response.name;
-            name = name[0];
+            console.log(response.data.name);
             timber.logAndSend('User logged in successfully.');
-            // if (response.sessionValid === true) {} --- may not be necessary as cookie is set at login
-            res.render('account', { name });
+            data = response.data;
+            console.log(data);
+            res.render('account', data);
             // res.redirect('/account');
         } else {
-            let errorMSG = '<p class="er-msg"> You have failed to login. <p>';
+            let errorMSG = 'You have failed to login.';
             const filePath = path.join(__dirname, 'public', 'login' + '.html');
-            res.status(401).render('login', errorMSG);
+            // let outcome = response.data['loggedin'];
+            console.log("Sending response data");
+            console.log(response.data['loggedin']);
+            data = response.data;
+            console.log("showing data");
+            console.log(data);
+            res.status(401).render('login', data);
         }
     });
 });
@@ -240,10 +245,12 @@ app.post('/register', (req, res) => {
     const password = req.body.password;
     const last_name = req.body.last_name;
     const first_name = req.body.first_name;
-    const session_id = req.session.sessionId;
-    const usercookieid = req.session.usercookieid;
+    const spot_name = req.body.spot_name;
+    let session_id = createSessionCookie(req, res);
+    let usercookieid = createUserCookie(req, res);
     const tempHost = process.env.BROKER_VHOST;
     const tempQueue = process.env.BROKER_QUEUE;
+
     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
 
     mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
@@ -253,7 +260,8 @@ app.post('/register', (req, res) => {
         last_name,
         first_name,
         session_id,
-        usercookieid
+        usercookieid,
+        spot_name
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
         if (response.returnCode === '0') {

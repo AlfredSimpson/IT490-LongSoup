@@ -35,34 +35,34 @@ def request_processor(ch, method, properties, body):
                 logMsg = request["log_message"]
                 # TODO: add log_level?
                 newlog = f"{logSource} - {logDate} - {logMsg}"
-                logName = "DB.log"
+                logName = "_DB.log"
                 with open(logName, "a") as logFile:
                     logFile.write(newlog)
             elif logSource == "Webserver":
                 logDate = request["date"]
                 logMsg = request["log_message"]
-                logName = "Web.log"
+                logName = "_Web.log"
                 newlog = f"{logSource} - {logDate} - {logMsg}"
                 with open(logName, "a") as logFile:
                     logFile.write(newlog)
             elif logSource == "RMQ":
                 logDate = request["date"]
                 logMsg = request["log_message"]
-                logName = "RMQ.log"
+                logName = "_RMQ.log"
                 newlog = f"{logSource} - {logDate} - {logMsg}"
                 with open(logName, "a") as logFile:
                     logFile.write(newlog)
             elif logSource == "DMZ":
                 logDate = request["date"]
                 logMsg = request["log_message"]
-                logName = "DMZ.log"
+                logName = "_DMZ.log"
                 newlog = f"{logSource} - {logDate} - {logMsg}"
                 with open(logName, "a") as logFile:
                     logFile.write(newlog)
             else:
                 logDate = request["date"]
                 logMsg = request["log_message"]
-                logName = "Unknown-Origins.log"
+                logName = "_Unknown-Origins.log"
                 newlog = f"{logSource} - {logDate} - {logMsg}"
                 with open(logName, "a") as logFile:
                     logFile.write(newlog)
