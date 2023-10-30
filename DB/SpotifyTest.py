@@ -7,10 +7,22 @@ sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="0333477c29
                                                             client_secret="512ee493749c4959af01f8c32f3cd7d5"))
 
 tracks ="2tBomeCTCXl3fq0g0jterX"
-#tracks_1 = "5izS9lEKFma3NVRl6uBbTs"
+tracks_1 = "5izS9lEKFma3NVRl6uBbTs"
 #tracks_id = (str(element) for element in tracks)
 
-track_data = sp.track(tracks)
+# track_id = sp.search(q='queen', limit=20)
+# for idx, track in enumerate(track_id['tracks']['items']):
+#     tracks = track.get('artists')
+#     # genres = track.get({'artist':{'genres'}})
+#     #x = json.loads(track)
+#     #genres = x.dumps({"artists": {"genres"}})
+
+# results = sp.search(q='tobymac', limit=20)
+# for idx, track in enumerate(results['tracks']['items']):
+#     print(idx, track['name'], track['artists'], "\n")
+
+
+track_data = sp.track(tracks_1)
 
 artist_ids = []
 
