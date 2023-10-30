@@ -8,7 +8,6 @@ sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="0333477c29
 
 tracks ="2tBomeCTCXl3fq0g0jterX"
 
-
 track_data = sp.track(tracks)
 
 artist_ids = []
