@@ -16,8 +16,8 @@ from dotenv import load_dotenv
 
 
 def generateSimpleRecs(genre, popularity, valence):
-    client_id = os.getenv("SPOTIPY_CLIENT_ID")
-    client_secret = os.getenv("SPOTIPY_CLIENT_SECRET")
+    client_id = os.getenv("SPOTIFY_CLIENT_ID")
+    client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
     # redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
     spotify_token = os.getenv("SPOTIFY_TOKEN_URL")
     spotify_api_url = os.getenv("SPOTIFY_API_BASE_URL")

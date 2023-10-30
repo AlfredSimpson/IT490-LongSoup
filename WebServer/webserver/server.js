@@ -209,9 +209,10 @@ app.get('/:page', (req, res) => {
 app.post('/getrecked', (req, res) => {
     const tempHost = process.env.BROKER_VHOST;
     const tempQueue = process.env.BROKER_QUEUE;
-    const genre = req.body.genre;
+    const genre = req.body.genres;
     const popularity = req.body.pop;
     const valence = req.body.vibe;
+    console.log(`genre: ${genre}, popularity: ${popularity}, valence: ${valence}`);
     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
 
 

@@ -242,3 +242,16 @@
 {"type":"log","source":"Webserver","date":"2023-10-30T06:54:28.362Z","log_message":"Outgoing response: 200"}
 {"type":"log","source":"Webserver","date":"2023-10-30T06:54:29.966Z","log_message":"Incoming request:  POST /getRecked"}
 {"type":"log","source":"Webserver","date":"2023-10-30T06:54:30.124Z","log_message":"User requested some jams, got some."}
+{"type":"log","source":"Webserver","date":"2023-10-30T06:57:25.114Z","log_message":"Incoming request:  GET /login"}
+{"type":"log","source":"Webserver","date":"2023-10-30T06:57:25.117Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-30T06:57:26.631Z","log_message":"Incoming request:  POST /getRecked"}
+{"type":"log","source":"Webserver","date":"2023-10-30T06:58:51.247Z","log_message":"Incoming request:  POST /getRecked"}
+{"type":"log","source":"Webserver","date":"2023-10-30T06:59:00.046Z","log_message":"Incoming request:  POST /getRecked"}
+{"type":"log","source":"Webserver","date":"2023-10-30T06:59:16.292Z","log_message":"Incoming request:  POST /getRecked"}
+{"type":"log","source":"Webserver","date":"2023-10-30T06:59:35.401Z","log_message":"Incoming request:  GET /login"}
+{"type":"log","source":"Webserver","date":"2023-10-30T06:59:35.413Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-30T06:59:39.962Z","log_message":"Incoming request:  POST /getRecked"}
+{"type":"log","source":"Webserver","date":"2023-10-30T06:59:51.151Z","log_message":"Incoming request:  POST /getRecked"}
+{"type":"log","source":"Webserver","date":"2023-10-30T07:00:21.985Z","log_message":"Incoming request:  POST /getRecked"}
+{"type":"log","source":"Webserver","date":"2023-10-30T07:01:17.105Z","log_message":"Incoming request:  POST /getRecked"}
+{"type":"log","source":"Webserver","date":"2023-10-30T07:06:00.272Z","log_message":"Incoming request:  POST /getRecked"}
