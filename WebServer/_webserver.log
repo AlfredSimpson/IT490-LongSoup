@@ -105,3 +105,33 @@
 {"type":"log","source":"Webserver","date":"2023-10-30T02:58:53.729Z","log_message":"Outgoing response: 200"}
 {"type":"log","source":"Webserver","date":"2023-10-30T02:58:53.769Z","log_message":"Incoming request:  GET /register"}
 {"type":"log","source":"Webserver","date":"2023-10-30T02:58:53.770Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:12:10.817Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:12:10.819Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:12:10.862Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:12:10.863Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:12:40.811Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:13:48.157Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:13:52.226Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:16:45.210Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:18:48.182Z","log_message":"Incoming request:  GET /login"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:18:48.196Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:18:48.247Z","log_message":"Incoming request:  GET /login"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:18:48.249Z","log_message":"Outgoing response: 200"}
+Error connecting to RMQ: Error: connect ECONNREFUSED 192.168.68.65:5672
+Error connecting to RMQ: Error: connect ECONNREFUSED 192.168.68.65:5672
+Error connecting to RMQ: Error: connect ECONNREFUSED 192.168.68.65:5672
+Error connecting to RMQ: Error: connect ECONNREFUSED 192.168.68.65:5672
+{"type":"log","source":"Webserver","date":"2023-10-30T03:21:10.041Z","log_message":"Incoming request:  GET /account"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:21:46.965Z","log_message":"Incoming request:  GET /account"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:22:13.798Z","log_message":"Incoming request:  GET /account"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:24:01.090Z","log_message":"Incoming request:  GET /account"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:24:27.606Z","log_message":"Incoming request:  GET /account"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:24:41.396Z","log_message":"Incoming request:  GET /account"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:24:42.481Z","log_message":"Incoming request:  GET /account"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:25:14.442Z","log_message":"Incoming request:  GET /account"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:25:49.375Z","log_message":"Incoming request:  GET /account"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:26:15.716Z","log_message":"Incoming request:  GET /account"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:41:16.321Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:41:16.324Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:41:16.380Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-10-30T03:41:16.382Z","log_message":"Outgoing response: 200"}

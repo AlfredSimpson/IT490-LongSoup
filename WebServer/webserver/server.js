@@ -145,8 +145,9 @@ app.get('/:page', (req, res) => {
         if (sessionPages.includes(page)) {
             let checkSession = ""; // call the db server and see if the session is valid
             if (page === 'account') {
-
-                res.status(200).render(page, { data: { name: name } }), err => {
+                let data = { name: 'uhoh', loggedin: false };
+                console.log(data.name);
+                res.status(200).render(page, data), err => {
                     if (err) {
                         timber.logAndSend(err);
                         console.error(err);
@@ -247,6 +248,7 @@ app.post('/register', (req, res) => {
     const password = req.body.password;
     const last_name = req.body.last_name;
     const first_name = req.body.first_name;
+    const spot_name = req.body.spot_name;
     let session_id = createSessionCookie(req, res);
     let usercookieid = createUserCookie(req, res);
     const tempHost = process.env.BROKER_VHOST;
@@ -261,7 +263,8 @@ app.post('/register', (req, res) => {
         last_name,
         first_name,
         session_id,
-        usercookieid
+        usercookieid,
+        spot_name
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
         if (response.returnCode === '0') {

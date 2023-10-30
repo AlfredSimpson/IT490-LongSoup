@@ -141,8 +141,8 @@ def do_validate(usercookieid, session_id):
     # TODO: get password from justin - update appropriately
     db = LongDB.LongDB(
         host="localhost",
-        user="longadmin",
-        password="Longsoup490!",
+        user="longestsoup",
+        password="shortS0up!",
         database="securesoupdb",
     )
     validity = db.validate_session(usercookieid, session_id)
@@ -155,8 +155,8 @@ def do_logout(usercookieid, session_id):
     # Connect to the database
     db = LongDB.LongDB(
         host="localhost",
-        user="longadmin",
-        password="Longsoup490!",
+        user="longestsoup",
+        password="shortS0up!",
         database="securesoupdb",
     )
     db.invalidate_session(usercookieid, session_id)
