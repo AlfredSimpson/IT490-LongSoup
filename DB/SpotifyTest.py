@@ -6,22 +6,18 @@ import json
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="0333477c29da440c828ede4dc2eb6747",
                                                             client_secret="512ee493749c4959af01f8c32f3cd7d5"))
 
-track_id = "2l20BZOKBc1vNBxfKkJoQ7"
+tracks ="2tBomeCTCXl3fq0g0jterX"
+tracks_1 = "5izS9lEKFma3NVRl6uBbTs"
+#tracks_id = (str(element) for element in tracks)
 
-<<<<<<< HEAD
 # track_id = sp.search(q='queen', limit=20)
 # for idx, track in enumerate(track_id['tracks']['items']):
 #     tracks = track.get('artists')
 #     # genres = track.get({'artist':{'genres'}})
 #     #x = json.loads(track)
 #     #genres = x.dumps({"artists": {"genres"}})
-=======
-results = sp.search(q='tobymac', limit=20)
-for idx, track in enumerate(results['tracks']['items']):
-    print(idx, track['name'], track['artists'], "\n")
->>>>>>> 208c56c684b0baf60e8a5589859e6b865cbcf965
 
-track_data = sp.track(track_id)
+track_data = sp.track(tracks_1)
 
 artist_ids = []
 
@@ -37,7 +33,8 @@ for artist in artists_data["artists"]:
 
 genres = set(genres) # removes duplicates
 
-print(artist, "\n", genres)
+print(artist)
+print(genres)
 
 # result_artist = json.dumps(artist)
 # result_genre = json.dumps(genres)
