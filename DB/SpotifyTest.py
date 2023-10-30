@@ -18,9 +18,9 @@ tracks_1 = "5izS9lEKFma3NVRl6uBbTs"
 #     #x = json.loads(track)
 #     #genres = x.dumps({"artists": {"genres"}})
 
-results = sp.search(q='tobymac', limit=20)
-for idx, track in enumerate(results['tracks']['items']):
-    print(idx, track['name'], track['artists'], "\n")
+# results = sp.search(q='tobymac', limit=20)
+# for idx, track in enumerate(results['tracks']['items']):
+#     print(idx, track['name'], track['artists'], "\n")
 
 
 track_data = sp.track(tracks_1)
