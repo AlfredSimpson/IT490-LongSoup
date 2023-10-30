@@ -196,20 +196,50 @@ class LongDB:
 
     # User modification methods
 
-    def add_user(self, table, useremail, password, fname, lname):
+    def add_user(
+        self,
+        table,
+        useremail,
+        password,
+        sessionid,
+        usercookieid,
+        fname,
+        lname,
+        spot_name,
+    ):
         """
         add_user is a function that adds a user to the database.
         It requires the following parameters:
         table: the table to add the user to
         useremail: the username of the user to add
         password: the password of the user to add
+        sessionid: the sessionid of the user to add
+        usercoookieid: the usercookieid of the user to add
         """
-        sql = "INSERT INTO " + table + " (useremail, password) VALUES (%s, %s)"
-        val = (useremail, password)
+        sql = (
+            "INSERT INTO "
+            + table
+            + " (useremail, password, sessionid, usercookieid) VALUES (%s, %s, %s, %s)"
+        )
+        val = (useremail, password, sessionid, usercookieid)
         self.mycursor.execute(sql, val)
         self.mydb.commit()
 
         return self.mycursor.rowcount, f"{useremail} added!"
+
+    def initialUpdate(self, useremail, fname, lname, spot_name):
+        """
+        initialUpdate takes the first name, last name, and spotify username and adds it into userinfo after querying the userid from users.
+        """
+        sql = "SELECT userid FROM users WHERE useremail = '" + useremail + "'"
+        self.mycursor.execute(sql)
+        result = self.mycursor.fetchall()
+        userid = result[0]
+        sql = "INSERT INTO userinfo (uid, fname, lname, spot_name, uses_spot) VALUES (%s, %s, %s, %s, %s)"
+        val = (userid, fname, lname, spot_name, 1)
+        self.mycursor.execute(sql, val)
+        self.mydb.commit()
+        return self.mycursor.rowcount, f"{useremail} added to userinfo!"
 
     def update_user_password(self, table, useremail, password):
         """

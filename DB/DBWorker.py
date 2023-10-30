@@ -13,9 +13,14 @@ import LongDB
 # Function to perform login
 def do_login(useremail, password, session_id, usercookieid):
     # Connect to the database
-    db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
+    # db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
     # TODO: get password from justin - update appropriately
-    # db = LongDB.LongDB(host="localhost", user="longadmin", password="Longsoup490!", database="securesoupdb")
+    db = LongDB.LongDB(
+        host="localhost",
+        user="longadmin",
+        password="Longsoup490!",
+        database="securesoupdb",
+    )
     # Validate the user - consider adding a try catch.
     result = db.auth_user(
         table="users",
@@ -58,7 +63,9 @@ def do_login(useremail, password, session_id, usercookieid):
         }
 
 
-def do_register(useremail, password, fname, lname, session_id, usercookieid):
+def do_register(
+    useremail, password, session_id, usercookieid, first_name, last_name, spot_name
+):
     """
     do_register takes useremail and password as arguments and attempts to register the user.
     It returns a message indicating whether the registration was successful or not.
@@ -68,9 +75,14 @@ def do_register(useremail, password, fname, lname, session_id, usercookieid):
     """
 
     # Connect to the database
-    db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
+    # db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
     # TODO: get password from justin - update appropriately
-    # db = LongDB.LongDB(host="localhost", user="", password="", database="securesoupdb")
+    db = LongDB.LongDB(
+        host="localhost",
+        user="longadmin",
+        password="Longsoup490!",
+        database="securesoupdb",
+    )
     # See if the user exists already
     exists = db.user_exists_email(useremail)
     print(exists)
@@ -84,13 +96,15 @@ def do_register(useremail, password, fname, lname, session_id, usercookieid):
                 table="users",
                 useremail=useremail,
                 password=password,
-                fname=fname,
-                lname=lname,
                 sessionid=session_id,
                 usercookieid=usercookieid,
+                fname=first_name,
+                lname=last_name,
+                spot_name=spot_name,
             )
             if result:
                 name = db.get_name(usercookieid)
+                db.initialUpdate(useremail, first_name, last_name, spot_name)
                 return {
                     "returnCode": "0",
                     "message": "Registration successful",
@@ -123,9 +137,14 @@ def return_error(ch, method, properties, body, msg):
 def do_validate(usercookieid, session_id):
     # This takes in the sessionID and validates it by checking the database. If the sessionTable shows that the session is valid for the user, then it returns a boolean True. Otherwise, it returns a boolean False.
     # Connect to the database
-    db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
+    # db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
     # TODO: get password from justin - update appropriately
-    # db = LongDB.LongDB(host="localhost", user="", password="", database="securesoupdb")
+    db = LongDB.LongDB(
+        host="localhost",
+        user="longadmin",
+        password="Longsoup490!",
+        database="securesoupdb",
+    )
     validity = db.validate_session(usercookieid, session_id)
     # TODO: add this to the logging system
     print(f"validate_session returned: {validity}")
@@ -134,7 +153,15 @@ def do_validate(usercookieid, session_id):
 
 def do_logout(usercookieid, session_id):
     # Connect to the database
-    db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
+    db = LongDB.LongDB(
+        host="localhost",
+        user="longadmin",
+        password="Longsoup490!",
+        database="securesoupdb",
+    )
+    db.invalidate_session(usercookieid, session_id)
+    print(f"User {usercookieid} logged out")
+    return {"returnCode": "0", "message": "Logout successful"}
 
 
 def request_processor(ch, method, properties, body):
@@ -180,6 +207,7 @@ def request_processor(ch, method, properties, body):
                 request["last_name"],
                 request["session_id"],
                 request["usercookieid"],
+                request["spot_name"],
             )
         elif request_type == "logout":
             # Handles logout requests

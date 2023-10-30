@@ -1,0 +1,28 @@
+{
+    "likes": [
+        {
+            "artists": [
+                {
+                    "artist_name": "",
+                    "genres": "",
+                    "value": ""
+                }
+            ],
+            "tracks": [
+                {
+                    "artist_name": "",
+                    "track_name": "",
+                    "popularity": "",
+                    "genres": "",
+                    "value": ""
+                }
+            ],
+            "genres": [
+                {
+                    "genre_name": "",
+                    "value": ""
+                }
+            ]
+        }
+    ]
+}

@@ -220,12 +220,12 @@ app.post('/login', (req, res) => {
             console.log('Login successful!');
             // console.log(response);
             console.log(response.name);
-            let name = response.name;
-            name = name[0];
+            let name = "uhoh";
+            let data = response;
             timber.logAndSend('User logged in successfully.');
             // if (response.sessionValid === true) {} --- may not be necessary as cookie is set at login
             data = response.data;
-            res.render('account', { name, data });
+            res.render('account', name, data);
             // res.redirect('/account');
         } else {
             let errorMSG = 'You have failed to login.';
@@ -236,7 +236,7 @@ app.post('/login', (req, res) => {
             data = response.data;
             console.log("showing data");
             console.log(data);
-            res.status(401).render('login', { data });
+            res.status(401).render('login', data);
         }
     });
 });
@@ -247,10 +247,11 @@ app.post('/register', (req, res) => {
     const password = req.body.password;
     const last_name = req.body.last_name;
     const first_name = req.body.first_name;
-    const session_id = req.session.sessionId;
-    const usercookieid = req.session.usercookieid;
+    let session_id = createSessionCookie(req, res);
+    let usercookieid = createUserCookie(req, res);
     const tempHost = process.env.BROKER_VHOST;
     const tempQueue = process.env.BROKER_QUEUE;
+
     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
 
     mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
