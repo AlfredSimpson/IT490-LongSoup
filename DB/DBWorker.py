@@ -1,5 +1,10 @@
 import pika, mysql.connector, os, sys, json
 import LongDB
+import spotipy
+import spotipy.util as util
+from spotipy.oauth2 import SpotifyClientCredentials
+from dotenv import load_dotenv
+
 
 # Import the spotify handler
 
@@ -8,6 +13,27 @@ import LongDB
 # get user top tracks
 # get user recommended tracks
 # get user recommended artists
+
+
+def generateSimpleRecs(genre, popularity, valence):
+    client_id = os.getenv("SPOTIPY_CLIENT_ID")
+    client_secret = os.getenv("SPOTIPY_CLIENT_SECRET")
+    # redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
+    spotify_token = os.getenv("SPOTIFY_TOKEN_URL")
+    spotify_api_url = os.getenv("SPOTIFY_API_BASE_URL")
+
+    sp = spotipy.Spotify(
+        auth_manager=SpotifyClientCredentials(
+            client_id=client_id, client_secret=client_secret
+        )
+    )
+
+    results = sp.recommendations(
+        seed_genres=genre, limit=5, target_popularity=popularity, target_valence=valence
+    )
+    print(results)
+    result = {"returnCode": 0, "Message": "Success", "data": results}
+    pass
 
 
 # Function to perform login
@@ -214,6 +240,14 @@ def request_processor(ch, method, properties, body):
             response = do_logout(
                 request["usercookieid"],
                 request["session_id"],
+            )
+        elif request_type == "simplerecs":
+            # Handles simple recs from their profile page
+            print("Received simple recs request")
+            response = generateSimpleRecs(
+                request["genre"],
+                request["popularity"],
+                request["valence"],
             )
         else:
             response = {

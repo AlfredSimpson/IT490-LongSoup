@@ -207,12 +207,42 @@ app.get('/:page', (req, res) => {
 
 
 app.post('/getrecked', (req, res) => {
-    console.log(req.body);
+    const tempHost = process.env.BROKER_VHOST;
+    const tempQueue = process.env.BROKER_QUEUE;
     const genre = req.body.genre;
     const popularity = req.body.pop;
     const valence = req.body.vibe;
-    console.log(req.body.vibe);
-    console.log(valence);
+    const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
+
+
+    // getCookie(req);
+
+    mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
+        type: "simplerecs",
+        genre,
+        popularity,
+        valence
+    }, (msg) => {
+        const response = JSON.parse(msg.content.toString());
+        if (response.returnCode === '0') {
+            // console.log(response.data.name);
+            timber.logAndSend('User requested some jams, got some.');
+            data = response.data;
+            console.log(data);
+            res.render('account', data);
+        } else {
+            let errorMSG = 'Could not get recommendations.';
+            const filePath = path.join(__dirname, 'public', 'account' + '.html');
+            // let outcome = response.data['loggedin'];
+            console.log("Sending response data");
+            console.log(response.data['loggedin']);
+            data = response.data;
+            console.log("showing data");
+            console.log(data);
+            res.status(401).render('/account', data);
+        }
+    });
+
 });
 
 
