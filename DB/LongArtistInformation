@@ -3,6 +3,14 @@ import os
 import base64
 from requests import post, get
 import json
+import mysql.connector
+import LongDB
+
+#db = LongDB.LongDB(
+        #host="localhost",
+        #user="longestsoup",
+        #password="shortS0up!",
+        #database="securesoupdb",
 
 load_dotenv()
 
@@ -60,14 +68,32 @@ def get_artists_from_artist(token, artist_id):
     json_result = json.loads(result.content)['artists']
     return json_result
 
+def get_recommendation_from_preference(token, valence_id, genre_id, popularity_id):
+    url = f"https://api.spotify.com/v1/recommendations?limit=3&market=US&seed_genres={genre_id}&target_popularity={popularity_id}&target_valence={valence_id}"
+    headers = get_auth_header(token)
+    result = get(url, headers=headers)
+    json_result = json.loads(result.content)['tracks']
+    return json_result
+
+#def load_into_database()
+
 
 token = get_token()
 
-result = search_for_artist(token, 'The Strokes')
+result = search_for_artist(token, 'Nirvana')
+
+#===============================================#
+#For references based on preferences
+valence_id = '25'
+genre_id = 'rock'
+popularity_id = '50'
+recommendations = get_recommendation_from_preference(token, valence_id, genre_id, popularity_id)
+#===============================================#
+#For artist information
 artist_id = result['id']
 songs = get_songs_from_artist(token, artist_id)
 relatedArtists = get_artists_from_artist(token, artist_id)
-
+#===============================================#
 print("Artist Information")
 
 print("Artist Name: " + str(result['name']))
@@ -84,4 +110,9 @@ for idx, relatedArtist in enumerate(relatedArtists): #list of all related artist
 print("top ten songs:")
 for idx, song in enumerate(songs):
     print(f'{idx + 1}. {song['name']}') #display index as a numbered list
+
+#print(recommendations)
+print("Recommendations for your preferences")
+for idx, recommendation in enumerate(recommendations):
+    print(f'{idx + 1}. {recommendation['name']}')
 #create functionality to add result into database table
