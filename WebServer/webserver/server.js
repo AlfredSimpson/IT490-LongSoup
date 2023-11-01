@@ -360,15 +360,24 @@ app.post('/login', (req, res) => {
             console.log(response.data.name);
             timber.logAndSend('User logged in successfully.');
             data = response.data;
-            console.log(data);
-            res.render('account', data);
-            // res.redirect('/account');
+            musicdata = response.music
+            console.log("testing musicdata");
+            let tracks = [];
+            let artists = [];
+            let links = [];
+            for (var i = 0; i < musicdata.length; i++) {
+                tracks.push(musicdata[i].track);
+                artists.push(musicdata[i].artist);
+                links.push(musicdata[i].url);
+            }
+            res.render('account', { data: data, tracks: tracks });
+            //res.redirect('/account');
         } else {
             let errorMSG = 'You have failed to login.';
             const filePath = path.join(__dirname, 'public', 'login' + '.html');
             // let outcome = response.data['loggedin'];
             console.log("Sending response data");
-            console.log(response.data['loggedin']);
+            // console.log(response.data['loggedin']);
             data = response.data;
             console.log("showing data");
             console.log(data);

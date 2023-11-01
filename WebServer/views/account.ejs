@@ -64,11 +64,13 @@
     </div>
     <div class="container">
         <ul>
-            <% jsonData.musicdata.tracks.forEach(function(track) { %>
-                <li>
-                    <%= track.album.artists[0].name %>
-                </li>
-                <% }); %>
+            <ul>
+                <% for(var i=0; i<tracks.length; i++) {%>
+                    <li>
+                        <%= tracks[i] %>
+                    </li>
+                    <% }; %>
+            </ul>
         </ul>
 
     </div>

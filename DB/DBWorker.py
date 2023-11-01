@@ -21,7 +21,7 @@ testDB = os.getenv("TESTSECUREDB")
 # Spotify info
 
 
-def get_recs():
+def get_recs(genre="punk", valence="0.2", energy="0.7", popularity="25"):
     client_id = os.getenv("SPOTIFY_CLIENT_ID")
     client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
 
@@ -31,10 +31,10 @@ def get_recs():
         )
     )
 
-    genre = "punk"
-    valence = "0.2"
-    energy = "0.3"
-    popularity = "25"
+    genre = genre
+    valence = valence
+    energy = energy
+    popularity = popularity
 
     results = sp.recommendations(
         seed_genres=[genre],
@@ -114,10 +114,10 @@ def do_login(useremail, password, session_id, usercookieid):
             # "currentTop": current_top,
             # "recommendedTracks": recommended_tracks,
             # "recommendedArtists": recommended_artists,
+            "music": music["musicdata"],
             "data": {
-                "name": name,
+                "name": name[0],
                 "loggedin": True,
-                "music": music,
             },
         }
     else:
