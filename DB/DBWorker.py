@@ -21,7 +21,9 @@ testDB = os.getenv("TESTSECUREDB")
 # Spotify info
 
 
-def get_recs(genre="punk", valence="0.2", energy="0.7", popularity="25"):
+def get_recs(
+    genre="punk", valence="0.2", energy="0.7", popularity="25", fromlogin=False
+):
     client_id = os.getenv("SPOTIFY_CLIENT_ID")
     client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
 
@@ -50,7 +52,19 @@ def get_recs(genre="punk", valence="0.2", energy="0.7", popularity="25"):
         artist = i["artists"][0]["name"]
         url = i["external_urls"]["spotify"]
         data["musicdata"].append({"track": track, "artist": artist, "url": url})
-    return data
+    if fromlogin:
+        return data
+    else:
+        return {
+            "returnCode": 0,
+            "message": "Success",
+            "gotrecs": "True",
+            "data": {
+                "loggedin": "True",
+                "name": "buddy",
+            },
+            "music": data["musicdata"],
+        }
 
 
 def generateSimpleRecs(genre, popularity, valence):
@@ -75,9 +89,9 @@ def generateSimpleRecs(genre, popularity, valence):
     return {
         "returnCode": 0,
         "message": "Success",
-        "gotrecs": True,
+        "gotrecs": "True",
         "data": {
-            "loggedin": True,
+            "loggedin": "True",
             "recs": results,
         },
         "recs": results,
@@ -109,11 +123,11 @@ def do_login(useremail, password, session_id, usercookieid):
         valence = random.uniform(0, 1)
         energy = random.uniform(0, 1)
         popularity = random.randint(0, 100)
-        music = get_recs(genre, valence, energy, popularity)
+        music = get_recs(genre, valence, energy, popularity, True)
         return {
             "returnCode": "0",
             "message": "Login successful",
-            "sessionValid": True,
+            "sessionValid": "True",
             # "name": name,
             # "currentTop": current_top,
             # "recommendedTracks": recommended_tracks,
@@ -121,7 +135,7 @@ def do_login(useremail, password, session_id, usercookieid):
             "music": music["musicdata"],
             "data": {
                 "name": name[0],
-                "loggedin": True,
+                "loggedin": "True",
             },
         }
     else:
@@ -177,9 +191,9 @@ def do_register(
                     "returnCode": "0",
                     "message": "Registration successful",
                     "data": {
-                        "loggedin": True,
+                        "loggedin": "True",
                         "name": first_name,
-                        "sessionValid": True,
+                        "sessionValid": "True",
                     },
                 }
             else:

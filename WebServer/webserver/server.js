@@ -241,8 +241,19 @@ app.post('/getrecked', (req, res) => {
             if (response.returnCode === 0) {
                 console.log("Success!");
                 timber.logAndSend('User requested some jams, got some.');
-                userData.push(parsedData);
-                res.render('account', userData);
+                data = response.data;
+                musicdata = response.music
+                console.log("testing musicdata");
+                let tracks = [];
+                let artists = [];
+                let links = [];
+                for (var i = 0; i < musicdata.length; i++) {
+                    tracks.push(musicdata[i].track);
+                    artists.push(musicdata[i].artist);
+                    links.push(musicdata[i].url);
+                }
+
+                res.render('account', { userData: userData, tracks: tracks, artists: artists, links: links });
             } else {
                 console.log("Failure!");
                 console.log("Sending response data");
