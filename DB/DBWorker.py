@@ -55,6 +55,7 @@ def get_recs(
     if fromlogin:
         return data
     else:
+        music = data["musicdata"]
         return {
             "returnCode": 0,
             "message": "Success",
@@ -63,7 +64,7 @@ def get_recs(
                 "loggedin": "True",
                 "name": "buddy",
             },
-            "music": data["musicdata"],
+            "music": music,
         }
 
 
