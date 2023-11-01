@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Message Board</title>
+</head>
+<body>
+
+<h1>Post a Message</h1>
+
+<form action="http://localhost:8080/submit-post" method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username"><br><br>
+
+    <label for="message">Message:</label><br>
+    <textarea id="message" name="message" rows="4" cols="50"></textarea><br><br>
+
+    <input type="submit" value="Post Message">
+</form>
+
+</body>
+</html>
