@@ -285,7 +285,7 @@ def request_processor(ch, method, properties, body):
         elif request_type == "simplerecs":
             # Handles simple recs from their profile page
             print("Received simple recs request")
-            response = generateSimpleRecs(
+            response = get_recs(
                 request["genre"],
                 request["popularity"],
                 request["valence"],

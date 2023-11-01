@@ -13,3 +13,5 @@
 {"type":"log","source":"Webserver","date":"2023-11-01T05:04:52.933Z","log_message":"User logged in successfully."}
 {"type":"log","source":"Webserver","date":"2023-11-01T05:04:54.768Z","log_message":"User logged in successfully."}
 {"type":"log","source":"Webserver","date":"2023-11-01T05:15:25.956Z","log_message":"User logged in successfully."}
+{"type":"log","source":"Webserver","date":"2023-11-01T05:28:31.178Z","log_message":"User logged in successfully."}
+{"type":"log","source":"Webserver","date":"2023-11-01T05:29:03.365Z","log_message":"User requested some jams, got some."}
