@@ -11,11 +11,11 @@ load_dotenv()
 global testUser
 global testPass
 global testDB
-testUser = os.getenv("secureTestUser")
-testPass = os.getenv("secureTestPass")
-testDB = os.getenv("securesoupdb2")
+testUser = os.getenv("TESTSECUREUSER")
+testPass = os.getenv("TESTSECUREPASS")
+testDB = os.getenv("TESTSECUREDB")
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 # Import the spotify handler
 
 # Spotify info
@@ -112,7 +112,6 @@ def do_register(
     It returns a message indicating whether the registration was successful or not.
     However, it does not log the user in.
     Also, the password is not yet hashed.
-    TODO: hash the password
     """
 
     # Connect to the database
@@ -120,8 +119,6 @@ def do_register(
     # db = LongDB.LongDB(host="localhost",user="longestsoup",password="shortS0up!",database="securesoupdb",)
     # See if the user exists already
     exists = db.user_exists_email(useremail)
-    # logging.debug(exists)
-    logging.debug()
     print(f"User email exists? {exists}")
     if exists:
         print("User already exists")
@@ -142,8 +139,9 @@ def do_register(
                 print(
                     f"User {useremail} added to database, attempting to update userinfo next"
                 )
-                # name = db.get_name(usercookieid)
-                # db.initialUpdate(useremail, first_name, last_name, spot_name)
+
+                # userid = db.get_uid(useremail)
+                db.initialUpdate(useremail, first_name, last_name, spot_name)
                 return {"returnCode": "0", "message": "Registration successful"}
                 # return {"returnCode": "0","message": "Registration successful",session_id: True,"name": name,}
             else:
@@ -173,13 +171,11 @@ def do_validate(usercookieid, session_id):
     # This takes in the sessionID and validates it by checking the database. If the sessionTable shows that the session is valid for the user, then it returns a boolean True. Otherwise, it returns a boolean False.
     # Connect to the database
     # db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
-    # TODO: get password from justin - update appropriately
-    db = LongDB.LongDB(
-        host="localhost",
-        user="longestsoup",
-        password="shortS0up!",
-        database="securesoupdb",
-    )
+    global testUser
+    global testPass
+    global testDB
+    db = LongDB.LongDB("localhost", testUser, testPass, testDB)
+    # db = LongDB.LongDB(host="localhost",user="longestsoup",password="shortS0up!",database="securesoupdb",)
     validity = db.validate_session(usercookieid, session_id)
     # TODO: add this to the logging system
     print(f"validate_session returned: {validity}")

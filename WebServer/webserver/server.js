@@ -128,7 +128,6 @@ app.use((err, req, res, next) => {
  * 2. Session pages (home, etc.) - Dynamic pages that require a session to access
  */
 
-
 // Non-session pages
 
 
@@ -146,19 +145,21 @@ app.get('/', (req, res) => {
 app.get('/:page', (req, res) => {
     const page = req.params.page;
     let sessionPages = ['account', 'dashboard', 'profile', 'forum', 'logout']
-    if (page === 'login' || page === 'register') {
+
+    // if (page === 'login' || page === 'register') {
+    if (page == 'login') {
         let errorStatus = null;
         let errorOutput = '';
         res.status(200).render(page, { data: { error_status: errorStatus, error_output: errorOutput } }), err => {
             timber.logAndSend(err);
-
         }
+
     }
     else {
         if (sessionPages.includes(page)) {
             let checkSession = ""; // call the db server and see if the session is valid
             if (page === 'account') {
-                // req.session.data = response.data; //added to help retain data
+                req.session.data = response.data; //added to help retain data
                 console.log(data.name);
                 let data = response.data;
 

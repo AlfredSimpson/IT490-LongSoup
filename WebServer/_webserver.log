@@ -1,319 +1,69 @@
-{"type":"log","source":"Webserver","date":"2023-10-30T14:03:35.960Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:03:35.975Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:03:36.047Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:03:36.051Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:03:38.201Z","log_message":"Incoming request:  POST /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:03:38.518Z","log_message":"User logged in successfully."}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:03:38.519Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:03:38.576Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:03:38.605Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:03:38.607Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:04:13.098Z","log_message":"Incoming request:  POST /getRecked"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:04:13.843Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:04:13.845Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:04:13.858Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:04:13.889Z","log_message":"Incoming request:  GET /getRecked"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:05:17.939Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:05:17.940Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:05:20.020Z","log_message":"Incoming request:  POST /getRecked"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:05:21.620Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:05:21.621Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:05:21.635Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:05:21.663Z","log_message":"Incoming request:  GET /getRecked"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:05:21.666Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:14:23.758Z","log_message":"Incoming request:  GET /getRecked"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:14:23.760Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:14:23.803Z","log_message":"Incoming request:  GET /getRecked"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:14:23.804Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:15:14.056Z","log_message":"Incoming request:  GET /getRecked"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:30:17.640Z","log_message":"Incoming request:  POST /getRecked"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:30:18.683Z","log_message":"Outgoing response: 500"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:30:18.730Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:30:20.507Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:30:20.515Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:30:53.304Z","log_message":"Incoming request:  POST /getRecked"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:30:54.083Z","log_message":"Outgoing response: 500"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:30:54.128Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:31:00.059Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:31:00.061Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:33:26.149Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:33:26.165Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:33:27.406Z","log_message":"Incoming request:  POST /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:33:27.760Z","log_message":"User logged in successfully."}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:34:44.791Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:34:44.793Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:34:45.984Z","log_message":"Incoming request:  POST /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:34:46.201Z","log_message":"User logged in successfully."}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:34:47.902Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:34:47.904Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:35:03.443Z","log_message":"Incoming request:  POST /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:35:03.674Z","log_message":"User logged in successfully."}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:35:03.676Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:35:03.690Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:35:03.720Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:35:03.722Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:35:10.992Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:35:25.210Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:35:25.211Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:37:47.818Z","log_message":"Incoming request:  GET /account"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:37:49.681Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:37:49.683Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:46:13.418Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:46:13.971Z","log_message":"Outgoing response: 500"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:46:14.022Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:46:15.590Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:46:15.597Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:46:58.999Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:46:59.502Z","log_message":"Outgoing response: 500"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:46:59.551Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:47:23.595Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:47:23.606Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:47:24.733Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:47:25.241Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:47:42.853Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:47:42.868Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:47:43.964Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:47:44.601Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:47:44.603Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:47:44.619Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:47:44.655Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:48:31.057Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:48:31.060Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:48:32.105Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:48:32.636Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:48:32.638Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:48:32.653Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:48:32.691Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:48:57.234Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:48:57.236Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:48:58.343Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:48:58.802Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:48:58.803Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:48:58.817Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:48:58.849Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:49:27.331Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:49:28.261Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:49:28.262Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:49:28.275Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:49:28.303Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:54:51.133Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:54:51.599Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:54:51.606Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:54:51.623Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:54:51.650Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:56:16.596Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:56:17.121Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:56:17.128Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:56:17.145Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:56:17.175Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:58:12.269Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:58:12.820Z","log_message":"Outgoing response: 500"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:58:12.861Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:59:09.057Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:59:10.338Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:59:10.785Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:59:10.796Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:59:10.811Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:59:10.845Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:59:29.460Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:59:29.983Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:59:29.991Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:59:30.010Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:59:30.039Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:59:57.226Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:59:57.735Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:59:57.743Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:59:57.761Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T14:59:57.785Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:03:08.302Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:03:08.791Z","log_message":"Outgoing response: 500"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:03:08.835Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:03:35.760Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:03:36.789Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:03:37.392Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:03:37.403Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:03:37.417Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:03:37.453Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:04:04.312Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:04:04.845Z","log_message":"Outgoing response: 500"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:04:04.893Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:06:50.522Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:06:51.775Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:06:52.236Z","log_message":"Outgoing response: 500"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:06:52.278Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:07:23.474Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:07:24.705Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:07:25.398Z","log_message":"Outgoing response: 500"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:07:25.446Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:08:31.548Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:08:32.631Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:08:33.339Z","log_message":"Outgoing response: 500"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:08:33.389Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:10:10.026Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:11:12.088Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:11:12.569Z","log_message":"Outgoing response: 500"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:11:12.615Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:11:23.348Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:11:24.557Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:11:25.409Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:11:25.418Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:11:25.433Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:11:25.468Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:11:43.808Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:11:44.545Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:11:44.554Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:11:44.570Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:11:44.595Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:12:59.070Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:12:59.517Z","log_message":"Outgoing response: 500"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:12:59.564Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:13:28.651Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:13:29.615Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:13:30.204Z","log_message":"Outgoing response: 500"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:13:30.245Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:13:37.711Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:14:23.711Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:14:24.202Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:14:24.193Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:14:24.222Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:14:24.260Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:15:30.213Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:15:30.658Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:15:30.667Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:15:30.688Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:15:30.717Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:15:41.248Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:15:41.773Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:15:41.782Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:15:41.799Z","log_message":"Incoming request:  GET /css/style.css"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:15:41.831Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:16:35.844Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:16:36.408Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:16:36.412Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:16:36.422Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:18:43.180Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:20:34.142Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:20:34.985Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:20:34.989Z","log_message":"Outgoing response: 500"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:20:35.044Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:20:36.228Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:21:26.593Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:21:27.034Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:21:27.035Z","log_message":"Outgoing response: 500"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:21:27.082Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:21:28.213Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:22:11.192Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:22:11.968Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:22:34.364Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:22:34.843Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:22:35.376Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:22:37.187Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:22:52.492Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:22:52.933Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:23:42.692Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:23:44.782Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:23:45.414Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:23:46.618Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:26:02.965Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:26:03.485Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:38:47.461Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:38:50.013Z","log_message":"Incoming request:  POST /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:38:50.515Z","log_message":"User requested some jams, got some."}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:38:51.824Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:39:46.421Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:39:47.202Z","log_message":"Incoming request:  GET /account?recs"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:39:48.530Z","log_message":"Incoming request:  GET /"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:39:48.533Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:39:48.574Z","log_message":"Incoming request:  GET /"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:39:48.576Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:17.549Z","log_message":"Incoming request:  GET /about"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:17.551Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:17.590Z","log_message":"Incoming request:  GET /about"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:17.591Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:19.266Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:19.268Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:19.302Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:19.303Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:20.432Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:20.434Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:20.474Z","log_message":"Incoming request:  GET /login"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:20.476Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:21.265Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:21.266Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:21.303Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:21.304Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:43.483Z","log_message":"Incoming request:  POST /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:43.670Z","log_message":"Outgoing response: 401"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:43.710Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:44.984Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:40:44.985Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:43:55.529Z","log_message":"Incoming request:  POST /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:43:55.692Z","log_message":"Outgoing response: 401"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:43:55.729Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:43:56.938Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:43:56.939Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:46:16.354Z","log_message":"Incoming request:  POST /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:46:16.523Z","log_message":"Outgoing response: 401"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:46:16.561Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:46:17.952Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:46:17.953Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:47:23.932Z","log_message":"Incoming request:  POST /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:47:24.102Z","log_message":"Outgoing response: 401"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:47:24.140Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:48:13.674Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:48:13.684Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:48:19.387Z","log_message":"Incoming request:  POST /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:48:19.581Z","log_message":"Outgoing response: 401"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:48:19.623Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:48:30.276Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:48:30.280Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:49:34.964Z","log_message":"Incoming request:  POST /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:49:35.129Z","log_message":"Outgoing response: 401"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:49:35.163Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:49:39.634Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:49:39.635Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:50:25.996Z","log_message":"Incoming request:  POST /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:50:26.163Z","log_message":"Outgoing response: 401"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:50:26.212Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:50:27.432Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:50:27.438Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:50:43.325Z","log_message":"Incoming request:  POST /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:50:43.495Z","log_message":"Outgoing response: 401"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:50:43.532Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:50:44.701Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:50:44.707Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:54:26.170Z","log_message":"Incoming request:  POST /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:54:26.312Z","log_message":"Outgoing response: 401"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:54:26.355Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:54:27.628Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:54:27.630Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:55:37.842Z","log_message":"Incoming request:  POST /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:55:37.981Z","log_message":"Outgoing response: 401"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:55:38.017Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:55:39.066Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T15:55:39.068Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:00:47.974Z","log_message":"Incoming request:  POST /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:00:48.133Z","log_message":"Outgoing response: 401"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:00:48.178Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:00:49.230Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:00:49.232Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:03:46.017Z","log_message":"Incoming request:  POST /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:03:46.170Z","log_message":"Outgoing response: 401"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:03:46.207Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:03:47.512Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:03:47.514Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:06:33.855Z","log_message":"Incoming request:  POST /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:06:34.056Z","log_message":"Outgoing response: 401"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:06:34.097Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:06:34.993Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:06:34.994Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:09:47.115Z","log_message":"Incoming request:  POST /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:09:47.262Z","log_message":"Outgoing response: 401"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:09:47.303Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:09:48.416Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:09:48.417Z","log_message":"Outgoing response: 200"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:16:12.092Z","log_message":"Incoming request:  POST /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:16:12.240Z","log_message":"Outgoing response: 401"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:16:12.283Z","log_message":"Incoming request:  GET /favicon.ico"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:16:13.460Z","log_message":"Incoming request:  GET /register"}
-{"type":"log","source":"Webserver","date":"2023-10-30T16:16:13.461Z","log_message":"Outgoing response: 200"}
+
+{"type":"log","source":"Webserver","date":"2023-11-01T01:35:34.908Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:35:35.141Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:35:35.172Z","log_message":"Incoming request:  GET /favicon.ico"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:37:59.772Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:37:59.780Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:38:07.905Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:38:08.046Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:38:08.077Z","log_message":"Incoming request:  GET /favicon.ico"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:38:39.656Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:38:39.658Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:38:44.881Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:38:45.012Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:38:45.041Z","log_message":"Incoming request:  GET /favicon.ico"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:43:53.817Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:43:53.820Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:43:58.757Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:43:58.883Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:43:58.917Z","log_message":"Incoming request:  GET /favicon.ico"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:45:03.938Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:45:03.939Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:47:16.559Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:47:16.686Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:47:16.720Z","log_message":"Incoming request:  GET /favicon.ico"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:48:06.224Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:48:06.226Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:49:09.339Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:49:09.475Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:49:09.515Z","log_message":"Incoming request:  GET /favicon.ico"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:50:22.962Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:50:22.964Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:52:52.010Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:52:52.148Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:52:52.185Z","log_message":"Incoming request:  GET /favicon.ico"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:58:00.571Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:58:00.573Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:58:03.065Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:58:03.207Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:58:03.244Z","log_message":"Incoming request:  GET /favicon.ico"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:58:14.186Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:58:14.187Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:58:26.773Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:58:26.908Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-11-01T01:58:26.944Z","log_message":"Incoming request:  GET /favicon.ico"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:06:26.752Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:06:26.754Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:09:05.149Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:09:05.278Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:09:05.308Z","log_message":"Incoming request:  GET /favicon.ico"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:09:48.165Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:09:48.166Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:10:49.507Z","log_message":"Incoming request:  GET /account"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:10:53.874Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:10:53.875Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:10:54.206Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:10:54.207Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:11:08.399Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:11:08.525Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:11:08.545Z","log_message":"Incoming request:  GET /favicon.ico"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:11:49.220Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:11:49.221Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:12:03.499Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:12:03.629Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:12:03.652Z","log_message":"Incoming request:  GET /favicon.ico"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:12:47.386Z","log_message":"Incoming request:  GET /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:12:47.387Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:12:59.608Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:12:59.898Z","log_message":"Outgoing response: 401"}
+{"type":"log","source":"Webserver","date":"2023-11-01T02:12:59.921Z","log_message":"Incoming request:  GET /favicon.ico"}

@@ -228,16 +228,16 @@ class LongDB:
         """
         initialUpdate takes the first name, last name, and spotify username and adds it into userinfo after querying the userid from users.
         """
-        sql = "SELECT uid FROM users WHERE useremail = '" + useremail + "'"
-
-        self.mycursor.execute(sql)
-        result = self.mycursor.fetchall()
-        userid = result[0][0]
-        sql = "INSERT INTO userinfo (uid, spotify_username, fname, lname) VALUES (%s, %s, %s, %s)"
-        val = (userid, spot_name, fname, lname)
+        sql = (
+            "INSERT INTO userinfo set spot_name = %s, fname = %s, lname = %s, userid = (SELECT uid FROM users WHERE useremail = '"
+            + useremail
+            + "')"
+        )
+        val = (spot_name, fname, lname)
+        # TODO: verify that userid as a string doesn't break this
         self.mycursor.execute(sql, val)
         self.mydb.commit()
-        return self.mycursor.rowcount, f"{useremail} added to userinfo!"
+        return self.mycursor.rowcount, f"{fname} added to userinfo!"
 
     def update_user_password(self, table, useremail, password):
         """
