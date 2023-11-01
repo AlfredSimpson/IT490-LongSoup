@@ -9,11 +9,22 @@ const handshake = require('./formHelper.js');
 const amqp = require('amqplib/callback_api');
 const mustang = require('./mustang.js');
 const bcrypt = require('bcrypt');
-const session = require('express-session');
+// const session = require('express-session');
+const sessions = require('express-session');
 const cookieParser = require('cookie-parser');
 const { get } = require('http');
 
+// const store = new sessions.MemoryStore();
+app.use(express.json());
 app.use(cookieParser());
+
+// app.use(sessions({
+//     secret: "secretkeylol",
+//     resave: false,
+//     saveUninitialized: false,
+//     store
+// })
+// );
 
 const Port = process.env.PORT || 9001;
 
@@ -53,17 +64,18 @@ const statusMessageHandler = (req, res, next) => {
 
 //  Middleware to log traffic 
 const trafficLogger = (req, res, next) => {
-    timber.logAndSend(`Incoming request: \ ${req.method} ${req.url}`);
+    //timber.logAndSend(`Incoming request: \ ${req.method} ${req.url}`);
 
     const send = res.send;
     res.send = function (string) {
         //
         // const body = string instanceof Buffer ? string.toString() : string;
-        timber.logAndSend(`Outgoing response: ${res.statusCode}`);
+        //timber.logAndSend(`Outgoing response: ${res.statusCode}`);
         send.call(this, string);
     };
     next();
 };
+
 
 // session Cookies for login/validation after
 const createSessionCookie = (req, res) => {
@@ -92,7 +104,8 @@ app.use(statusMessageHandler);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(__dirname + '../public'));
-app.use('/css', express.static(__dirname + '../public/css'));
+// app.use('/css', express.static(__dirname + '../public/css'));
+app.use('/css', express.static('public'));
 app.use('/js', express.static(__dirname + '../public/js'));
 app.use('img', express.static(__dirname + '../public/img'));
 
@@ -115,7 +128,6 @@ app.use((err, req, res, next) => {
  * 2. Session pages (home, etc.) - Dynamic pages that require a session to access
  */
 
-
 // Non-session pages
 
 
@@ -133,21 +145,24 @@ app.get('/', (req, res) => {
 app.get('/:page', (req, res) => {
     const page = req.params.page;
     let sessionPages = ['account', 'dashboard', 'profile', 'forum', 'logout']
-    if (page === 'login' || page === 'register') {
+
+    // if (page === 'login' || page === 'register') {
+    if (page == 'login') {
         let errorStatus = null;
         let errorOutput = '';
         res.status(200).render(page, { data: { error_status: errorStatus, error_output: errorOutput } }), err => {
             timber.logAndSend(err);
-
         }
+
     }
     else {
         if (sessionPages.includes(page)) {
             let checkSession = ""; // call the db server and see if the session is valid
             if (page === 'account') {
-
+                req.session.data = response.data; //added to help retain data
                 console.log(data.name);
-                data = response.data;
+                let data = response.data;
+
                 res.status(200).render(page, data), err => {
                     if (err) {
                         timber.logAndSend(err);
@@ -173,27 +188,170 @@ app.get('/:page', (req, res) => {
                     // console.error(err);
                 }
             }
-            //     const filePath = path.join(__dirname, page + '.ejs');
-            //     // check if session cookie exists
-            //     if (!fs.existsSync(filePath)) {
-            //         res.status(404).send('Page not found');
-            //         timber.logAndSend(`404: ${filePath} - Page not found`);
-            //         return;
-            //     }
-            //     console.log(page);
-            //     res.status(200).render(page), err => {
-            //         if (err) {
-            //             timber.logAndSend(err);
-            //             console.error(err);
-            //         }
-            //     };
+
 
         }
     }
 });
 
+// app.get('/getRecked', function (req, res) {
 
 
+//     // Parse the rawData to extract the required information
+//     let parsedData = rawData.map(item => {
+//         return {
+//             artist: data.artists.name, // replace with actual keys if different
+//             track: data.tracks.name,   // replace with actual keys if different
+//             url: data.tracks.external_urls.spotify,       // replace with actual keys if different
+//         };
+//     });
+
+//     res.render('getRecked', { recommendations: parsedData });
+// });
+const userData = [];
+app.post('/getrecked', (req, res) => {
+    console.log('\n[Posting to /getrecked]\n');
+    const tempHost = process.env.BROKER_VHOST;
+    const tempQueue = process.env.BROKER_QUEUE;
+    const genre = req.body.genres;
+    const popularity = req.body.pop;
+    const valence = req.body.vibe;
+    console.log(`genre: ${genre}, popularity: ${popularity}, valence: ${valence}`);
+    const amqpUrl = `amqp://longsoup:puosgnol@${tempHost}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
+
+
+    // getCookie(req);
+    mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
+        type: "simplerecs",
+        genre,
+        popularity,
+        valence
+    }, (msg) => {
+        try {
+            console.log("[getrecked] Received message from broker, parsing response\n\n\n");
+            const response = JSON.parse(msg.content.toString());
+            console.log(response);
+            // Create the data object to send to client 
+
+            if (response.returnCode === 0) {
+                console.log("\n[from getrecked post] Success!");
+                timber.logAndSend('\nUser requested some jams, got some.\n');
+                data = response.data;
+                musicdata = response.music
+                console.log("\n\nwe made it to getRecs, here's response.music/musicdata\n");
+                console.log(musicdata);
+                console.log("\ntesting musicdata\n");
+                let tracks = [];
+                let artists = [];
+                let links = [];
+                for (var i = 0; i < musicdata.length; i++) {
+                    tracks.push(musicdata[i].track);
+                    artists.push(musicdata[i].artist);
+                    links.push(musicdata[i].url);
+                }
+
+                res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
+            } else {
+                console.log("\nFailure!");
+                console.log("\nSending response data");
+                console.log("\nshowing data");
+                console.log(musicdata);
+                res.status(401).render('account', musicdata);
+            }
+        } catch (error) {
+            console.log("\nError:", error);
+            // Handle the error appropriately, maybe render an error page
+            res.status(500).send("An error occurred");
+        }
+    });
+});
+
+app.post('/account', (req, res) => {
+    const tempHost = process.env.BROKER_VHOST;
+    const tempQueue = process.env.BROKER_QUEUE;
+    const genre = req.body.genres;
+    const popularity = req.body.pop;
+    const valence = req.body.vibe;
+    console.log(`\ngenre: ${genre}, popularity: ${popularity}, valence: ${valence}`);
+    const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
+
+
+    // getCookie(req);
+    mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
+        type: "simplerecs",
+        genre,
+        popularity,
+        valence
+    }, (msg) => {
+        try {
+            const response = JSON.parse(msg.content.toString());
+            console.log('\n[Posting to /account]\t Received response, parsing\n');
+            // Create the data object to send to client 
+
+            if (response.returnCode === 0) {
+                console.log("\n['/account'] Success!");
+                timber.logAndSend('\nUser requested some jams, got some.\n');
+                data = response.data;
+                musicdata = response.music
+                console.log("\n\nwe made it to getRecs, here's response.music/musicdata\n");
+                console.log(musicdata);
+                console.log("\n['account'] \ttesting musicdata\n");
+                let tracks = [];
+                let artists = [];
+                let links = [];
+                for (var i = 0; i < musicdata.length; i++) {
+                    tracks.push(musicdata[i].track);
+                    artists.push(musicdata[i].artist);
+                    links.push(musicdata[i].url);
+                }
+
+                res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
+            } else {
+                console.log("Failure!");
+                console.log("Sending response data");
+                console.log("Showing data");
+                console.log(musicdata);
+                res.status(401).render('account', musicdata);
+            }
+        } catch (error) {
+            console.log("Error:", error);
+            // Handle the error appropriately, maybe render an error page
+            res.status(500).send("An error occurred");
+        }
+    });
+
+    // mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
+    //     type: "simplerecs",
+    //     genre,
+    //     popularity,
+    //     valence
+    // }, (msg) => {
+    //     const response = JSON.parse(msg.content.toString());
+    //     // console.log(response);
+    //     let musicdata = response.data;
+    //     let rectracks = musicdata.tracks;;
+    //     let artist = rectracks.album
+    //     console.log(artist);
+    //     if (response.returnCode === 0) {
+    //         console.log("Success!");
+    //         // console.log(response.data.name);
+    //         timber.logAndSend('User requested some jams, got some.');
+
+    //         res.render('account', data);
+    //     } else {
+    //         console.log("Failure!");
+    //         let errorMSG = 'Could not get recommendations.';
+    //         const filePath = path.join(__dirname, 'public', 'account' + '.ejs');
+    //         // let outcome = response.data['loggedin'];
+    //         console.log("Sending response data");
+
+    //         console.log("showing data");
+    //         console.log(data);
+    //         res.status(401).render('account', data);
+    //     }
+    // });
+
+});
 
 
 app.post('/login', (req, res) => {
@@ -222,15 +380,24 @@ app.post('/login', (req, res) => {
             console.log(response.data.name);
             timber.logAndSend('User logged in successfully.');
             data = response.data;
-            console.log(data);
-            res.render('account', data);
-            // res.redirect('/account');
+            musicdata = response.music;
+            console.log("testing musicdata");
+            let tracks = [];
+            let artists = [];
+            let links = [];
+            for (var i = 0; i < musicdata.length; i++) {
+                tracks.push(musicdata[i].track);
+                artists.push(musicdata[i].artist);
+                links.push(musicdata[i].url);
+            }
+            res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
+            //res.redirect('/account');
         } else {
             let errorMSG = 'You have failed to login.';
             const filePath = path.join(__dirname, 'public', 'login' + '.html');
             // let outcome = response.data['loggedin'];
             console.log("Sending response data");
-            console.log(response.data['loggedin']);
+            // console.log(response.data['loggedin']);
             data = response.data;
             console.log("showing data");
             console.log(data);
@@ -264,10 +431,23 @@ app.post('/register', (req, res) => {
         spot_name
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
-        if (response.returnCode === '0') {
+        if (response.returnCode == "0") {
             // Set a cookie for userid to track locally; this will be used to validate session
+            console.log("\n[Register - response] Successful registration, parsing data\n");
+            data = response.data;
+            musicdata = response.music;
+            console.log("[Register - response] testing musicdata");
+            console.log('\n', musicdata, '\n');
+            let tracks = [];
+            let artists = [];
+            let links = [];
+            for (var i = 0; i < musicdata.length; i++) {
+                tracks.push(musicdata[i].track);
+                artists.push(musicdata[i].artist);
+                links.push(musicdata[i].url);
+            }
+            res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
 
-            res.redirect('/account');
         } else {
             res.status(401).send('You have failed to register.');
             // add handling for render isntead that prints message to user
