@@ -55,7 +55,7 @@ module.exports = {
                         }
                     }, { noAck: true });
 
-                    console.log(`Sending message to queue ${queueName}`);
+                    console.log(`\n[MUSTANG exports] Sending message to queue ${queueName}\n`);
                     channel.sendToQueue(
                         queueName,
                         Buffer.from(JSON.stringify(requestPayload)),

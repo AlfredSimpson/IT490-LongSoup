@@ -57,23 +57,10 @@
 
     <div class="container my-5">
         <div class="container-fluid py-5">
-            <h1 class="display-5 fw-bold">Hey, welcome home! </h1>
+            <h1 class="display-5 fw-bold">Hey <%= data.name %>, welcome home! </h1>
             <p class="col-md-8 fs-4">We're ready to start finding some great tunes for you.</p>
             <!-- <button class="btn btn-primary btn-lg" type="button"></button> -->
         </div>
-    </div>
-    <div class="container">
-        <h1>Here's some music to get you going</h1>
-        <ul>
-            <ul>
-                <% for(var i=0; i<tracks.length; i++) {%>
-                    <li>
-                        <%= tracks[i] %> , <%= artists[i] %>, <a href="<%= links[i] %>">Listen Now!</a>"
-                    </li>
-                    <% }; %>
-            </ul>
-        </ul>
-
     </div>
 
 
@@ -88,11 +75,35 @@
     </div>
     <div class="container my-5">
         <div class="container-fluid py-5">
-            <h1 class="display-5 fw-bold">Some new tunes</h1>
+            <h1 class="display-5 fw-bold">Some new tunes for you</h1>
 
             <p class="col-md-8 fs-4"></p>
-
-
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Artist</th>
+                        <th scope="col">Track</th>
+                        <th scope="col">Listen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% recommendations.forEach(function(item, index){ %>
+                        <tr>
+                            <th scope="row">
+                                <%= index + 1 %>
+                            </th>
+                            <td>
+                                <%= item.artist %>
+                            </td>
+                            <td>
+                                <%= item.track %>
+                            </td>
+                            <td><a href="<%= item.url %>" target="_blank">Listen</a></td>
+                        </tr>
+                        <% }); %>
+                </tbody>
+            </table>
         </div>
     </div>
     <div class="container my-5">
@@ -105,7 +116,7 @@
                     <p class="col-md-8 fs-4">Let's get ready to rock! We'll get to know you over time, but let's start
                         by
                         sharing what you're looking for.</p>
-                    <form method="post" action="/account?recs">
+                    <form method="post" action="/getRecked">
                         <label for="genres" class="form-label">What genre are you looking for?</label>
                         <select id="genres" name="genres">
                             <option value="alt-rock">alt-rock</option>
@@ -146,7 +157,7 @@
             </div>
             <div class="container my-5">
                 <div class="container-fluid py-5">
-                    <h1 class="display-5 fw-bold">Some new tunes</h1>
+                    <!-- <h1 class="display-5 fw-bold">Some new tunes</h1> -->
 
                     <p class="col-md-8 fs-4"></p>
 
