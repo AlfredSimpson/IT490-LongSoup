@@ -210,6 +210,7 @@ app.get('/:page', (req, res) => {
 // });
 const userData = [];
 app.post('/getrecked', (req, res) => {
+    console.log('\n[Posting to /getrecked]\n');
     const tempHost = process.env.BROKER_VHOST;
     const tempQueue = process.env.BROKER_QUEUE;
     const genre = req.body.genres;
@@ -227,23 +228,19 @@ app.post('/getrecked', (req, res) => {
         valence
     }, (msg) => {
         try {
+            console.log("[getrecked] Received message from broker, parsing response\n\n\n");
             const response = JSON.parse(msg.content.toString());
-            // let parsedData = response.map(item => {
-            //     return {
-            //         artist: data.artists.name, // replace with actual keys if different
-            //         track: data.tracks.name,   // replace with actual keys if different
-            //         url: data.tracks.external_urls.spotify,       // replace with actual keys if different
-            //     };
-            // });
-
+            console.log(response);
             // Create the data object to send to client 
 
             if (response.returnCode === 0) {
-                console.log("Success!");
-                timber.logAndSend('User requested some jams, got some.');
+                console.log("\n[from getrecked post] Success!");
+                timber.logAndSend('\nUser requested some jams, got some.\n');
                 data = response.data;
                 musicdata = response.music
-                console.log("testing musicdata");
+                console.log("\n\nwe made it to getRecs, here's response.music/musicdata\n");
+                console.log(musicdata);
+                console.log("\ntesting musicdata\n");
                 let tracks = [];
                 let artists = [];
                 let links = [];
@@ -253,16 +250,16 @@ app.post('/getrecked', (req, res) => {
                     links.push(musicdata[i].url);
                 }
 
-                res.render('account', { userData: userData, tracks: tracks, artists: artists, links: links });
+                res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
             } else {
-                console.log("Failure!");
-                console.log("Sending response data");
-                console.log("showing data");
+                console.log("\nFailure!");
+                console.log("\nSending response data");
+                console.log("\nshowing data");
                 console.log(musicdata);
                 res.status(401).render('account', musicdata);
             }
         } catch (error) {
-            console.log("Error:", error);
+            console.log("\nError:", error);
             // Handle the error appropriately, maybe render an error page
             res.status(500).send("An error occurred");
         }
@@ -275,7 +272,7 @@ app.post('/account', (req, res) => {
     const genre = req.body.genres;
     const popularity = req.body.pop;
     const valence = req.body.vibe;
-    console.log(`genre: ${genre}, popularity: ${popularity}, valence: ${valence}`);
+    console.log(`\ngenre: ${genre}, popularity: ${popularity}, valence: ${valence}`);
     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
 
 
@@ -288,19 +285,31 @@ app.post('/account', (req, res) => {
     }, (msg) => {
         try {
             const response = JSON.parse(msg.content.toString());
-
-
-            // Create the data object to send to client
+            console.log('\n[Posting to /account]\t Received response, parsing\n');
+            // Create the data object to send to client 
 
             if (response.returnCode === 0) {
-                console.log("Success!");
-                let musicdata = response.data;
-                timber.logAndSend('User requested some jams, got some.');
-                res.render('account', { musicdata });
+                console.log("\n['/account'] Success!");
+                timber.logAndSend('\nUser requested some jams, got some.\n');
+                data = response.data;
+                musicdata = response.music
+                console.log("\n\nwe made it to getRecs, here's response.music/musicdata\n");
+                console.log(musicdata);
+                console.log("\n['account'] \ttesting musicdata\n");
+                let tracks = [];
+                let artists = [];
+                let links = [];
+                for (var i = 0; i < musicdata.length; i++) {
+                    tracks.push(musicdata[i].track);
+                    artists.push(musicdata[i].artist);
+                    links.push(musicdata[i].url);
+                }
+
+                res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
             } else {
                 console.log("Failure!");
                 console.log("Sending response data");
-                console.log("showing data");
+                console.log("Showing data");
                 console.log(musicdata);
                 res.status(401).render('account', musicdata);
             }
@@ -371,7 +380,7 @@ app.post('/login', (req, res) => {
             console.log(response.data.name);
             timber.logAndSend('User logged in successfully.');
             data = response.data;
-            musicdata = response.music
+            musicdata = response.music;
             console.log("testing musicdata");
             let tracks = [];
             let artists = [];
@@ -424,9 +433,20 @@ app.post('/register', (req, res) => {
         const response = JSON.parse(msg.content.toString());
         if (response.returnCode == "0") {
             // Set a cookie for userid to track locally; this will be used to validate session
-            console.log("trying to redirect to account");
+            console.log("\n[Register - response] Successful registration, parsing data\n");
             data = response.data;
-            res.render('account', data);
+            musicdata = response.music;
+            console.log("[Register - response] testing musicdata");
+            console.log('\n', musicdata, '\n');
+            let tracks = [];
+            let artists = [];
+            let links = [];
+            for (var i = 0; i < musicdata.length; i++) {
+                tracks.push(musicdata[i].track);
+                artists.push(musicdata[i].artist);
+                links.push(musicdata[i].url);
+            }
+            res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
 
         } else {
             res.status(401).send('You have failed to register.');

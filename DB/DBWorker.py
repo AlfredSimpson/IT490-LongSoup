@@ -6,8 +6,10 @@ import logging
 from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import load_dotenv
 
+# Load the variables
 load_dotenv()
 
+# Set globals
 global testUser
 global testPass
 global testDB
@@ -21,9 +23,55 @@ testDB = os.getenv("TESTSECUREDB")
 # Spotify info
 
 
+def query_artist(artist):
+    """NOTE: NOT READY FOR PROD YET, STILL IN TESTING PHASE. DOES NOT ACTUALLY RETURN ANYTHING THAT WOULD BE USEFUL OR PARSED
+
+    Args:
+        artist (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    client_id = os.getenv("SPOTIFY_CLIENT_ID")
+    client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
+
+    sp = spotipy.Spotify(
+        auth_manager=SpotifyClientCredentials(
+            client_id=client_id, client_secret=client_secret
+        )
+    )
+
+    # Query spotify using the spotipy library and the arist given to find songs by the artist
+    results = sp.search(q="artist:" + artist, type="artist")
+    items = results["artists"]["items"]
+    if len(items) > 0:
+        artist = items[0]
+        print(artist["id"], artist["name"])
+        return artist["id"]
+    else:
+        return None
+
+
 def get_recs(
     genre="punk", valence="0.2", energy="0.7", popularity="25", fromlogin=False
 ):
+    """get_recs takes in genre, valence, energy, and popularity as arguments and returns a list of recommended songs.
+
+    Args:
+        genre (str, optional): The seed_genre that spotify allows. Defaults to "punk".
+        valence (str, optional): Valence is how spotify defines happiness. Defaults to "0.2".
+        energy (str, optional): Energy is presumed to be the amplitude of the song. Defaults to "0.7".
+        popularity (str, optional): How popular a song is. 0-100. Defaults to "25".
+        fromlogin (bool, optional): Necessary to define, optional param, allows us to stay on the page and return new recs with correct data. Defaults to False.
+
+    Returns:
+        returnCode: 0 if successful, 1 if not
+        message: Success or failure message
+        gotrecs: True or False
+        data: Logged in or not
+        music: List of recommended songs
+
+    """
     client_id = os.getenv("SPOTIFY_CLIENT_ID")
     client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
 
@@ -48,14 +96,16 @@ def get_recs(
     data = {"musicdata": []}
     for i in results["tracks"]:
         # Should really set up a try catch here
-        track = i["name"]
-        artist = i["artists"][0]["name"]
-        url = i["external_urls"]["spotify"]
+        track = i["name"]  # Get the track name
+        artist = i["artists"][0]["name"]  # Get the artist name
+        url = i["external_urls"]["spotify"]  # Get the url
         data["musicdata"].append({"track": track, "artist": artist, "url": url})
     if fromlogin:
         return data
     else:
+        # return music as a narrowed json object
         music = data["musicdata"]
+        # return necessary information to front end
         return {
             "returnCode": 0,
             "message": "Success",
@@ -68,35 +118,35 @@ def get_recs(
         }
 
 
-def generateSimpleRecs(genre, popularity, valence):
-    client_id = os.getenv("SPOTIFY_CLIENT_ID")
-    client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
-    # redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
-    spotify_token = os.getenv("SPOTIFY_TOKEN_URL")
-    spotify_api_url = os.getenv("SPOTIFY_API_BASE_URL")
+# def generateSimpleRecs(genre, popularity, valence):
+#     client_id = os.getenv("SPOTIFY_CLIENT_ID")
+#     client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
+#     # redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
+#     spotify_token = os.getenv("SPOTIFY_TOKEN_URL")
+#     spotify_api_url = os.getenv("SPOTIFY_API_BASE_URL")
 
-    sp = spotipy.Spotify(
-        auth_manager=SpotifyClientCredentials(
-            client_id=client_id, client_secret=client_secret
-        )
-    )
-    genre = [genre]
-    print(genre)
-    results = sp.recommendations(
-        seed_genres=genre, limit=5, target_popularity=popularity, target_valence=valence
-    )
+#     sp = spotipy.Spotify(
+#         auth_manager=SpotifyClientCredentials(
+#             client_id=client_id, client_secret=client_secret
+#         )
+#     )
+#     genre = [genre]
+#     print(genre)
+#     results = sp.recommendations(
+#         seed_genres=genre, limit=5, target_popularity=popularity, target_valence=valence
+#     )
 
-    print(results)
-    return {
-        "returnCode": 0,
-        "message": "Success",
-        "gotrecs": "True",
-        "data": {
-            "loggedin": "True",
-            "recs": results,
-        },
-        "recs": results,
-    }
+#     print(results)
+#     return {
+#         "returnCode": 0,
+#         "message": "Success",
+#         "gotrecs": "True",
+#         "data": {
+#             "loggedin": "True",
+#             "recs": results,
+#         },
+#         "recs": results,
+#     }
 
 
 # Function to perform login
@@ -162,7 +212,6 @@ def do_register(
     However, it does not log the user in.
     Also, the password is not yet hashed.
     """
-
     # Connect to the database
     db = LongDB.LongDB("localhost", testUser, testPass, testDB)
     # db = LongDB.LongDB(host="localhost",user="longestsoup",password="shortS0up!",database="securesoupdb",)
@@ -188,6 +237,8 @@ def do_register(
                     f"User {useremail} added to database, attempting to update userinfo next"
                 )
                 db.initialUpdate(useremail, first_name, last_name, spot_name)
+                music = get_recs(fromlogin=True)
+                music = music["musicdata"]
                 return {
                     "returnCode": "0",
                     "message": "Registration successful",
@@ -196,6 +247,7 @@ def do_register(
                         "name": first_name,
                         "sessionValid": "True",
                     },
+                    "music": music,
                 }
             else:
                 print("And here we see it fails")
