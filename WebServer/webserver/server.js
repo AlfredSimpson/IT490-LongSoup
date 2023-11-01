@@ -370,7 +370,7 @@ app.post('/login', (req, res) => {
                 artists.push(musicdata[i].artist);
                 links.push(musicdata[i].url);
             }
-            res.render('account', { data: data, tracks: tracks });
+            res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
             //res.redirect('/account');
         } else {
             let errorMSG = 'You have failed to login.';

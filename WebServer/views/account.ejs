@@ -63,11 +63,12 @@
         </div>
     </div>
     <div class="container">
+        <h1>Here's some music to get you going</h1>
         <ul>
             <ul>
                 <% for(var i=0; i<tracks.length; i++) {%>
                     <li>
-                        <%= tracks[i] %>
+                        <%= tracks[i] %> , <%= artists[i] %>, <%= links[i] %>
                     </li>
                     <% }; %>
             </ul>

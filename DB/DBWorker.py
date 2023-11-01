@@ -1,4 +1,4 @@
-import pika, mysql.connector, os, sys, json
+import pika, mysql.connector, os, sys, json, random
 import LongDB
 import spotipy
 import spotipy.util as util
@@ -105,7 +105,11 @@ def do_login(useremail, password, session_id, usercookieid):
     recommended_tracks = ""  # TODO: get user recommended tracks
     recommended_artists = ""  # TODO: get user recommended artists
     if result:
-        music = get_recs()
+        genre = random.choice(["punk", "rock", "pop", "country", "rap", "hip-hop"])
+        valence = random.uniform(0, 1)
+        energy = random.uniform(0, 1)
+        popularity = random.randint(0, 100)
+        music = get_recs(genre, valence, energy, popularity)
         return {
             "returnCode": "0",
             "message": "Login successful",
