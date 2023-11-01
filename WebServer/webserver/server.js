@@ -64,13 +64,13 @@ const statusMessageHandler = (req, res, next) => {
 
 //  Middleware to log traffic 
 const trafficLogger = (req, res, next) => {
-    timber.logAndSend(`Incoming request: \ ${req.method} ${req.url}`);
+    //timber.logAndSend(`Incoming request: \ ${req.method} ${req.url}`);
 
     const send = res.send;
     res.send = function (string) {
         //
         // const body = string instanceof Buffer ? string.toString() : string;
-        timber.logAndSend(`Outgoing response: ${res.statusCode}`);
+        //timber.logAndSend(`Outgoing response: ${res.statusCode}`);
         send.call(this, string);
     };
     next();
@@ -418,7 +418,8 @@ app.post('/register', (req, res) => {
         if (response.returnCode == "0") {
             // Set a cookie for userid to track locally; this will be used to validate session
             console.log("trying to redirect to account");
-            res.render('/account');
+            data = response.data;
+            res.render('account', data);
 
         } else {
             res.status(401).send('You have failed to register.');

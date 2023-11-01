@@ -15,14 +15,10 @@ testUser = os.getenv("TESTSECUREUSER")
 testPass = os.getenv("TESTSECUREPASS")
 testDB = os.getenv("TESTSECUREDB")
 
-# logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.ERROR)
 # Import the spotify handler
 
 # Spotify info
-
-# get user top tracks
-# get user recommended tracks
-# get user recommended artists
 
 
 def generateSimpleRecs(genre, popularity, valence):
@@ -123,7 +119,6 @@ def do_register(
     if exists:
         print("User already exists")
         e = {"ERROR": "User already exists"}
-        # TODO: log this locally
         return e
     else:
         try:
@@ -139,11 +134,16 @@ def do_register(
                 print(
                     f"User {useremail} added to database, attempting to update userinfo next"
                 )
-
-                # userid = db.get_uid(useremail)
                 db.initialUpdate(useremail, first_name, last_name, spot_name)
-                return {"returnCode": "0", "message": "Registration successful"}
-                # return {"returnCode": "0","message": "Registration successful",session_id: True,"name": name,}
+                return {
+                    "returnCode": "0",
+                    "message": "Registration successful",
+                    "data": {
+                        "loggedin": True,
+                        "name": first_name,
+                        "sessionValid": True,
+                    },
+                }
             else:
                 print("And here we see it fails")
                 return {
