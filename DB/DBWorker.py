@@ -21,6 +21,38 @@ testDB = os.getenv("TESTSECUREDB")
 # Spotify info
 
 
+def get_recs():
+    client_id = os.getenv("SPOTIFY_CLIENT_ID")
+    client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
+
+    sp = spotipy.Spotify(
+        auth_manager=SpotifyClientCredentials(
+            client_id=client_id, client_secret=client_secret
+        )
+    )
+
+    genre = "punk"
+    valence = "0.2"
+    energy = "0.3"
+    popularity = "25"
+
+    results = sp.recommendations(
+        seed_genres=[genre],
+        target_valence=valence,
+        target_energy=energy,
+        min_popularity=popularity,
+        limit=4,
+    )
+    data = {"musicdata": []}
+    for i in results["tracks"]:
+        # Should really set up a try catch here
+        track = i["name"]
+        artist = i["artists"][0]["name"]
+        url = i["external_urls"]["spotify"]
+        data["musicdata"].append({"track": track, "artist": artist, "url": url})
+    return data
+
+
 def generateSimpleRecs(genre, popularity, valence):
     client_id = os.getenv("SPOTIFY_CLIENT_ID")
     client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
@@ -73,17 +105,19 @@ def do_login(useremail, password, session_id, usercookieid):
     recommended_tracks = ""  # TODO: get user recommended tracks
     recommended_artists = ""  # TODO: get user recommended artists
     if result:
+        music = get_recs()
         return {
             "returnCode": "0",
             "message": "Login successful",
             "sessionValid": True,
             # "name": name,
-            "currentTop": current_top,
-            "recommendedTracks": recommended_tracks,
-            "recommendedArtists": recommended_artists,
+            # "currentTop": current_top,
+            # "recommendedTracks": recommended_tracks,
+            # "recommendedArtists": recommended_artists,
             "data": {
                 "name": name,
                 "loggedin": True,
+                "music": music,
             },
         }
     else:

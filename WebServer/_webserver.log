@@ -12,3 +12,6 @@
 {"type":"log","source":"Webserver","date":"2023-11-01T03:43:14.144Z","log_message":"Incoming request:  GET /register"}
 {"type":"log","source":"Webserver","date":"2023-11-01T03:43:14.146Z","log_message":"Outgoing response: 200"}
 {"type":"log","source":"Webserver","date":"2023-11-01T03:43:31.293Z","log_message":"Incoming request:  POST /register"}
+{"type":"log","source":"Webserver","date":"2023-11-01T03:52:07.753Z","log_message":"User logged in successfully."}
+{"type":"log","source":"Webserver","date":"2023-11-01T03:55:37.122Z","log_message":"User logged in successfully."}
+{"type":"log","source":"Webserver","date":"2023-11-01T04:42:54.449Z","log_message":"User logged in successfully."}

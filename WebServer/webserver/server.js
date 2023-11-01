@@ -188,20 +188,7 @@ app.get('/:page', (req, res) => {
                     // console.error(err);
                 }
             }
-            //     const filePath = path.join(__dirname, page + '.ejs');
-            //     // check if session cookie exists
-            //     if (!fs.existsSync(filePath)) {
-            //         res.status(404).send('Page not found');
-            //         timber.logAndSend(`404: ${filePath} - Page not found`);
-            //         return;
-            //     }
-            //     console.log(page);
-            //     res.status(200).render(page), err => {
-            //         if (err) {
-            //             timber.logAndSend(err);
-            //             console.error(err);
-            //         }
-            //     };
+
 
         }
     }
