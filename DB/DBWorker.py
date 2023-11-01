@@ -2,10 +2,20 @@ import pika, mysql.connector, os, sys, json
 import LongDB
 import spotipy
 import spotipy.util as util
+import logging
 from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import load_dotenv
 
+load_dotenv()
 
+global testUser
+global testPass
+global testDB
+testUser = os.getenv("secureTestUser")
+testPass = os.getenv("secureTestPass")
+testDB = os.getenv("securesoupdb2")
+
+logging.basicConfig(level=logging.DEBUG)
 # Import the spotify handler
 
 # Spotify info
@@ -27,25 +37,30 @@ def generateSimpleRecs(genre, popularity, valence):
             client_id=client_id, client_secret=client_secret
         )
     )
-
+    genre = [genre]
+    print(genre)
     results = sp.recommendations(
         seed_genres=genre, limit=5, target_popularity=popularity, target_valence=valence
     )
+
     print(results)
-    result = {"returnCode": 0, "Message": "Success", "data": results}
-    pass
+    return {
+        "returnCode": 0,
+        "message": "Success",
+        "gotrecs": True,
+        "data": {
+            "loggedin": True,
+            "recs": results,
+        },
+        "recs": results,
+    }
 
 
 # Function to perform login
 def do_login(useremail, password, session_id, usercookieid):
     # Connect to the database
-    # db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
-    db = LongDB.LongDB(
-        host="localhost",
-        user="longestsoup",
-        password="shortS0up!",
-        database="securesoupdb",
-    )
+    db = LongDB.LongDB("localhost", testUser, testPass, testDB)
+    # db = LongDB.LongDB(host="localhost",user="longestsoup",password="shortS0up!",database="securesoupdb")
     # Validate the user - consider adding a try catch.
     result = db.auth_user(
         table="users",
@@ -101,22 +116,21 @@ def do_register(
     """
 
     # Connect to the database
-    # db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
-    db = LongDB.LongDB(
-        host="localhost",
-        user="longestsoup",
-        password="shortS0up!",
-        database="securesoupdb",
-    )
+    db = LongDB.LongDB("localhost", testUser, testPass, testDB)
+    # db = LongDB.LongDB(host="localhost",user="longestsoup",password="shortS0up!",database="securesoupdb",)
     # See if the user exists already
     exists = db.user_exists_email(useremail)
-    print(exists)
+    # logging.debug(exists)
+    logging.debug()
+    print(f"User email exists? {exists}")
     if exists:
+        print("User already exists")
         e = {"ERROR": "User already exists"}
         # TODO: log this locally
         return e
     else:
         try:
+            print(f'Attempting to add user "{useremail}" to database')
             result = db.add_user(
                 table="users",
                 useremail=useremail,
@@ -128,14 +142,10 @@ def do_register(
                 print(
                     f"User {useremail} added to database, attempting to update userinfo next"
                 )
-                name = db.get_name(usercookieid)
-                db.initialUpdate(useremail, first_name, last_name, spot_name)
-                return {
-                    "returnCode": "0",
-                    "message": "Registration successful",
-                    session_id: True,
-                    "name": name,
-                }
+                # name = db.get_name(usercookieid)
+                # db.initialUpdate(useremail, first_name, last_name, spot_name)
+                return {"returnCode": "0", "message": "Registration successful"}
+                # return {"returnCode": "0","message": "Registration successful",session_id: True,"name": name,}
             else:
                 print("And here we see it fails")
                 return {
@@ -145,7 +155,7 @@ def do_register(
                 }
         except:
             print("Error adding user to database")
-            # TODO: log this locally, send to all
+            logging.error("Error adding user to database")
             return "ERROR: Unable to add user to database"
 
 
@@ -178,12 +188,8 @@ def do_validate(usercookieid, session_id):
 
 def do_logout(usercookieid, session_id):
     # Connect to the database
-    db = LongDB.LongDB(
-        host="localhost",
-        user="longestsoup",
-        password="shortS0up!",
-        database="securesoupdb",
-    )
+    db = LongDB.LongDB("localhost", testUser, testPass, testDB)
+    # db = LongDB.LongDB(host="localhost",user="longestsoup",password="shortS0up!",database="securesoupdb",)
     db.invalidate_session(usercookieid, session_id)
     print(f"User {usercookieid} logged out")
     return {"returnCode": "0", "message": "Logout successful"}
@@ -198,15 +204,16 @@ def request_processor(ch, method, properties, body):
     # Try / except added just in case bad JSON is received
     try:
         request = json.loads(body.decode("utf-8"))
+        logging.debug(f"Received request: {request}")
     except json.JSONDecodeError:
         print("Error decoding incoming JSON")
-        # TODO: save this as a log file as well
+        logging.error("Error decoding incoming JSON")
         response = {"ERROR": "Invalid JSON Format Received"}
         return return_error(ch, method, properties, body, response)
     print(f"incoming request: {request}")
     if "type" not in request:
         print(f"{request}")
-        # TODO: save this as a log file as well
+        logging.error(f"Error in type. Request received without type: {request}")
         response = "ERROR: No type specified by message"
     else:
         request_type = request["type"]
@@ -228,11 +235,11 @@ def request_processor(ch, method, properties, body):
             response = do_register(
                 request["useremail"],
                 request["password"],
-                request["first_name"],
-                request["last_name"],
                 request["session_id"],
                 request["usercookieid"],
                 request["spot_name"],
+                request["first_name"],
+                request["last_name"],
             )
         elif request_type == "logout":
             # Handles logout requests

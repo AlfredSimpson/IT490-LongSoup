@@ -15,7 +15,7 @@ const cookieParser = require('cookie-parser');
 const { get } = require('http');
 
 // const store = new sessions.MemoryStore();
-
+app.use(express.json());
 app.use(cookieParser());
 
 // app.use(sessions({
@@ -160,7 +160,8 @@ app.get('/:page', (req, res) => {
             if (page === 'account') {
                 // req.session.data = response.data; //added to help retain data
                 console.log(data.name);
-                data = response.data;
+                let data = response.data;
+
                 res.status(200).render(page, data), err => {
                     if (err) {
                         timber.logAndSend(err);
@@ -205,8 +206,71 @@ app.get('/:page', (req, res) => {
     }
 });
 
+// app.get('/getRecked', function (req, res) {
 
+
+//     // Parse the rawData to extract the required information
+//     let parsedData = rawData.map(item => {
+//         return {
+//             artist: data.artists.name, // replace with actual keys if different
+//             track: data.tracks.name,   // replace with actual keys if different
+//             url: data.tracks.external_urls.spotify,       // replace with actual keys if different
+//         };
+//     });
+
+//     res.render('getRecked', { recommendations: parsedData });
+// });
+const userData = [];
 app.post('/getrecked', (req, res) => {
+    const tempHost = process.env.BROKER_VHOST;
+    const tempQueue = process.env.BROKER_QUEUE;
+    const genre = req.body.genres;
+    const popularity = req.body.pop;
+    const valence = req.body.vibe;
+    console.log(`genre: ${genre}, popularity: ${popularity}, valence: ${valence}`);
+    const amqpUrl = `amqp://longsoup:puosgnol@${tempHost}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
+
+
+    // getCookie(req);
+    mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
+        type: "simplerecs",
+        genre,
+        popularity,
+        valence
+    }, (msg) => {
+        try {
+            const response = JSON.parse(msg.content.toString());
+            // let parsedData = response.map(item => {
+            //     return {
+            //         artist: data.artists.name, // replace with actual keys if different
+            //         track: data.tracks.name,   // replace with actual keys if different
+            //         url: data.tracks.external_urls.spotify,       // replace with actual keys if different
+            //     };
+            // });
+
+            // Create the data object to send to client 
+
+            if (response.returnCode === 0) {
+                console.log("Success!");
+                timber.logAndSend('User requested some jams, got some.');
+                userData.push(parsedData);
+                res.render('account', userData);
+            } else {
+                console.log("Failure!");
+                console.log("Sending response data");
+                console.log("showing data");
+                console.log(musicdata);
+                res.status(401).render('account', musicdata);
+            }
+        } catch (error) {
+            console.log("Error:", error);
+            // Handle the error appropriately, maybe render an error page
+            res.status(500).send("An error occurred");
+        }
+    });
+});
+
+app.post('/account', (req, res) => {
     const tempHost = process.env.BROKER_VHOST;
     const tempQueue = process.env.BROKER_QUEUE;
     const genre = req.body.genres;
@@ -217,32 +281,67 @@ app.post('/getrecked', (req, res) => {
 
 
     // getCookie(req);
-
     mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
         type: "simplerecs",
         genre,
         popularity,
         valence
     }, (msg) => {
-        const response = JSON.parse(msg.content.toString());
-        if (response.returnCode === '0') {
-            // console.log(response.data.name);
-            timber.logAndSend('User requested some jams, got some.');
-            data = response.data;
-            console.log(data);
-            res.render('account', data);
-        } else {
-            let errorMSG = 'Could not get recommendations.';
-            const filePath = path.join(__dirname, 'public', 'account' + '.html');
-            // let outcome = response.data['loggedin'];
-            console.log("Sending response data");
-            console.log(response.data['loggedin']);
-            data = response.data;
-            console.log("showing data");
-            console.log(data);
-            res.status(401).render('/account', data);
+        try {
+            const response = JSON.parse(msg.content.toString());
+
+
+            // Create the data object to send to client
+
+            if (response.returnCode === 0) {
+                console.log("Success!");
+                let musicdata = response.data;
+                timber.logAndSend('User requested some jams, got some.');
+                res.render('account', { musicdata });
+            } else {
+                console.log("Failure!");
+                console.log("Sending response data");
+                console.log("showing data");
+                console.log(musicdata);
+                res.status(401).render('account', musicdata);
+            }
+        } catch (error) {
+            console.log("Error:", error);
+            // Handle the error appropriately, maybe render an error page
+            res.status(500).send("An error occurred");
         }
     });
+
+    // mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
+    //     type: "simplerecs",
+    //     genre,
+    //     popularity,
+    //     valence
+    // }, (msg) => {
+    //     const response = JSON.parse(msg.content.toString());
+    //     // console.log(response);
+    //     let musicdata = response.data;
+    //     let rectracks = musicdata.tracks;;
+    //     let artist = rectracks.album
+    //     console.log(artist);
+    //     if (response.returnCode === 0) {
+    //         console.log("Success!");
+    //         // console.log(response.data.name);
+    //         timber.logAndSend('User requested some jams, got some.');
+
+    //         res.render('account', data);
+    //     } else {
+    //         console.log("Failure!");
+    //         let errorMSG = 'Could not get recommendations.';
+    //         const filePath = path.join(__dirname, 'public', 'account' + '.ejs');
+    //         // let outcome = response.data['loggedin'];
+    //         console.log("Sending response data");
+
+    //         console.log("showing data");
+    //         console.log(data);
+    //         res.status(401).render('account', data);
+    //     }
+    // });
 
 });
 
@@ -315,10 +414,11 @@ app.post('/register', (req, res) => {
         spot_name
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
-        if (response.returnCode === '0') {
+        if (response.returnCode == "0") {
             // Set a cookie for userid to track locally; this will be used to validate session
+            console.log("trying to redirect to account");
+            res.render('/account');
 
-            res.redirect('/account');
         } else {
             res.status(401).send('You have failed to register.');
             // add handling for render isntead that prints message to user

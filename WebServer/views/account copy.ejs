@@ -63,14 +63,42 @@
         </div>
     </div>
     <div class="container">
-        <ul>
-            <% jsonData.musicdata.tracks.forEach(function(track) { %>
-                <li>
-                    <%= track.album.artists[0].name %>
-                </li>
-                <% }); %>
-        </ul>
-
+        <table class="table table-striped">
+            <ul>
+                <% jsonData.musicdata.tracks.forEach(function(track) { %>
+                    <li>
+                        <%= track.album.artists[0].name %>
+                    </li>
+                    <% }); %>
+            </ul>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Age</th>
+                    <!-- Add more headers based on your form fields -->
+                </tr>
+            </thead>
+            <tbody>
+                <% if (typeof userData !=='undefined' && userData.length> 0) { %>
+                    <% userData.forEach(function(user) { %>
+                        <% console.log(`userData is {data}`) %>
+                            <tr>
+                                <td>
+                                    <%= data.track.name %>
+                                </td>
+                                <td>
+                                    <%= data.email %>
+                                </td>
+                                <td>
+                                    <%= user.age %>
+                                </td>
+                                <!-- Add more data cells based on your form fields -->
+                            </tr>
+                            <% }) %>
+                                <% } %>
+            </tbody>
+        </table>
     </div>
 
 
