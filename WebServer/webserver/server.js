@@ -172,10 +172,56 @@ app.get('/test', (req, res) => {
     };
 });
 
+app.get('/spotcallback', (req, res) => {
+    var code = req.query.code || null;
+    var state = req.query.state || null;
+
+    if (state === null) {
+        res.render('/');
+        console.log('[SPOT ERROR] state_mismatch');
+        timber.logAndSend('[SPOT ERROR] state_mismatch', "SPOTIFY");
+
+    } else {
+        var authOptions = {
+            url: spotTokenURL,
+            form: {
+                code: code,
+                redirect_uri: spotURI,
+                grant_type: 'authorization_code'
+            },
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Basic ' + (new Buffer.from(spotClientID + ':' + spotClientSecret).toString('base64'))
+            },
+            json: true
+        };
+        // TODO: send and store this to the database through rmq!!!
+    }
+    // request.post(authOptions, function (error, response, body) {
+    //     var access_token = body.access_token;
+    //     var refresh_token = body.refresh_token;
+    //     var options = {
+    //         url: spotAPIURL + 'me',
+    //         headers: { 'Authorization': 'Bearer ' + access_token },
+    //         json: true
+    //     };
+    //     // use the access token to access the Spotify Web API
+    //     request.get(options, function (error, response, body) {
+    //         console.log(body);
+    //     });
+    //     // we can also pass the token to the browser to make requests from there
+    //     res.redirect('/#' +
+    //         querystring.stringify({
+    //             access_token: access_token,
+    //             refresh_token: refresh_token
+    //         }));
+    // });
+});
+
 app.get('/spotLog', (req, res) => {
     // var state = generateRandomString(16);
-    // var scope = 'user-read-private user-read-email user-library-modify playlist-modify-private playlist-modify-public playlist-read-private playlist-read-collaborative user-library-read user-top-read user-read-recently-played user-read-playback-state user-modify-playback-state user-read-currently-playing';
-    var scope = 'user-library-modify playlist-read-private playlist-read-collaborative user-read-recently-played user-top-read';
+    var scope = 'user-read-private user-read-email user-library-modify playlist-modify-private playlist-modify-public playlist-read-private playlist-read-collaborative user-library-read user-top-read user-read-recently-played user-read-playback-state user-modify-playback-state user-read-currently-playing';
+    //var scope = 'user-library-modify playlist-read-private playlist-read-collaborative user-read-recently-played user-top-read';
     console.log('spotClientID = ', spotClientID);
     console.log('spotURI = ', spotURI);
     res.redirect(`https://accounts.spotify.com/authorize?` + querystring.stringify({ response_type: 'code', client_id: spotClientID, scope: scope, redirect_uri: spotURI })), err => {
@@ -184,7 +230,38 @@ app.get('/spotLog', (req, res) => {
             timber.logAndSend(msg);
             console.error(err);
         }
+        else {
+            console.log('redirected to spotify');
+
+        }
     };
+});
+
+app.get('/callback', function (req, res) {
+
+    var code = req.query.code || null;
+    var state = req.query.state || null;
+
+    if (state === null) {
+        res.redirect('/#' +
+            querystring.stringify({
+                error: 'state_mismatch'
+            }));
+    } else {
+        var authOptions = {
+            url: 'https://accounts.spotify.com/api/token',
+            form: {
+                code: code,
+                redirect_uri: redirect_uri,
+                grant_type: 'authorization_code'
+            },
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64'))
+            },
+            json: true
+        };
+    }
 });
 
 /**
@@ -203,10 +280,6 @@ try {
     https = require('http');
 }
 
-app.use((req, res) => {
-    res.writeHead(200);
-    res.end("hello world\n");
-});
 
 app.get('/', (req, res) => {
     res.status(200).render('index'), err => {
@@ -588,5 +661,5 @@ httpsServer.listen(newport, () => {
 // Listen
 
 // app.listen(Port, () => {
-    // console.log(`Listening on port ${Port}`);
+// console.log(`Listening on port ${Port}`);
 // });
