@@ -16,10 +16,21 @@ const cookieParser = require('cookie-parser');
 const { get } = require('http');
 const { deprecate } = require('util');
 const querystring = require('node:querystring');
+var https = require('https');
 
 // const store = new sessions.MemoryStore();
 app.use(express.json());
 app.use(cookieParser());
+
+
+const https_options = {
+    key: fs.readFileSync(__dirname + "/cert/key.pem"),
+    cert: fs.readFileSync(__dirname + "/cert/cert.pem")
+};
+
+
+
+
 
 // app.use(sessions({
 //     secret: "secretkeylol",
@@ -113,6 +124,7 @@ app.use('/js', express.static(__dirname + '../public/js'));
 app.use('img', express.static(__dirname + '../public/img'));
 
 
+
 // Set views
 app.set('views', path.join(__dirname, '../views')); // this gets us out of the dir we're in and into the views, for separation
 app.set('view engine', 'ejs');
@@ -182,14 +194,13 @@ app.get('/spotLog', (req, res) => {
  */
 
 
-let https;
+
 try {
     https = require('https');
     console.log("Seems like we're good to go with https!");
 } catch (err) {
     console.log('https module not found, using http instead');
     https = require('http');
-
 }
 
 app.use((req, res) => {
@@ -567,10 +578,15 @@ app.post('/register', (req, res) => {
 });
 
 
+const httpsServer = https.createServer(https_options, app);
 
+const newport = 9001;
+httpsServer.listen(newport, () => {
+    console.log(`Listening on port ${newport}`);
+})
 
 // Listen
 
-app.listen(Port, () => {
-    console.log(`Listening on port ${Port}`);
-});
+// app.listen(Port, () => {
+    // console.log(`Listening on port ${Port}`);
+// });
