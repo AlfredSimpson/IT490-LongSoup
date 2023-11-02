@@ -23,33 +23,105 @@ testDB = os.getenv("TESTSECUREDB")
 # Spotify info
 
 
-def query_artist(artist):
+def query_artist(artist, typebyartist=None):
     """NOTE: NOT READY FOR PROD YET, STILL IN TESTING PHASE. DOES NOT ACTUALLY RETURN ANYTHING THAT WOULD BE USEFUL OR PARSED
 
     Args:
         artist (_type_): _description_
 
     Returns:
-        _type_: _description_
+        what the variable dictates.
     """
     client_id = os.getenv("SPOTIFY_CLIENT_ID")
     client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
-
+    # Initialize
     sp = spotipy.Spotify(
         auth_manager=SpotifyClientCredentials(
             client_id=client_id, client_secret=client_secret
         )
     )
-
-    # Query spotify using the spotipy library and the arist given to find songs by the artist
+    # Query
     results = sp.search(q="artist:" + artist, type="artist")
     items = results["artists"]["items"]
-    if len(items) > 0:
-        artist = items[0]
-        print(artist["id"], artist["name"])
-        return artist["id"]
+
+    if len(items) < 1:
+        return print(
+            "Oh this doesn't rock - this artist doesn't exist by how it was spelled"
+        )
     else:
-        return None
+        if type == "albums":
+            artist_id = items[0]["id"]
+            # Get albums
+            albums = sp.artist_albums(artist_id, album_type="album")
+            albums = albums["items"]
+            album_names = []
+            album_urls = []
+            music = []
+            for album in albums:
+                album_names.append(album["name"])
+                album_urls.append(album["href"])
+            for i in range(0, len(album_names)):
+                music.append({"album": album_names[i], "url": album_urls[i]})
+            print(f"Albums returning as {music}")
+            return {
+                "returnCode": 0,
+                "message": "Success",
+                "gotrecs": "True",
+                "data": {
+                    "loggedin": "True",
+                    "name": "buddy",
+                    "byArtist": "True",
+                    "findAlbums": "True",
+                },
+                "music": music,
+            }
+        elif type == "tracks":
+            artist_id = items[0]["id"]
+            tracks = sp.artist_top_tracks(artist_id)
+            tracks = tracks["tracks"]
+            track_names = []
+            track_urls = []
+            music = []
+            for track in tracks:
+                track_names.append(track["name"])
+                track_urls.append(track["href"])
+            for i in range(0, len(track_names)):
+                music.append({"track": track_names[i], "url": track_urls[i]})
+            return {
+                "returnCode": 0,
+                "message": "Success",
+                "data": {
+                    "loggedin": "True",
+                    "name": "buddy",
+                    "byArtist": "True",
+                    "findTracks": "True",
+                },
+                "music": music,
+            }
+        elif type == "related":
+            artist_id = items[0]["id"]
+            related = sp.artist_related_artists(artist_id)
+            related = related["artists"]
+            related_names = []
+            related_urls = []
+            music = []
+            for artist in related:
+                related_names.append(artist["name"])
+                related_urls.append(artist["href"])
+            for i in range(0, len(related_names)):
+                music.append({"artist": related_names[i], "url": related_urls[i]})
+            return {
+                "returnCode": 0,
+                "message": "Success",
+                "gotrecs": "True",
+                "data": {
+                    "loggedin": "True",
+                    "name": "buddy",
+                    "byArtist": "True",
+                    "findRelated": "True",
+                },
+                "music": music,
+            }
 
 
 def get_recs(
@@ -190,7 +262,7 @@ def do_login(useremail, password, session_id, usercookieid):
             },
         }
     else:
-        print("And here we see it fails")
+        print("\nAnd here we see it fails\n")
         return {
             "returnCode": "1",
             "message": "You have failed to login.",
@@ -217,14 +289,14 @@ def do_register(
     # db = LongDB.LongDB(host="localhost",user="longestsoup",password="shortS0up!",database="securesoupdb",)
     # See if the user exists already
     exists = db.user_exists_email(useremail)
-    print(f"User email exists? {exists}")
+    print(f"\nUser email exists? {exists}")
     if exists:
-        print("User already exists")
+        print("\n\tUser already exists\n")
         e = {"ERROR": "User already exists"}
         return e
     else:
         try:
-            print(f'Attempting to add user "{useremail}" to database')
+            print(f'\nAttempting to add user "{useremail}" to database\n')
             result = db.add_user(
                 table="users",
                 useremail=useremail,
@@ -234,7 +306,7 @@ def do_register(
             )
             if result:
                 print(
-                    f"User {useremail} added to database, attempting to update userinfo next"
+                    f"\nUser {useremail} added to database, attempting to update userinfo next\n"
                 )
                 db.initialUpdate(useremail, first_name, last_name, spot_name)
                 music = get_recs(fromlogin=True)
@@ -250,14 +322,14 @@ def do_register(
                     "music": music,
                 }
             else:
-                print("And here we see it fails")
+                print("\nAnd here we see it fails\n")
                 return {
                     "returnCode": "1",
                     "message": "Registration failed - useremail exists",
                     session_id: False,
                 }
         except:
-            print("Error adding user to database")
+            print("\nError adding user to database\n")
             logging.error("Error adding user to database")
             return "ERROR: Unable to add user to database"
 
@@ -283,7 +355,7 @@ def do_validate(usercookieid, session_id):
     # db = LongDB.LongDB(host="localhost",user="longestsoup",password="shortS0up!",database="securesoupdb",)
     validity = db.validate_session(usercookieid, session_id)
     # TODO: add this to the logging system
-    print(f"validate_session returned: {validity}")
+    print(f"\nvalidate_session returned: {validity}\n")
     return validity
 
 
@@ -293,7 +365,7 @@ def do_logout(usercookieid, session_id):
     # db = LongDB.LongDB(host="localhost",user="longestsoup",password="shortS0up!",database="securesoupdb",)
     db.invalidate_session(usercookieid, session_id)
     print(f"User {usercookieid} logged out")
-    return {"returnCode": "0", "message": "Logout successful"}
+    return {"\nreturnCode": "0", "message": "Logout successful\n"}
 
 
 def request_processor(ch, method, properties, body):
@@ -305,15 +377,15 @@ def request_processor(ch, method, properties, body):
     # Try / except added just in case bad JSON is received
     try:
         request = json.loads(body.decode("utf-8"))
-        logging.debug(f"Received request: {request}")
+        logging.debug(f"\nReceived request: {request}\n")
     except json.JSONDecodeError:
-        print("Error decoding incoming JSON")
+        print("\n\tError decoding incoming JSON\n")
         logging.error("Error decoding incoming JSON")
         response = {"ERROR": "Invalid JSON Format Received"}
         return return_error(ch, method, properties, body, response)
-    print(f"incoming request: {request}")
+    print(f"\nincoming request: {request}\n")
     if "type" not in request:
-        print(f"{request}")
+        print(f"\n{request}\n")
         logging.error(f"Error in type. Request received without type: {request}")
         response = "ERROR: No type specified by message"
     else:
@@ -351,12 +423,14 @@ def request_processor(ch, method, properties, body):
             )
         elif request_type == "simplerecs":
             # Handles simple recs from their profile page
-            print("Received simple recs request")
+            print("\nReceived simple recs request\n")
             response = get_recs(
                 request["genre"],
                 request["popularity"],
                 request["valence"],
             )
+        elif request_type == "byArtist":
+            response = query_artist(request["artist"], request["typeOf"])
         else:
             response = {
                 "returnCode": "0",
@@ -364,7 +438,7 @@ def request_processor(ch, method, properties, body):
             }
 
     # Send the response back to the client
-    print(f"We should have a response here if we're publishing...{response}")
+    print(f"\nWe should have a response here if we're publishing...{response}")
     ch.basic_publish(
         exchange="",
         routing_key=properties.reply_to,
@@ -386,7 +460,7 @@ connection = pika.BlockingConnection(
 channel = connection.channel()
 channel.queue_declare(queue=queue2, durable=True)
 channel.queue_bind(exchange=exchange2, queue=queue2)
-print(" [*] Waiting for a message from the webserver. To exit, press Ctrl+C")
+print("\n [*] Waiting for a message from the webserver. To exit, press Ctrl+C\n")
 channel.basic_consume(queue=queue2, on_message_callback=request_processor)
-print(" [x] Awaiting RPC requests")
+print("\n[x] Awaiting RPC requests\n")
 channel.start_consuming()

@@ -9,10 +9,13 @@ const handshake = require('./formHelper.js');
 const amqp = require('amqplib/callback_api');
 const mustang = require('./mustang.js');
 const bcrypt = require('bcrypt');
+const cors = require('cors');
 // const session = require('express-session');
 const sessions = require('express-session');
 const cookieParser = require('cookie-parser');
 const { get } = require('http');
+const { deprecate } = require('util');
+const querystring = require('node:querystring');
 
 // const store = new sessions.MemoryStore();
 app.use(express.json());
@@ -101,7 +104,7 @@ const createUserCookie = (req, res) => {
 
 app.use(trafficLogger);
 app.use(statusMessageHandler);
-app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(__dirname + '../public'));
 // app.use('/css', express.static(__dirname + '../public/css'));
@@ -130,6 +133,69 @@ app.use((err, req, res, next) => {
 
 // Non-session pages
 
+/**
+ * =====================================================
+ * SPOTIFY USER TESTING BEGINS HERE
+ * =====================================================
+ */
+
+// app.use(express.json()); // Commented out, already declared above
+app.use(express.urlencoded({ extended: true })); // Commented out the one above which was false
+app.use(cors());
+
+const spotURI = process.env.SPOT_TEST_URI;
+const spotClientID = process.env.SPOTIFY_CLIENT_ID;
+const spotClientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+const spotAuthURL = process.env.SPOTIFY_AUTH_URL;
+const spotTokenURL = process.env.SPOTIFY_TOKEN_URL;
+const spotAPIURL = process.env.SPOTIFY_API_BASE_URL;
+
+app.get('/test', (req, res) => {
+    res.status(200).render('test'), err => {
+        if (err) {
+            msg = 'Failed to render index page.'
+            timber.logAndSend(msg);
+            console.error(err);
+        }
+    };
+});
+
+app.get('/spotLog', (req, res) => {
+    // var state = generateRandomString(16);
+    // var scope = 'user-read-private user-read-email user-library-modify playlist-modify-private playlist-modify-public playlist-read-private playlist-read-collaborative user-library-read user-top-read user-read-recently-played user-read-playback-state user-modify-playback-state user-read-currently-playing';
+    var scope = 'user-library-modify playlist-read-private playlist-read-collaborative user-read-recently-played user-top-read';
+    console.log('spotClientID = ', spotClientID);
+    console.log('spotURI = ', spotURI);
+    res.redirect(`https://accounts.spotify.com/authorize?` + querystring.stringify({ response_type: 'code', client_id: spotClientID, scope: scope, redirect_uri: spotURI })), err => {
+        if (err) {
+            msg = 'Failed to redirect to spotify.'
+            timber.logAndSend(msg);
+            console.error(err);
+        }
+    };
+});
+
+/**
+ * =====================================================
+ * SPOTIFY USER TESTING ENDS HERE
+ * =====================================================
+ */
+
+
+let https;
+try {
+    https = require('https');
+    console.log("Seems like we're good to go with https!");
+} catch (err) {
+    console.log('https module not found, using http instead');
+    https = require('http');
+
+}
+
+app.use((req, res) => {
+    res.writeHead(200);
+    res.end("hello world\n");
+});
 
 app.get('/', (req, res) => {
     res.status(200).render('index'), err => {
@@ -140,7 +206,13 @@ app.get('/', (req, res) => {
         }
     };
 });
-
+app.post('/account:param', (req, res) => {
+    const tempHost = process.env.BROKER_VHOST;
+    const tempQueue = process.env.BROKER_QUEUE;
+    const amqpUrl = `amqp://longsoup:puosgnol@${tempHost}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
+    typeOf = req.params.param;
+    console.log('\n[Posting to /account:param] with typeOf: ', typeOf, '\n');
+});
 
 app.get('/:page', (req, res) => {
     const page = req.params.page;
@@ -155,60 +227,90 @@ app.get('/:page', (req, res) => {
         }
 
     }
-    else {
-        if (sessionPages.includes(page)) {
-            let checkSession = ""; // call the db server and see if the session is valid
-            if (page === 'account') {
-                req.session.data = response.data; //added to help retain data
-                console.log(data.name);
-                let data = response.data;
+    else if (page == 'artists') {
+        const tempHost = process.env.BROKER_VHOST;
+        const tempQueue = process.env.BROKER_QUEUE;
+        const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
+        console.log(amqpUrl);
+        const artist = req.body.artist;
+        const typeOf = req.params.param;
 
-                res.status(200).render(page, data), err => {
-                    if (err) {
-                        timber.logAndSend(err);
-                        console.error(err);
+
+        mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
+            type: "byArtist",
+            artist: artist,
+            typeOf: typeOf,
+
+        }, (msg) => {
+            const response = JSON.parse(msg.content.toString());
+            if (response.returnCode === '0') {
+                console.log('[Approx Line 181] Success reponse query artist\n');
+                console.log(response.data.name);
+                // timber.logAndSend('User logged in successfully.');
+                data = response.data;
+                musicdata = response.music;
+                console.log("\n[Approx line 186] testing query artist data");
+                // let tracks = [];
+                // let artists = [];
+                // let links = [];
+                if (data.findAlbums) {
+                    let albums = [];
+                    let external_urls = [];
+                    for (var i = 0; i < musicdata.length; i++) {
+                        albums.push(musicdata[i].album);
+                        external_urls.push(musicdata[i].external_urls);
+                        res.render('account', { data: data, tracks: tracks })
                     }
+
                 }
+
+                res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
+
             }
             else {
-                res.status(200).render(page), err => {
-                    if (err) {
-                        timber.logAndSend(err);
-                        console.error(err);
+                if (sessionPages.includes(page)) {
+                    let checkSession = ""; // call the db server and see if the session is valid
+                    if (page === 'account') {
+                        // req.session.data = response.data; //added to help retain data
+
+                        res.status(200).render(page, data), err => {
+                            if (err) {
+                                timber.logAndSend(err);
+                                console.error(err);
+                            }
+                        }
                     }
+                    else {
+                        res.status(200).render(page), err => {
+                            if (err) {
+                                timber.logAndSend(err);
+                                console.error(err);
+                            }
+                        }
+                    }
+                    // run session check in another function, validate or reject, and render with data.
+                    //check to see if session cookie exists. If so, check db. If it passes, let them in. If not, redirect to login.
                 }
-            }
-            // run session check in another function, validate or reject, and render with data.
-            //check to see if session cookie exists. If so, check db. If it passes, let them in. If not, redirect to login.
-        }
-        else {
-            res.status(200).render(page), err => {
-                if (err) {
-                    timber.logAndSend(err);
-                    // console.error(err);
-                }
-            }
+                else {
+                    res.status(200).render(page), err => {
+                        if (err) {
+                            timber.logAndSend(err);
+                            // console.error(err);
+                        }
+                    }
 
 
-        }
+                }
+            }
+        });
     }
 });
 
-// app.get('/getRecked', function (req, res) {
 
-
-//     // Parse the rawData to extract the required information
-//     let parsedData = rawData.map(item => {
-//         return {
-//             artist: data.artists.name, // replace with actual keys if different
-//             track: data.tracks.name,   // replace with actual keys if different
-//             url: data.tracks.external_urls.spotify,       // replace with actual keys if different
-//         };
-//     });
-
-//     res.render('getRecked', { recommendations: parsedData });
-// });
 const userData = [];
+/**
+ * @deprecated
+ */
 app.post('/getrecked', (req, res) => {
     console.log('\n[Posting to /getrecked]\n');
     const tempHost = process.env.BROKER_VHOST;
@@ -406,6 +508,15 @@ app.post('/login', (req, res) => {
     });
 });
 
+app.post('/account:param', (req, res) => {
+    //NOTE: come back here and fix your mess
+    const tempHost = process.env.BROKER_VHOST;
+    const tempQueue = process.env.BROKER_QUEUE;
+    const amqpUrl = `amqp://longsoup:puosgnol@${tempHost}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
+    typeOf = req.params.param;
+    console.log('\n[Posting to /account:param] with typeOf: ', typeOf, '\n');
+    console.log('[TYPE OF] ', typeOf);
+});
 
 app.post('/register', (req, res) => {
     const useremail = req.body.useremail;
