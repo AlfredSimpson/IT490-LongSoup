@@ -319,7 +319,13 @@ app.get('/:page', (req, res) => {
         res.status(200).render(page, { data: { error_status: errorStatus, error_output: errorOutput } }), err => {
             timber.logAndSend(err);
         }
-
+    }
+    else if (page == 'register') {
+        let errorStatus = null;
+        let errorOutput = '';
+        res.status(200).render(page, { data: { error_status: errorStatus, error_output: errorOutput } }), err => {
+            timber.logAndSend(err);
+        }
     }
     else if (page == 'artists') {
         const tempHost = process.env.BROKER_VHOST;

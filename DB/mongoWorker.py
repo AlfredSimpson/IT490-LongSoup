@@ -15,10 +15,12 @@ load_dotenv()
 maindb = os.getenv("MONGO_DB")
 maindbuser = os.getenv("MONGO_USER")
 maindbpass = os.getenv("MONGO_PASS")
-maindbhost = os.getenv("MONGO_HOST")
+maindbhost = os.getenv("MONGO_HOST")  # This is localhost so... we can omit this later.
 
 # TODO change the db to the maindb, add the user and pass to the connection
-myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+myclient = pymongo.MongoClient(
+    "mongodb://%s:%s@localhost:27017/" % (maindbuser, maindbpass)
+)
 db = myclient.maindb
 
 
@@ -199,7 +201,7 @@ def get_next_uid():
     We use this to keep our uids unique and to add relational data to a non relational database.
     """
     nextid = 0
-    db = myclient.testDB
+    # db = myclient.testDB
     col = db.users
     highest_id = col.find_one(sort=[("uid", -1)])
     if highest_id:
@@ -322,10 +324,12 @@ def do_register(
         }
         return e, msg
     else:
-        print("\n[REGISTRATION SUCCESS]\tAttempting to add user to database\n")
+        print(
+            "\n[REGISTRATION]\tUser email not found in users table. Attempting to register user!\n"
+        )
         try:
-            print(f'\nAttempting to add user "{useremail}" to database\n')
-            uid = get_next_uid
+            print(f'\nAttempting to add user "{useremail}" to users\n')
+            uid = get_next_uid()
             users.insert_one(
                 {
                     "uid": uid,
