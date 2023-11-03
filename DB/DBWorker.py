@@ -27,7 +27,7 @@ def query_artist(artist, typebyartist=None):
     """NOTE: NOT READY FOR PROD YET, STILL IN TESTING PHASE. DOES NOT ACTUALLY RETURN ANYTHING THAT WOULD BE USEFUL OR PARSED
 
     Args:
-        artist (_type_): _description_
+        artist (string): _description_
 
     Returns:
         what the variable dictates.
