@@ -84,7 +84,7 @@ const trafficLogger = (req, res, next) => {
     res.send = function (string) {
         //
         // const body = string instanceof Buffer ? string.toString() : string;
-        //timber.logAndSend(`Outgoing response: ${res.statusCode}`);
+        timber.logAndSend(`Outgoing response: ${res.statusCode}`);
         send.call(this, string);
     };
     next();
@@ -180,7 +180,6 @@ app.get('/spotcallback', (req, res) => {
         res.render('/');
         console.log('[SPOT ERROR] state_mismatch');
         timber.logAndSend('[SPOT ERROR] state_mismatch', "SPOTIFY");
-
     } else {
         var authOptions = {
             url: spotTokenURL,
@@ -224,7 +223,9 @@ app.get('/spotLog', (req, res) => {
     //var scope = 'user-library-modify playlist-read-private playlist-read-collaborative user-read-recently-played user-top-read';
     console.log('spotClientID = ', spotClientID);
     console.log('spotURI = ', spotURI);
-    res.redirect(`https://accounts.spotify.com/authorize?` + querystring.stringify({ response_type: 'code', client_id: spotClientID, scope: scope, redirect_uri: spotURI })), err => {
+    // After working, remove the show_dialog. set to True for testing.
+    // querystring.stringify will make our query urlencoded
+    res.redirect(`https://accounts.spotify.com/authorize?` + querystring.stringify({ client_id: spotClientID, response_type: 'code', scope: scope, redirect_uri: spotURI, show_dialog: true })), err => {
         if (err) {
             msg = 'Failed to redirect to spotify.'
             timber.logAndSend(msg);
@@ -240,14 +241,22 @@ app.get('/spotLog', (req, res) => {
 app.get('/callback', function (req, res) {
 
     var code = req.query.code || null;
+    // var grant_type = req.query.grant_type || null;
     var state = req.query.state || null;
 
+    console.log('[/callback] code: ', code);
+    console.log('[/callback] state: ', state);
+    console.log(response.json());
+
     if (state === null) {
-        res.redirect('/#' +
+        console.log(res);
+        res.redirect('success' +
             querystring.stringify({
                 error: 'state_mismatch'
             }));
     } else {
+        console.log('[/callback] success??');
+
         var authOptions = {
             url: 'https://accounts.spotify.com/api/token',
             form: {
@@ -261,6 +270,7 @@ app.get('/callback', function (req, res) {
             },
             json: true
         };
+        console.log(authOptions);
     }
 });
 
@@ -653,13 +663,13 @@ app.post('/register', (req, res) => {
 
 const httpsServer = https.createServer(https_options, app);
 
-const newport = 9001;
-httpsServer.listen(newport, () => {
-    console.log(`Listening on port ${newport}`);
-})
+// const newport = 9001;
+// httpsServer.listen(newport, () => {
+//     console.log(`Listening on port ${newport}`);
+// })
 
 // Listen
 
-// app.listen(Port, () => {
-// console.log(`Listening on port ${Port}`);
-// });
+app.listen(Port, () => {
+    console.log(`Listening on port ${Port}`);
+});

@@ -1,0 +1,14 @@
+{"type":"log","source":"Webserver","date":"2023-11-02T05:11:34.920Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-02T05:11:34.967Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-02T05:11:37.348Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-02T05:11:37.390Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-02T20:48:37.755Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-02T20:48:37.831Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-02T20:49:38.577Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-02T20:49:38.637Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"SPOTIFY","date":"2023-11-02T20:49:58.448Z","log_message":"[SPOT ERROR] state_mismatch"}
+{"type":"log","source":"Webserver","date":"2023-11-02T20:51:45.971Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-02T20:51:46.025Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-02T20:52:02.993Z","log_message":"User logged in successfully."}
+{"type":"log","source":"Webserver","date":"2023-11-02T20:52:02.995Z","log_message":"Outgoing response: 200"}
+{"type":"log","source":"Webserver","date":"2023-11-02T20:52:03.042Z","log_message":"Outgoing response: 200"}
