@@ -1,36 +1,106 @@
-import pika, mysql.connector, os, sys, json, random
-import LongDB
+import pika
+import os, sys, json, random
+
+# import LongDB deprecated for now - will be used later
+import pymongo
+import logging
 import spotipy
 import spotipy.util as util
-import logging
 from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import load_dotenv
+from dotenv import load_dotenv
 
-# Load the variables
 load_dotenv()
 
-# Set globals
-global testUser
-global testPass
-global testDB
-testUser = os.getenv("TESTSECUREUSER")
-testPass = os.getenv("TESTSECUREPASS")
-testDB = os.getenv("TESTSECUREDB")
+maindb = os.getenv("MONGO_DB")
+maindbuser = os.getenv("MONGO_USER")
+maindbpass = os.getenv("MONGO_PASS")
+maindbhost = os.getenv("MONGO_HOST")  # This is localhost so... we can omit this later.
 
-# logging.basicConfig(level=logging.ERROR)
-# Import the spotify handler
+# TODO change the db to the maindb, add the user and pass to the connection
+myclient = pymongo.MongoClient(
+    "mongodb://%s:%s@localhost:27017/cgs" % (maindbuser, maindbpass)
+)
+db = myclient[maindb]
 
-# Spotify info
+
+def get_recs(
+    genre="punk", valence="0.2", energy="0.7", popularity="25", fromlogin=False
+):
+    """
+    # get_recs
+    takes in genre, valence, energy, and popularity as arguments and returns a list of recommended songs.
+
+    Args:
+        genre (str, optional): The seed_genre that spotify allows. Defaults to "punk".
+        valence (str, optional): Valence is how spotify defines happiness. Defaults to "0.2".
+        energy (str, optional): Energy is presumed to be the amplitude of the song. Defaults to "0.7".
+        popularity (str, optional): How popular a song is. 0-100. Defaults to "25".
+        fromlogin (bool, optional): Necessary to define, optional param, allows us to stay on the page and return new recs with correct data. Defaults to False.
+
+    Returns:
+        returnCode: 0 if successful, 1 if not
+        message: Success or failure message
+        gotrecs: True or False
+        data: Logged in or not
+        music: List of recommended songs
+
+    """
+    client_id = os.getenv("SPOTIFY_CLIENT_ID")
+    client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
+
+    sp = spotipy.Spotify(
+        auth_manager=SpotifyClientCredentials(
+            client_id=client_id, client_secret=client_secret
+        )
+    )
+
+    genre = genre
+    valence = valence
+    energy = energy
+    popularity = popularity
+
+    results = sp.recommendations(
+        seed_genres=[genre],
+        target_valence=valence,
+        target_energy=energy,
+        min_popularity=popularity,
+        limit=4,
+    )
+    data = {"musicdata": []}
+    for i in results["tracks"]:
+        # Should really set up a try catch here
+        track = i["name"]  # Get the track name
+        artist = i["artists"][0]["name"]  # Get the artist name
+        url = i["external_urls"]["spotify"]  # Get the url
+        data["musicdata"].append({"track": track, "artist": artist, "url": url})
+    if fromlogin:
+        return data
+    else:
+        # return music as a narrowed json object
+        music = data["musicdata"]
+        # return necessary information to front end
+        return {
+            "returnCode": 0,
+            "message": "Success",
+            "gotrecs": "True",
+            "data": {
+                "loggedin": "True",
+                "name": "buddy",
+            },
+            "music": music,
+        }
 
 
 def query_artist(artist, typebyartist=None):
-    """NOTE: NOT READY FOR PROD YET, STILL IN TESTING PHASE. DOES NOT ACTUALLY RETURN ANYTHING THAT WOULD BE USEFUL OR PARSED
-
+    """
+    query_artist takes in artist and typebyartist as arguments and returns a list of albums, tracks, or related artists.
     Args:
-        artist (string): _description_
+        artist (_type_): the artist you want to query
+        typebyartist (_type_): the type of query you want to do. Can be albums, tracks, or related.
 
     Returns:
-        what the variable dictates.
+        what the variable typebyartist dictates.
     """
     client_id = os.getenv("SPOTIFY_CLIENT_ID")
     client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
@@ -124,124 +194,78 @@ def query_artist(artist, typebyartist=None):
             }
 
 
-def get_recs(
-    genre="punk", valence="0.2", energy="0.7", popularity="25", fromlogin=False
-):
-    """get_recs takes in genre, valence, energy, and popularity as arguments and returns a list of recommended songs.
+def get_next_uid():
+    """
+    get_next_uid() returns the next available uid for a new user.
+    This is done by finding the highest uid in the database and adding 1 to it.
+    We use this to keep our uids unique and to add relational data to a non relational database.
+    """
+    nextid = 0
+    # db = myclient.testDB
+    col = db.users
+    highest_id = col.find_one(sort=[("uid", -1)])
+    if highest_id:
+        nextid = 1
+        nextid += highest_id["uid"]
+    return nextid
+
+
+def addUser(email, password, sessionid, cookieid):
+    uid = get_next_uid()
+    db = myclient.testDB
+    col = db.users
+
+    col.insert_one(
+        {
+            "uid": uid,
+            "email": email,
+            "password": password,
+            "sessionid": sessionid,
+            "cookieid": cookieid,
+        }
+    )
+
+
+def TEST_auth_user(useremail, password):
+    """auth_user takes in useremail and password as arguments and returns a boolean True if the user exists and the password matches. Otherwise, it returns a boolean False. This is not used currently as it is for the login method, but can be reused for other methods so I'm leaving for now since it's a good tester.
 
     Args:
-        genre (str, optional): The seed_genre that spotify allows. Defaults to "punk".
-        valence (str, optional): Valence is how spotify defines happiness. Defaults to "0.2".
-        energy (str, optional): Energy is presumed to be the amplitude of the song. Defaults to "0.7".
-        popularity (str, optional): How popular a song is. 0-100. Defaults to "25".
-        fromlogin (bool, optional): Necessary to define, optional param, allows us to stay on the page and return new recs with correct data. Defaults to False.
+        useremail (_type_): the useremail to check
+        password (_type_): the password to check
 
     Returns:
-        returnCode: 0 if successful, 1 if not
-        message: Success or failure message
-        gotrecs: True or False
-        data: Logged in or not
-        music: List of recommended songs
-
+        bool: True or False
     """
-    client_id = os.getenv("SPOTIFY_CLIENT_ID")
-    client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
-
-    sp = spotipy.Spotify(
-        auth_manager=SpotifyClientCredentials(
-            client_id=client_id, client_secret=client_secret
-        )
-    )
-
-    genre = genre
-    valence = valence
-    energy = energy
-    popularity = popularity
-
-    results = sp.recommendations(
-        seed_genres=[genre],
-        target_valence=valence,
-        target_energy=energy,
-        min_popularity=popularity,
-        limit=4,
-    )
-    data = {"musicdata": []}
-    for i in results["tracks"]:
-        # Should really set up a try catch here
-        track = i["name"]  # Get the track name
-        artist = i["artists"][0]["name"]  # Get the artist name
-        url = i["external_urls"]["spotify"]  # Get the url
-        data["musicdata"].append({"track": track, "artist": artist, "url": url})
-    if fromlogin:
-        return data
+    db = myclient.testDB
+    col = db.users
+    user = col.find_one({"email": useremail})
+    if user and user["password"] == password:
+        print("okay then, we got in")
+        return True
     else:
-        # return music as a narrowed json object
-        music = data["musicdata"]
-        # return necessary information to front end
-        return {
-            "returnCode": 0,
-            "message": "Success",
-            "gotrecs": "True",
-            "data": {
-                "loggedin": "True",
-                "name": "buddy",
-            },
-            "music": music,
-        }
+        print("did notwork")
+        return False
 
 
-# def generateSimpleRecs(genre, popularity, valence):
-#     client_id = os.getenv("SPOTIFY_CLIENT_ID")
-#     client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
-#     # redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
-#     spotify_token = os.getenv("SPOTIFY_TOKEN_URL")
-#     spotify_api_url = os.getenv("SPOTIFY_API_BASE_URL")
-
-#     sp = spotipy.Spotify(
-#         auth_manager=SpotifyClientCredentials(
-#             client_id=client_id, client_secret=client_secret
-#         )
-#     )
-#     genre = [genre]
-#     print(genre)
-#     results = sp.recommendations(
-#         seed_genres=genre, limit=5, target_popularity=popularity, target_valence=valence
-#     )
-
-#     print(results)
-#     return {
-#         "returnCode": 0,
-#         "message": "Success",
-#         "gotrecs": "True",
-#         "data": {
-#             "loggedin": "True",
-#             "recs": results,
-#         },
-#         "recs": results,
-#     }
-
-
-# Function to perform login
 def do_login(useremail, password, session_id, usercookieid):
+    """# do_login
+    Takes useremail and password as arguments and attempts to login the user.
+    It stores thes session_id and usercookieid
+
+    Args:
+        useremail (string): The useremail to check
+        password (string): The password to check
+        session_id (string): The session_id to store
+        usercookieid (string): The usercookieid to store
+
+    Returns:
+        _type_: _description_
+    """
+
     # Connect to the database
-    db = LongDB.LongDB("localhost", testUser, testPass, testDB)
-    # db = LongDB.LongDB(host="localhost",user="longestsoup",password="shortS0up!",database="securesoupdb")
-    # Validate the user - consider adding a try catch.
-    result = db.auth_user(
-        table="users",
-        useremail=useremail,
-        password=password,
-        session_id=session_id,
-        usercookieid=usercookieid,
-    )
-
-    # Initialize the spotify handler
-
-    name = db.get_name(usercookieid)
-    current_top = ""  # TODO: get user top tracks
-    recommended_tracks = ""  # TODO: get user recommended tracks
-    recommended_artists = ""  # TODO: get user recommended artists
-    if result:
+    collection = db.users
+    user = collection.find_one({"email": useremail})
+    if user and user["password"] == password:
         genre = random.choice(["punk", "rock", "pop", "country", "rap", "hip-hop"])
         valence = random.uniform(0, 1)
         energy = random.uniform(0, 1)
@@ -257,12 +281,14 @@ def do_login(useremail, password, session_id, usercookieid):
             # "recommendedArtists": recommended_artists,
             "music": music["musicdata"],
             "data": {
+                # name variable is not passed
+                # TODO: give it a name
                 "name": name[0],
                 "loggedin": "True",
             },
         }
     else:
-        print("\nAnd here we see it fails\n")
+        print("\n[LOGIN ERROR] User Not Found\n")
         return {
             "returnCode": "1",
             "message": "You have failed to login.",
@@ -279,59 +305,72 @@ def do_register(
     useremail, password, session_id, usercookieid, first_name, last_name, spot_name
 ):
     """
-    do_register takes useremail and password as arguments and attempts to register the user.
+    # do_register
+    Takes useremail and password as arguments and attempts to register the user.
+
     It returns a message indicating whether the registration was successful or not.
-    However, it does not log the user in.
-    Also, the password is not yet hashed.
     """
     # Connect to the database
-    db = LongDB.LongDB("localhost", testUser, testPass, testDB)
-    # db = LongDB.LongDB(host="localhost",user="longestsoup",password="shortS0up!",database="securesoupdb",)
+
     # See if the user exists already
-    exists = db.user_exists_email(useremail)
-    print(f"\nUser email exists? {exists}")
-    if exists:
-        print("\n\tUser already exists\n")
+    users = db.users
+    user = users.find_one({"email": useremail})
+    if user:
+        # User already exists
+        print("\n[REGISTRATION ERROR]\tUser already exists!\n")
         e = {"ERROR": "User already exists"}
-        return e
+        msg = {
+            "returnCode": "1",
+            "message": "Registration failed - useremail exists",
+            session_id: False,
+        }
+        return e, msg
     else:
+        print(
+            "\n[REGISTRATION]\tUser email not found in users table. Attempting to register user!\n"
+        )
         try:
-            print(f'\nAttempting to add user "{useremail}" to database\n')
-            result = db.add_user(
-                table="users",
-                useremail=useremail,
-                password=password,
-                sessionid=session_id,
-                usercookieid=usercookieid,
+            print(f'\nAttempting to add user "{useremail}" to users\n')
+            uid = get_next_uid()
+            users.insert_one(
+                {
+                    "uid": uid,
+                    "email": useremail,
+                    "password": password,
+                    "sessionid": session_id,
+                    "cookieid": usercookieid,
+                }
             )
-            if result:
-                print(
-                    f"\nUser {useremail} added to database, attempting to update userinfo next\n"
-                )
-                db.initialUpdate(useremail, first_name, last_name, spot_name)
-                music = get_recs(fromlogin=True)
-                music = music["musicdata"]
-                return {
-                    "returnCode": "0",
-                    "message": "Registration successful",
-                    "data": {
-                        "loggedin": "True",
-                        "name": first_name,
-                        "sessionValid": "True",
-                    },
-                    "music": music,
+            print(
+                f"\nUser {useremail} added to database... moving to add to userinfo\n"
+            )
+            db.userinfo.insert_one(
+                {
+                    "uid": uid,
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "spot_name": spot_name,
                 }
-            else:
-                print("\nAnd here we see it fails\n")
-                return {
-                    "returnCode": "1",
-                    "message": "Registration failed - useremail exists",
-                    session_id: False,
-                }
+            )
+            music = get_recs(fromlogin=True)
+            music = music["musicdata"]
+            return {
+                "returnCode": "0",
+                "message": "Registration successful",
+                "data": {
+                    "loggedin": "True",
+                    "name": first_name,
+                    "sessionValid": "True",
+                },
+                "music": music,
+            }
         except:
-            print("\nError adding user to database\n")
-            logging.error("Error adding user to database")
-            return "ERROR: Unable to add user to database"
+            print("\n[REGISTRATION ERROR] Unknown error adding user to database\n")
+            logging.error("[REGISTRATION ERROR] Unknown error adding user to database")
+            return {
+                "returnCode": 1,
+                "message": "[REGISTRATION ERROR] Unable to add user to database. Unknown error.",
+            }
 
 
 def return_error(ch, method, properties, body, msg):
@@ -342,30 +381,6 @@ def return_error(ch, method, properties, body, msg):
         body=json.dumps(msg),
     )
     ch.basic_ack(delivery_tag=method.deliver_tag)
-
-
-def do_validate(usercookieid, session_id):
-    # This takes in the sessionID and validates it by checking the database. If the sessionTable shows that the session is valid for the user, then it returns a boolean True. Otherwise, it returns a boolean False.
-    # Connect to the database
-    # db = LongDB.LongDB("localhost", "example", "exampl3!", "tester")
-    global testUser
-    global testPass
-    global testDB
-    db = LongDB.LongDB("localhost", testUser, testPass, testDB)
-    # db = LongDB.LongDB(host="localhost",user="longestsoup",password="shortS0up!",database="securesoupdb",)
-    validity = db.validate_session(usercookieid, session_id)
-    # TODO: add this to the logging system
-    print(f"\nvalidate_session returned: {validity}\n")
-    return validity
-
-
-def do_logout(usercookieid, session_id):
-    # Connect to the database
-    db = LongDB.LongDB("localhost", testUser, testPass, testDB)
-    # db = LongDB.LongDB(host="localhost",user="longestsoup",password="shortS0up!",database="securesoupdb",)
-    db.invalidate_session(usercookieid, session_id)
-    print(f"User {usercookieid} logged out")
-    return {"\nreturnCode": "0", "message": "Logout successful\n"}
 
 
 def request_processor(ch, method, properties, body):
@@ -401,7 +416,8 @@ def request_processor(ch, method, properties, body):
         elif request_type == "validate_session":
             # Handles session validation requests
             print("Received session validation request")
-            response = do_validate(request["usercookieid"], request["sessionId"])
+            # TODO: do_validate()!
+            # response = do_validate(request["usercookieid"], request["sessionId"])
         elif request_type == "register":
             # Handles registration requests
             print("Received registration request")
@@ -446,6 +462,25 @@ def request_processor(ch, method, properties, body):
         body=json.dumps(response),
     )
     ch.basic_ack(delivery_tag=method.delivery_tag)
+
+
+"""
+def do_validate(usercookieid, session_id):
+    # This takes in the sessionID and validates it by checking the database. If the sessionTable shows that the session is valid for the user, then it returns a boolean True. Otherwise, it returns a boolean False.
+    validity = db.validate_session(usercookieid, session_id)
+    # TODO: add this to the logging system
+    # TODO: fix return statements, port validate_session
+    print(f"\nvalidate_session returned: {validity}\n")
+    return validity
+"""
+
+
+def do_logout(usercookieid, session_id):
+    # Connect to the database
+    # db.invalidate_session(usercookieid, session_id)
+    # print(f"User {usercookieid} logged out")
+    # return {"\nreturnCode": "0", "message": "Logout successful\n"}
+    pass
 
 
 vHost = "tempHost"

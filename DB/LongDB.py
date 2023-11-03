@@ -3,29 +3,37 @@
 
 import mysql.connector
 import os, sys, json
+import pymongo
 
 
 class LongDB:
     """
-    This is a class used to access a mysql database and perform queries.
+    This was originally configured for mysql, I am in the process of rebuilding this for mongodb.
     """
 
     def __init__(self, host, user, password, database):
         """
         __init__ is the constructor for the LongDB class. It requires the following parameters:
         host: the host of the mysql database
-        user: the username of the mysql database user.
+        user: the username of the database user.
         password: the password of the mysql database
         database: the name of the database to connect to
         """
-        self.mydb = mysql.connector.connect(
-            host=host,
-            user=user,
+        self.db = pymongo.MongoClient(
+            host="localhost",
+            username=user,
             password=password,
-            database=database,
-            port=42069,
+            authSource=database,
+            authMechanism="SCRAM-SHA-256",
         )
-        self.mycursor = self.mydb.cursor()
+        # self.mydb = mysql.connector.connect(
+        #     host=host,
+        #     user=user,
+        #     password=password,
+        #     database=database,
+        #     port=42069,
+        # )
+        # self.mycursor = self.mydb.cursor()
 
     def get_user_by_username(self, useremail):
         """
