@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "amqplib": "^0.10.3",
+    "axios": "^1.6.0",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
@@ -22,7 +23,9 @@
     "express-session": "^1.17.3",
     "greenlock-express": "^4.0.3",
     "node": "^21.1.0",
+    "node-fetch": "^3.3.2",
     "nodemon": "^3.0.1",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "spotify-web-api-node": "^5.0.2"
   }
 }

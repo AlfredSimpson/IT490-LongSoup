@@ -1,8 +1,10 @@
 // Imports
 const express = require('express');
-const fs = require('fs');
-const bodyParser = require('body-parser');
 const app = express();
+const fs = require('fs');
+const axios = require('axios').default;
+
+const bodyParser = require('body-parser');
 const path = require('path');
 const timber = require('./lumberjack.js');
 const handshake = require('./formHelper.js');
@@ -15,6 +17,7 @@ const sessions = require('express-session');
 const cookieParser = require('cookie-parser');
 const { get } = require('http');
 const { deprecate } = require('util');
+var SpotifyWebApi = require('spotify-web-api-node'); // Only used up front to get the access token
 const querystring = require('node:querystring');
 var https = require('https');
 
@@ -82,7 +85,6 @@ const trafficLogger = (req, res, next) => {
 
     const send = res.send;
     res.send = function (string) {
-        //
         // const body = string instanceof Buffer ? string.toString() : string;
         timber.logAndSend(`Outgoing response: ${res.statusCode}`);
         send.call(this, string);
@@ -162,117 +164,225 @@ const spotAuthURL = process.env.SPOTIFY_AUTH_URL;
 const spotTokenURL = process.env.SPOTIFY_TOKEN_URL;
 const spotAPIURL = process.env.SPOTIFY_API_BASE_URL;
 
-app.get('/test', (req, res) => {
-    res.status(200).render('test'), err => {
-        if (err) {
-            msg = 'Failed to render index page.'
-            timber.logAndSend(msg);
-            console.error(err);
+
+app.get('/spotlog', (req, res) => {
+    console.log("[SpotLog] We made it to the spotlog route.");
+    const generateState = () => {
+        let state = '';
+        for (let i = 0; i < 17; i++) {
+            state += Math.floor(Math.random() * 10);
         }
+        return state;
     };
+    var state = generateState();
+    res.cookie(spotClientID, state);
+    console.log(state);
+    const scope = 'user-read-private user-read-email user-library-modify playlist-modify-private playlist-modify-public playlist-read-private playlist-read-collaborative user-library-read user-top-read user-read-recently-played user-read-playback-state user-modify-playback-state user-read-currently-playing';
+    const query = querystring.stringify({
+        response_type: 'code',
+        client_id: spotClientID,
+        scope: scope,
+        redirect_uri: spotURI,
+        show_dialog: true,
+        state: state,
+
+    });
+    console.log(query);
+    // console.log(`\n[SPOTIFY] We received the form. \n\n {code: ${code}, redirect_uri: ${spotURI}, grant_type: authorization_code}\n`);
+    res.redirect(spotAuthURL + query);
 });
 
-app.get('/spotcallback', (req, res) => {
-    var code = req.query.code || null;
-    var state = req.query.state || null;
-
-    if (state === null) {
-        res.render('/');
-        console.log('[SPOT ERROR] state_mismatch');
-        timber.logAndSend('[SPOT ERROR] state_mismatch', "SPOTIFY");
+app.get('/callback', async (req, res) => {
+    const { code, state } = req.query;
+    console.log(req.query);
+    const storedState = req.cookies ? req.cookies[spotClientID] : null;
+    if (state === null || state !== storedState) {
+        res.redirect('/#' + querystring.stringify({ error: 'state_mismatch' }));
     } else {
-        var authOptions = {
-            url: spotTokenURL,
-            form: {
-                code: code,
-                redirect_uri: spotURI,
-                grant_type: 'authorization_code'
-            },
-            headers: {
-                'content-type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' + (new Buffer.from(spotClientID + ':' + spotClientSecret).toString('base64'))
-            },
-            json: true
-        };
-        // TODO: send and store this to the database through rmq!!!
-    }
-    // request.post(authOptions, function (error, response, body) {
-    //     var access_token = body.access_token;
-    //     var refresh_token = body.refresh_token;
-    //     var options = {
-    //         url: spotAPIURL + 'me',
-    //         headers: { 'Authorization': 'Bearer ' + access_token },
-    //         json: true
-    //     };
-    //     // use the access token to access the Spotify Web API
-    //     request.get(options, function (error, response, body) {
-    //         console.log(body);
-    //     });
-    //     // we can also pass the token to the browser to make requests from there
-    //     res.redirect('/#' +
-    //         querystring.stringify({
-    //             access_token: access_token,
-    //             refresh_token: refresh_token
-    //         }));
-    // });
-});
-
-app.get('/spotLog', (req, res) => {
-    // var state = generateRandomString(16);
-    var scope = 'user-read-private user-read-email user-library-modify playlist-modify-private playlist-modify-public playlist-read-private playlist-read-collaborative user-library-read user-top-read user-read-recently-played user-read-playback-state user-modify-playback-state user-read-currently-playing';
-    //var scope = 'user-library-modify playlist-read-private playlist-read-collaborative user-read-recently-played user-top-read';
-    console.log('spotClientID = ', spotClientID);
-    console.log('spotURI = ', spotURI);
-    // After working, remove the show_dialog. set to True for testing.
-    // querystring.stringify will make our query urlencoded
-    res.redirect(`https://accounts.spotify.com/authorize?` + querystring.stringify({ client_id: spotClientID, response_type: 'code', scope: scope, redirect_uri: spotURI, show_dialog: true })), err => {
-        if (err) {
-            msg = 'Failed to redirect to spotify.'
-            timber.logAndSend(msg);
-            console.error(err);
-        }
-        else {
-            console.log('redirected to spotify');
-
-        }
-    };
-});
-
-app.get('/callback', function (req, res) {
-
-    var code = req.query.code || null;
-    // var grant_type = req.query.grant_type || null;
-    var state = req.query.state || null;
-
-    console.log('[/callback] code: ', code);
-    console.log('[/callback] state: ', state);
-    console.log(response.json());
-
-    if (state === null) {
-        console.log(res);
-        res.redirect('success' +
-            querystring.stringify({
-                error: 'state_mismatch'
-            }));
-    } else {
-        console.log('[/callback] success??');
-
+        // res.clearCookie(stateKey);
+        const params = new URLSearchParams({
+            grant_type: 'authorization_code',
+            code: code,
+            redirect_uri: spotURI,
+        });
         var authOptions = {
             url: 'https://accounts.spotify.com/api/token',
-            form: {
-                code: code,
-                redirect_uri: redirect_uri,
-                grant_type: 'authorization_code'
-            },
+            method: 'POST',
             headers: {
-                'content-type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64'))
+                'Content-Type': 'application/x-www-form-urlencoded',
+                Authorization: `Basic ${Buffer.from(`${spotClientID}:${spotClientSecret}`).toString('base64')}`,
             },
-            json: true
+            body: querystring.stringify({
+                grant_type: 'authorization_code',
+                code,
+                redirect_uri: spotURI,
+            }),
         };
-        console.log(authOptions);
+
+        try {
+            const response = await axios(authOptions);
+            const { access_token, refresh_token } = response.data;
+            // const response = await axios(spotTokenURL, authOptions);
+            // const data = await response.json();
+            // const access_token = data.access_token;
+            // const refresh_token = data.refresh_token;
+
+            // Store the access token and refresh token in a secure manner
+            // (e.g. environment variables or a database)
+            console.log(`Access token: ${access_token}`);
+            console.log(`Refresh token: ${refresh_token}`);
+
+            res.redirection('/#' + querystring.stringify({ access_token, refresh_token }));
+        }
+        catch (err) {
+            console.error(err);
+            // res.status(500).send('Error retrieving access token.');
+            res.redirect('/#' + querystring.stringify({ error: 'invalid_token' }));
+        }
     }
 });
+
+
+
+
+// app.get('/spotcallback', (req, res) => {
+//     console.log("[SpotCallback] We made it to the spotcallback route.");
+//     var code = req.query.code || null;
+//     var state = req.query.state || null;
+
+//     if (state === null) {
+//         res.render('/');
+//         console.log('[SPOT ERROR] state_mismatch');
+//         timber.logAndSend('[SPOT ERROR] state_mismatch', "SPOTIFY");
+//     } else {
+//         var authOptions = {
+//             url: spotTokenURL,
+//             form: {
+//                 code: code,
+//                 redirect_uri: spotURI,
+//                 grant_type: 'authorization_code'
+//             },
+//             headers: {
+//                 'content-type': 'application/x-www-form-urlencoded',
+//                 'Authorization': 'Basic ' + (new Buffer.from(spotClientID + ':' + spotClientSecret).toString('base64'))
+//             },
+//             json: true
+//         };
+//         console.log(authOptions);
+//         console.log(`\n[SPOTIFY] We received the form. \n\n {code: ${code}, redirect_uri: ${spotURI}, grant_type: authorization_code}\n`);
+//         let spotdata = response.body;
+//         console.log('\n[SPOTIFY] Response body: ', spotdata, '\n');
+//         // let access = spotdata.access_token;
+//         // console.log(`\n[SPOTIFY] Access token: ${access}\n`);
+//         // let refresh = res.body.refresh_token;
+//         // console.log(`\n[SPOTIFY] Refresh token: ${refresh}\n`);
+//         res.render('success');
+//         // res.redirect('account' + querystring.stringify({ access_token: access_token, refresh_token: refresh_token }));
+//         // TODO: send and store this to the database through rmq!!!
+//     }
+//     // req.post(authOptions, function (error, response, body) {
+//     //     var access_token = body.access_token;
+//     //     var refresh_token = body.refresh_token;
+//     //     var options = {
+//     //         url: spotAPIURL + 'me',
+//     //         headers: { 'Authorization': 'Bearer ' + access_token },
+//     //         json: true
+//     //     };
+//     //     // use the access token to access the Spotify Web API
+//     //     req.get(options, function (error, response, body) {
+//     //         console.log(body);
+//     //     });
+//     //     // we can also pass the token to the browser to make requests from there
+//     //     res.redirect('account' +
+//     //         querystring.stringify({
+//     //             access_token: access_token,
+//     //             refresh_token: refresh_token
+//     //         }));
+//     // });
+// });
+
+// app.get('/spotLog', (req, res, next) => {
+//     var scope = 'user-read-private user-read-email user-library-modify playlist-modify-private playlist-modify-public playlist-read-private playlist-read-collaborative user-library-read user-top-read user-read-recently-played user-read-playback-state user-modify-playback-state user-read-currently-playing';
+//     console.log('spotClientID = ', spotClientID);
+//     console.log('spotURI = ', spotURI);
+//     const generateState = () => {
+//         // generate a string of numberes that is 17 characters long
+//         let state = '';
+//         for (let i = 0; i < 17; i++) {
+//             state += Math.floor(Math.random() * 10);
+//         }
+//         return state;
+//     };
+//     var state = generateState();
+
+//     res.redirect(`https://accounts.spotify.com/authorize?` + querystring.stringify({
+//         client_id: spotClientID,
+//         response_type: 'code',
+//         scope: scope,
+//         redirect_uri: spotURI,
+//         state: state,
+//         show_dialog: true
+//     })),
+//         err => {
+//             if (err) {
+//                 msg = 'Failed to redirect to spotify.'
+//                 timber.logAndSend(msg);
+//                 console.error(err);
+//             }
+//         },
+//         (req, res) => {
+//             console.log('tears');
+//             var code = req.query.code || null;
+//             var state = req.query.state || null;
+//             if (state === null) {
+//                 res.redirect('/#' + querystring.stringify({
+//                     error: 'state_mismatch'
+//                 }));
+//             } else {
+//                 var authOptions = {
+//                     url: 'https://accounts.spotify.com/api/token',
+//                     form: {
+//                         code: code,
+//                         redirect_uri: spotURI,
+//                         grant_type: 'authorization_code'
+//                     },
+//                     headers: {
+//                         'content-type': 'application/x-www-form-urlencoded',
+//                         'Authorization': 'Basic ' + (new Buffer.from(spotClientID + ':' + spotClientSecret).toString('base64'))
+//                     },
+//                     json: true
+//                 };
+//             }
+//         };
+// });
+
+// app.get('callback', function (req, res) {
+
+//     var code = req.query.code || null;
+//     var state = req.query.state || null;
+
+//     if (state === null) {
+//         res.redirect('/#' +
+//             querystring.stringify({
+//                 error: 'state_mismatch'
+//             }));
+//     } else {
+//         console.log('tears');
+//         var authOptions = {
+//             url: 'https://accounts.spotify.com/api/token',
+//             form: {
+//                 code: code,
+//                 redirect_uri: spotURI,
+//                 grant_type: 'authorization_code'
+//             },
+//             headers: {
+//                 'content-type': 'application/x-www-form-urlencoded',
+//                 'Authorization': 'Basic ' + (new Buffer.from(spotClientID + ':' + spotClientSecret).toString('base64'))
+//             },
+//             json: true
+//         };
+//     }
+// });
 
 /**
  * =====================================================
