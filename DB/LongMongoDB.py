@@ -5,12 +5,12 @@ import os, sys, json
 import pymongo
 
 
-class LongDB:
+class LongMongoDB:
     """
     This was originally configured for mysql, I am in the process of rebuilding this for mongodb.
     """
 
-    def __init__(self, host, user, password, database):
+    def __init__(self, user, password, database, host="localhost"):
         """
         __init__ is the constructor for the LongDB class. It requires the following parameters:
         host: the host of the mysql database

@@ -1,5 +1,8 @@
 import pika
 import os, sys, json, random
+import datetime
+
+import LongMongoDB
 
 # import LongDB deprecated for now - will be used later
 import pymongo
@@ -12,10 +15,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 maindb = os.getenv("MONGO_DB")
 maindbuser = os.getenv("MONGO_USER")
 maindbpass = os.getenv("MONGO_PASS")
 maindbhost = os.getenv("MONGO_HOST")  # This is localhost so... we can omit this later.
+
 
 # TODO change the db to the maindb, add the user and pass to the connection
 myclient = pymongo.MongoClient(
@@ -23,7 +28,12 @@ myclient = pymongo.MongoClient(
 )
 db = myclient[maindb]
 
+#############
+# Methods related to Spotify
+#############
 
+
+# TODO: Move spotify related things to spotify class - and this should only be called IF the user is logged in. It should also store the data in the database.
 def get_recs(
     genre="punk", valence="0.2", energy="0.7", popularity="25", fromlogin=False
 ):
@@ -194,6 +204,31 @@ def query_artist(artist, typebyartist=None):
             }
 
 
+def storeToken(token, uid):
+    """
+    storeToken takes in token and uid as arguments and stores the token in the database.
+
+    Args:
+        token (string): the token to store
+        uid (string): the uid to store
+
+    Returns:
+        _type_: _description_
+    """
+    thedate = datetime.datetime.now()
+    print(f'\nAttempting to add token "{token}" to users\n')
+    print(f"\nAdding on {thedate}\n")
+    db.users.update_one(
+        {"uid": uid}, {"$set": {"spotify_token": token, "spotify_token_time": thedate}}
+    )
+    return {"returnCode": 0, "message": "Successfully added token to database"}
+
+
+#############
+# Methods related to user management
+#############
+
+
 def get_next_uid():
     """
     get_next_uid() returns the next available uid for a new user.
@@ -247,6 +282,24 @@ def TEST_auth_user(useremail, password):
         return False
 
 
+def do_logout(usercookieid, session_id):
+    """# do_logout
+    Takes in usercookieid and session_id as arguments and logs the user out.
+
+    Args:
+        usercookieid (string): the usercookieid to logout
+        session_id (string): the session_id to destroy
+    """
+
+    # Query db.users. and unset the session id where the usercookieid matches
+    LMDB = LongMongoDB.LongMongoDB(maindbuser, maindbpass, maindbhost, maindb)
+    LMDB.invalidate_session(usercookieid, session_id)
+    # An alternative:
+    # db.users.update_one({"cookieid": usercookieid}, {"$unset": {"sessionid": ""}})
+    # print(f"User {usercookieid} logged out")
+    return {"\nreturnCode": "0", "message": "Logout successful\n"}
+
+
 def do_login(useremail, password, session_id, usercookieid):
     """# do_login
     Takes useremail and password as arguments and attempts to login the user.
@@ -261,11 +314,20 @@ def do_login(useremail, password, session_id, usercookieid):
     Returns:
         _type_: _description_
     """
+    LMDB = LongMongoDB.LongMongoDB(maindbuser, maindbpass, maindbhost, maindb)
 
     # Connect to the database
     collection = db.users
     user = collection.find_one({"email": useremail})
     if user and user["password"] == password:
+        # update/set the session id & user cookie id
+        LMDB.set_usercookieid(useremail, usercookieid)
+        LMDB.set_session(session_id, useremail)
+        # get the user's name and spot_name to pass back to the front end
+        user_fname = LMDB.get_name(usercookieid)
+        user_spot_name = LMDB.get_spot_name(usercookieid)
+        user_uid = LMDB.get_uid_by_email(useremail)
+        # Get some tunes
         genre = random.choice(["punk", "rock", "pop", "country", "rap", "hip-hop"])
         valence = random.uniform(0, 1)
         energy = random.uniform(0, 1)
@@ -275,15 +337,13 @@ def do_login(useremail, password, session_id, usercookieid):
             "returnCode": "0",
             "message": "Login successful",
             "sessionValid": "True",
-            # "name": name,
-            # "currentTop": current_top,
-            # "recommendedTracks": recommended_tracks,
-            # "recommendedArtists": recommended_artists,
             "music": music["musicdata"],
+            "userinfo": {
+                "name": user_fname,
+                "spot_name": user_spot_name,
+                "uid": user_uid,
+            },
             "data": {
-                # name variable is not passed
-                # TODO: give it a name
-                "name": name[0],
                 "loggedin": "True",
             },
         }
@@ -373,6 +433,11 @@ def do_register(
             }
 
 
+#############
+# Methods related to inbound/outbound communication with the web server and DMZ
+#############
+
+
 def return_error(ch, method, properties, body, msg):
     ch.basic_publish(
         exchange="",
@@ -383,12 +448,31 @@ def return_error(ch, method, properties, body, msg):
     ch.basic_ack(delivery_tag=method.deliver_tag)
 
 
+"""
+def do_validate(usercookieid, session_id):
+    # This takes in the sessionID and validates it by checking the database. If the sessionTable shows that the session is valid for the user, then it returns a boolean True. Otherwise, it returns a boolean False.
+    validity = db.validate_session(usercookieid, session_id)
+    # TODO: add this to the logging system
+    # TODO: fix return statements, port validate_session
+    print(f"\nvalidate_session returned: {validity}\n")
+    return validity
+"""
+
+
 def request_processor(ch, method, properties, body):
+    """# request_processor
+    Takes in ch, method, properties, and body as arguments and processes the request based on the type of request received.
+
+    Args:
+        ch (_type_):
+        method (_type_): _description_
+        properties (_type_): _description_
+        body (_type_): _description_
+
+    Returns:
+        _type_: _description_
     """
-    The request_processor() method takes in the channel, method, properties, and body of the message.
-    This method is called whenever a message is received from the web server.
-    It takes the message, decodes it, and then processes it. It then sends a response back to the web server.
-    """
+
     # Try / except added just in case bad JSON is received
     try:
         request = json.loads(body.decode("utf-8"))
@@ -404,54 +488,110 @@ def request_processor(ch, method, properties, body):
         logging.error(f"Error in type. Request received without type: {request}")
         response = "ERROR: No type specified by message"
     else:
-        request_type = request["type"]
-        if request_type == "login":
-            # Handles login attempts
-            response = do_login(
-                request["useremail"],
-                request["password"],
-                request["session_id"],
-                request["usercookieid"],
-            )
-        elif request_type == "validate_session":
-            # Handles session validation requests
-            print("Received session validation request")
-            # TODO: do_validate()!
-            # response = do_validate(request["usercookieid"], request["sessionId"])
-        elif request_type == "register":
-            # Handles registration requests
-            print("Received registration request")
-            response = do_register(
-                request["useremail"],
-                request["password"],
-                request["session_id"],
-                request["usercookieid"],
-                request["spot_name"],
-                request["first_name"],
-                request["last_name"],
-            )
-        elif request_type == "logout":
-            # Handles logout requests
-            print("Received logout request")
-            response = do_logout(
-                request["usercookieid"],
-                request["session_id"],
-            )
-        elif request_type == "simplerecs":
-            # Handles simple recs from their profile page
-            print("\nReceived simple recs request\n")
-            response = get_recs(
-                request["genre"],
-                request["popularity"],
-                request["valence"],
-            )
-        elif request_type == "byArtist":
-            response = query_artist(request["artist"], request["typeOf"])
-        else:
-            response = {
-                "returnCode": "0",
-                "message": "Server received request and processed - no action taken. Unknown type",
-            }
+        match request["type"]:
+            case "login":
+                response = do_login(
+                    request["useremail"],
+                    request["password"],
+                    request["session_id"],
+                    request["usercookieid"],
+                )
+                pass
+            case "logout":
+                response = do_logout(
+                    request["usercookieid"],
+                    request["session_id"],
+                )
+                pass
+            case "validate_session":
+                # response = do_validate(
+                #     request["usercookieid"],
+                #     request["session_id"],
+                # )
+                return {
+                    "returnCode": "1",
+                    "message": "Not right now chief I'm in the zone",
+                }
+            case "register":
+                print("\nReceived registration request\n")
+                response = do_register(
+                    request["useremail"],
+                    request["password"],
+                    request["session_id"],
+                    request["usercookieid"],
+                    request["first_name"],
+                    request["last_name"],
+                    request["spot_name"],
+                )
+            case "logout":
+                response = do_logout(
+                    request["usercookieid"],
+                    request["session_id"],
+                )
+            case "simplerecs":
+                response = get_recs(
+                    request["genre"],
+                    request["popularity"],
+                    request["valence"],
+                )
+            case "byArtist":
+                response = query_artist(request["artist"], request["typeOf"])
+                pass
+            case "spotToken":
+                # response = storeToken(request["token"])
+                pass
+            case _:
+                # Default case - basically, all else failed.
+                response = {
+                    "returnCode": "0",
+                    "message": "Server received request and processed - no action taken. Unknown type",
+                }
+
+        # request_type = request["type"]
+        # if request_type == "login":
+        #     # Handles login attempts
+        #     response = do_login(
+        #         request["useremail"],
+        #         request["password"],
+        #         request["session_id"],
+        #         request["usercookieid"],
+        #     )
+        # elif request_type == "validate_session":
+        #     # Handles session validation requests
+        #     print("Received session validation request")
+        #     # TODO: do_validate()!
+        #     # response = do_validate(request["usercookieid"], request["sessionId"])
+        # elif request_type == "register":
+        #     # Handles registration requests
+        #     print("Received registration request")
+        #     response = do_register(
+        #         request["useremail"],
+        #         request["password"],
+        #         request["session_id"],
+        #         request["usercookieid"],
+        #         request["spot_name"],
+        #         request["first_name"],
+        #         request["last_name"],
+        #     )
+        # elif request_type == "logout":
+        #     # Handles logout requests
+        #     print(
+        #         "Received logout request. We should log them out now. But we aren't...?"
+        #     )
+        #     response = do_logout(
+        #         request["usercookieid"],
+        #         request["session_id"],
+        #     )
+        # elif request_type == "simplerecs":
+        #     # Handles simple recs from their profile page
+        #     print("\nReceived simple recs request\n")
+        #     response = get_recs(
+        #         request["genre"],
+        #         request["popularity"],
+        #         request["valence"],
+        #     )
+        # elif request_type == "byArtist":
+        #     response = query_artist(request["artist"], request["typeOf"])
 
     # Send the response back to the client
     print(f"\nWe should have a response here if we're publishing...{response}")
@@ -462,25 +602,6 @@ def request_processor(ch, method, properties, body):
         body=json.dumps(response),
     )
     ch.basic_ack(delivery_tag=method.delivery_tag)
-
-
-"""
-def do_validate(usercookieid, session_id):
-    # This takes in the sessionID and validates it by checking the database. If the sessionTable shows that the session is valid for the user, then it returns a boolean True. Otherwise, it returns a boolean False.
-    validity = db.validate_session(usercookieid, session_id)
-    # TODO: add this to the logging system
-    # TODO: fix return statements, port validate_session
-    print(f"\nvalidate_session returned: {validity}\n")
-    return validity
-"""
-
-
-def do_logout(usercookieid, session_id):
-    # Connect to the database
-    # db.invalidate_session(usercookieid, session_id)
-    # print(f"User {usercookieid} logged out")
-    # return {"\nreturnCode": "0", "message": "Logout successful\n"}
-    pass
 
 
 vHost = "tempHost"

@@ -5,7 +5,7 @@ const bodyParser = require('body-parser'); // Helps us parse incoming requests
 const path = require('path'); // Helps us navigate file paths
 const bcrypt = require('bcrypt'); // Helps us encrypt passwords
 const cors = require('cors'); // May help us if I get it to work
-const sessions = require('express-session'); // Helps us manage sessions - or will if I can get it to work
+const session = require('express-session'); // Helps us manage sessions - or will if I can get it to work
 const cookieParser = require('cookie-parser'); // Helps us read cookies
 const fs = require('fs'); // Helps us read & write files
 const amqp = require('amqplib/callback_api'); // Helps us connect to RabbitMQ, but might not be used any more
@@ -24,10 +24,25 @@ const handshake = require('./formHelper.js');
 // Create the server
 const app = express();
 
+// Set up the session, it will last one hour. If we move to SSL fully and use https, secure must be true
+app.use(session({
+    secret: process.env.SESSION_SECRET_KEYMAKER,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        secure: false,
+        maxAge: 3600000
+    }
+}));
+
+
 
 /**
  * Custom Middleware
  */
+
+
+
 
 // Handles Status Messages
 const statusMessageHandler = (req, res, next) => {
@@ -78,8 +93,18 @@ const trafficLogger = (req, res, next) => {
     next();
 };
 
+// Custom middleware for checking if a user is logged in and setting session data. This is used for dynamic pages
+app.use((req, res, next) => {
+    res.locals.loggedIn = req.session.loggedIn || false; // Check if user is logged in
+    res.locals.uid = req.session.uid || null; // get their userId if they have one?
+    res.locals.name = req.session.name || null;
+    // SESSION DATA TO STORE
+    // Add more session data as needed
+    next();
+});
 
-// Set the middleware. Order matters -> It's like a pipeline and goes top to bottom
+
+// Set the middleware. Order matters -> It's like a pipeline and goes top to bottom, so we've gotta make sure we maintain this integrity. If something isn't quite working - it might be why
 app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
@@ -206,6 +231,9 @@ const spotAPIURL = process.env.SPOTIFY_API_BASE_URL;
 
 // Route to handle login
 app.get('/spotlog', (req, res) => {
+    /**
+     * spotlog - logs the user into Spotify for oAuth
+     */
     // Set the scopes for the Spotify API
     const scopes = 'user-read-private user-read-email';
     // Redirect to the Spotify login page with the scopes and other params set
@@ -218,6 +246,12 @@ app.get('/spotlog', (req, res) => {
 
 // Route to handle the callback from Spotify's OAuth
 app.get('/callback', async (req, res) => {
+    /**
+     * callback - handles the callback from Spotify's OAuth
+     * @param {*} req - a request object
+     * @param {*} res - a response object
+     */
+
     const code = req.query.code || null;
     try {
         const response = await axios({
@@ -234,26 +268,30 @@ app.get('/callback', async (req, res) => {
             }
         });
         if (response.data.access_token) {
+            // Probably can clean this up and import up top before sending to production
             var spotvHost = process.env.BROKER_VHOST;
             var spotQueue = process.env.BROKER_QUEUE;
             const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(spotvHost)}`;
-            console.log(amqpUrl);
+            // console.log(amqpUrl);
+            // All of the data we need to send to the broker so that we can get the user's Spotify data
             let access_token = response.data.access_token;
             let refresh_token = response.data.refresh_token;
             let expires_in = response.data.expires_in;
             let token_type = response.data.token_type;
+            usercookie = req.cookies.usercookieid;
             mustang.sendAndConsumeMessage(amqpUrl, spotQueue, {
                 type: "spotToken",
-                access_token,
-                refresh_token,
-                expires_in,
-                token_type
+                "usercookie": usercookie,
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "expires_in": expires_in,
+                "token_type": token_type
             }, (msg) => {
                 const response = JSON.parse(msg.content.toString());
                 if (response.returnCode === '0') {
                     console.log(`[Spotify Token Grab] Success!`);
                     timber.logAndSend('User requested some jams, got some.', "_SPOTIFY_");
-                    res.status(200).redirect('login'); //TODO: change this to a redirect to the account page or elsewhere.
+                    res.status(200).redirect('account'); //TODO: change this to a redirect to the account page or elsewhere.
                 } else {
                     console.log(`[Spotify Token Grab] Failure!`);
                     res.status(401).send('You have failed to authorize Spotify - did we do something?');
@@ -272,14 +310,13 @@ app.get('/callback', async (req, res) => {
  */
 
 
-
-try {
-    https = require('https');
-    console.log("Seems like we're good to go with https!");
-} catch (err) {
-    console.log('https module not found, using http instead');
-    https = require('http');
-}
+// try {
+//     https = require('https');
+//     console.log("Seems like we're good to go with https!");
+// } catch (err) {
+//     console.log('https module not found, using http instead');
+//     https = require('http');
+// }
 
 
 app.get('/', (req, res) => {
@@ -292,8 +329,8 @@ app.get('/', (req, res) => {
     };
 });
 app.post('/account:param', (req, res) => {
-    const tempHost = process.env.BROKER_VHOST;
-    const tempQueue = process.env.BROKER_QUEUE;
+    // const tempHost = process.env.BROKER_VHOST;
+    // const tempQueue = process.env.BROKER_QUEUE;
     const amqpUrl = `amqp://longsoup:puosgnol@${tempHost}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
     typeOf = req.params.param;
     console.log('\n[Posting to /account:param] with typeOf: ', typeOf, '\n');
@@ -317,8 +354,8 @@ app.get('/:page', (req, res) => {
         }
     }
     else if (page == 'artists') {
-        const tempHost = process.env.BROKER_VHOST;
-        const tempQueue = process.env.BROKER_QUEUE;
+        // const tempHost = process.env.BROKER_VHOST;
+        // const tempQueue = process.env.BROKER_QUEUE;
         const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
         console.log(amqpUrl);
         const artist = req.body.artist;
@@ -330,15 +367,10 @@ app.get('/:page', (req, res) => {
         }, (msg) => {
             const response = JSON.parse(msg.content.toString());
             if (response.returnCode === '0') {
-                console.log('[Approx Line 181] Success reponse query artist\n');
-                console.log(response.data.name);
-                // timber.logAndSend('User logged in successfully.');
                 data = response.data;
                 musicdata = response.music;
                 console.log("\n[Approx line 186] testing query artist data");
-                // let tracks = [];
-                // let artists = [];
-                // let links = [];
+
                 if (data.findAlbums) {
                     let albums = [];
                     let external_urls = [];
@@ -354,7 +386,6 @@ app.get('/:page', (req, res) => {
                 if (sessionPages.includes(page)) {
                     let checkSession = ""; // call the db server and see if the session is valid. Doesn't work, sessions aren't implemented yet.
                     if (page === 'account') {
-                        // req.session.data = response.data; //added to help retain data
                         res.status(200).render(page, data), err => {
                             if (err) {
                                 timber.logAndSend(err);
@@ -451,8 +482,8 @@ app.post('/getrecked', (req, res) => {
 });
 
 app.post('/account', (req, res) => {
-    const tempHost = process.env.BROKER_VHOST;
-    const tempQueue = process.env.BROKER_QUEUE;
+    // const tempHost = process.env.BROKER_VHOST;
+    // const tempQueue = process.env.BROKER_QUEUE;
     const genre = req.body.genres;
     const popularity = req.body.pop;
     const valence = req.body.vibe;
@@ -565,6 +596,7 @@ app.post('/login', (req, res) => {
             timber.logAndSend('User logged in successfully.');
             data = response.data;
             musicdata = response.music;
+            userinfo = response.userinfo;
             console.log("testing musicdata");
             let tracks = [];
             let artists = [];
@@ -574,6 +606,11 @@ app.post('/login', (req, res) => {
                 artists.push(musicdata[i].artist);
                 links.push(musicdata[i].url);
             }
+            req.session.uid = userinfo.uid;
+            req.session.name = userinfo.user_fname;
+            req.session.loggedIn = true; // TODO: 11/4/2023 - come back here if it breaks.
+            // we may want to add other session information to keep, like username, spotify name, etc.
+            // passing back the uid may be good for messaging and other things.
             res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
             //res.redirect('/account');
         } else {
@@ -639,6 +676,8 @@ app.post('/register', (req, res) => {
                 artists.push(musicdata[i].artist);
                 links.push(musicdata[i].url);
             }
+            req.session.loggedIn = true; // TODO: 11/4/2023 - come back here if it breaks.
+            req.session.userId = user.id; // TODO: come back here if it breaks.
             res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
 
         } else {
@@ -649,7 +688,7 @@ app.post('/register', (req, res) => {
 });
 
 
-const httpsServer = https.createServer(https_options, app);
+// const httpsServer = https.createServer(https_options, app);
 
 // const newport = 9001;
 // httpsServer.listen(newport, () => {

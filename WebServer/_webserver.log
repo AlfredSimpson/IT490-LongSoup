@@ -3,3 +3,5 @@
 {"type":"log","source":"SPOTIFY","date":"2023-11-05T01:12:25.096Z","log_message":"User requested some jams, got some.\n"}
 {"type":"log","source":"Webserver","date":"2023-11-05T01:12:25.104Z","log_message":"Outgoing response: 200\n"}
 {"type":"log","source":"Webserver","date":"2023-11-05T01:12:25.145Z","log_message":"Outgoing response: 200\n"}
+{"type":"log","source":"Webserver","date":"2023-11-05T02:41:17.827Z","log_message":"Outgoing response: 200\n"}
+{"type":"log","source":"Webserver","date":"2023-11-05T02:41:17.902Z","log_message":"Outgoing response: 200\n"}
