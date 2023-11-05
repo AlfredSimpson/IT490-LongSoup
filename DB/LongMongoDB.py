@@ -19,12 +19,9 @@ class LongMongoDB:
         database: the name of the database to connect to
         """
         self.myClient = pymongo.MongoClient(
-            host="localhost",
-            username=user,
-            password=password,
-            authSource=database,
-            authMechanism="SCRAM-SHA-256",
+            "mongodb://%s:%s@%s:27017/%s" % (user, password, host, database)
         )
+
         self.db = self.myClient[database]
 
     def get_uid_by_email(self, useremail):

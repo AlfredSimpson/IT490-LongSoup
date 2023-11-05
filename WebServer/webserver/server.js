@@ -666,6 +666,7 @@ app.post('/register', (req, res) => {
             console.log("\n[Register - response] Successful registration, parsing data\n");
             data = response.data;
             musicdata = response.music;
+            userinfo = response.userinfo;
             console.log("[Register - response] testing musicdata");
             console.log('\n', musicdata, '\n');
             let tracks = [];
@@ -676,8 +677,11 @@ app.post('/register', (req, res) => {
                 artists.push(musicdata[i].artist);
                 links.push(musicdata[i].url);
             }
-            req.session.loggedIn = true; // TODO: 11/4/2023 - come back here if it breaks.
-            req.session.userId = user.id; // TODO: come back here if it breaks.
+            // req.session.loggedIn = true; // TODO: 11/4/2023 - come back here if it breaks.
+            // req.session.userId = user.id; // TODO: come back here if it breaks.
+            req.session.uid = userinfo.uid;
+            req.session.name = userinfo.user_fname;
+            req.session.loggedIn = true;
             res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
 
         } else {

@@ -314,6 +314,7 @@ def do_login(useremail, password, session_id, usercookieid):
     Returns:
         _type_: _description_
     """
+    print(f"maindb is {maindb}")
     LMDB = LongMongoDB.LongMongoDB(maindbuser, maindbpass, maindbhost, maindb)
 
     # Connect to the database
