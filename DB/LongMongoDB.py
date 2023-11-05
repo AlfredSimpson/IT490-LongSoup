@@ -10,7 +10,7 @@ class LongMongoDB:
     This was originally configured for mysql, I am in the process of rebuilding this for mongodb.
     """
 
-    def __init__(self, user, password, database, host="localhost"):
+    def __init__(self, user=None, password=None, database=None, host="localhost"):
         """
         __init__ is the constructor for the LongDB class. It requires the following parameters:
         host: the host of the mysql database
@@ -18,6 +18,10 @@ class LongMongoDB:
         password: the password of the mysql database
         database: the name of the database to connect to
         """
+        self.user = user
+        self.password = password
+        self.database = database
+        self.host = host
         self.myClient = pymongo.MongoClient(
             "mongodb://%s:%s@%s:27017/%s" % (user, password, host, database)
         )

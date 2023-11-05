@@ -314,7 +314,17 @@ def do_login(useremail, password, session_id, usercookieid):
     Returns:
         _type_: _description_
     """
-    print(f"maindb is {maindb}")
+    print("\n Checking Types")
+    print(
+        type(maindbuser),
+        "= dbuser",
+        type(maindbpass),
+        "= dbpass",
+        type(maindbhost),
+        "= dbhost",
+        type(maindb),
+        "= db",
+    )
     LMDB = LongMongoDB.LongMongoDB(maindbuser, maindbpass, maindbhost, maindb)
 
     # Connect to the database

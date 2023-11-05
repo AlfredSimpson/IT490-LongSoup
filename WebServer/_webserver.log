@@ -9,3 +9,4 @@
 {"type":"log","source":"Webserver","date":"2023-11-05T02:50:16.539Z","log_message":"Outgoing response: 200\n"}
 {"type":"log","source":"Webserver","date":"2023-11-05T02:53:26.086Z","log_message":"Outgoing response: 200\n"}
 {"type":"log","source":"Webserver","date":"2023-11-05T02:53:26.160Z","log_message":"Outgoing response: 200\n"}
+{"type":"log","source":"Webserver","date":"2023-11-05T04:27:28.084Z","log_message":"Outgoing response: 401\n"}
