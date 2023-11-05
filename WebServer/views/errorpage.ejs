@@ -1,0 +1,27 @@
+<!-- A simple page built using bootstrap css and the same layout found in ./index.ejs - except this displays an error message in the middle of the page. The error message is sent by error handling middleware as the variable errorData -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>404 Error</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>404 Error</h1>
+                <p>Sorry, the page you requested could not be found.</p>
+                <p>
+                    <%= errorData %>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

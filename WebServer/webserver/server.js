@@ -1,30 +1,121 @@
-// Imports
-const express = require('express');
-const app = express();
-const fs = require('fs');
-const axios = require('axios').default;
-
-const bodyParser = require('body-parser');
-const path = require('path');
+// Import Existing Modules
+const express = require('express'); // Helps us create a server
+const axios = require('axios'); // Helps us make HTTP requests
+const bodyParser = require('body-parser'); // Helps us parse incoming requests
+const path = require('path'); // Helps us navigate file paths
+const bcrypt = require('bcrypt'); // Helps us encrypt passwords
+const cors = require('cors'); // May help us if I get it to work
+const sessions = require('express-session'); // Helps us manage sessions - or will if I can get it to work
+const cookieParser = require('cookie-parser'); // Helps us read cookies
+const fs = require('fs'); // Helps us read & write files
+const amqp = require('amqplib/callback_api'); // Helps us connect to RabbitMQ, but might not be used any more
+var https = require('https'); // Helps us create a secure server
+const querystring = require('node:querystring'); // Helps us parse query strings
+// Import .env files
+require('dotenv').config();
+// Possibly deprecated in usage locally
+const { error } = require('console');
+// Import custom modules
 const timber = require('./lumberjack.js');
-const handshake = require('./formHelper.js');
-const amqp = require('amqplib/callback_api');
 const mustang = require('./mustang.js');
-const bcrypt = require('bcrypt');
-const cors = require('cors');
-// const session = require('express-session');
-const sessions = require('express-session');
-const cookieParser = require('cookie-parser');
-const { get } = require('http');
-const { deprecate } = require('util');
-var SpotifyWebApi = require('spotify-web-api-node'); // Only used up front to get the access token
-const querystring = require('node:querystring');
-var https = require('https');
+const handshake = require('./formHelper.js');
 
-// const store = new sessions.MemoryStore();
+
+// Create the server
+const app = express();
+
+
+/**
+ * Custom Middleware
+ */
+
+// Handles Status Messages
+const statusMessageHandler = (req, res, next) => {
+    res.statusMessageHandler = (statusCode) => {
+        const statusMessages = {
+            200: 'uhhh. OK',
+            201: "Created! You're good to go.",
+            202: 'ACK! We got your message.',
+            204: 'No Content! Nothing to see here, I guess.',
+            212: 'You are already logged in.',
+            300: "Multiple Choices! We don't know what to do with you.",
+            301: 'Moved Permanently! We moved, but you can still find us.',
+            302: 'Found! We moved, but you can still find us - and did.',
+            304: 'Not Modified! You already have the latest version.',
+            305: 'Use Proxy! We are not allowed to talk to you directly.',
+            307: 'Temporary Redirect! We moved, but you can still find us.',
+            400: 'That is a Bad Request! You did something wrong.',
+            401: 'Unauthorized! You are not allowed here.',
+            402: 'Payment Required! You must pay to access this.',
+            403: 'Forbidden! You are not allowed here.',
+            404: 'Not Found! This does *not* rock.',
+            405: 'Method Not Allowed! You cannot do that here.',
+            406: 'Not Acceptable! We cannot give you what you want.',
+            407: 'Proxy Authentication Required! You must authenticate.',
+            408: 'Request Timeout! You took too long.',
+            409: 'Conflict! You are not allowed to do that.',
+            418: 'I am a teapot! I cannot do that.', // Legitimately a real error code
+            500: 'Internal Server Error... you caught us slipping.',
+            501: 'We would do anything for love... but we can\'t do that.',
+            502: 'Bad Gateway! We cannot do that.',
+            503: 'Come back later, we are sleeping.',
+            // We can add more as needed
+        };
+        return statusMessages[statusCode] || 'Unknown Status';
+    };
+    next();
+};
+
+//  Middleware to log traffic 
+const trafficLogger = (req, res, next) => {
+    //timber.logAndSend(`Incoming request: \ ${req.method} ${req.url}`);
+    const send = res.send;
+    res.send = function (string) {
+        const body = string instanceof Buffer ? string.toString() : string;
+        timber.logAndSend(`Outgoing response: ${res.statusCode}`);
+        send.call(this, string);
+    };
+    next();
+};
+
+
+// Set the middleware. Order matters -> It's like a pipeline and goes top to bottom
 app.use(express.json());
+app.use(cors());
 app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(statusMessageHandler);
+app.use(trafficLogger)
 
+
+// These are set to help us navigate the file system to pull static files
+app.use(express.static(__dirname + '../public'));
+app.use('/css', express.static(__dirname + '../public/css'));
+app.use('/css', express.static('public'));
+app.use('/js', express.static(__dirname + '../public/js'));
+app.use('img', express.static(__dirname + '../public/img'));
+
+// Error handling middleware - Always at the end
+app.use((err, req, res, next) => {
+    const statusCode = err.statusCode || 500;
+    const message = res.statusMessageHandler(statusCode);
+    res.status(statusCode).send(message);
+    // const errorData = res.statusMessageHandler(statusCode);
+    // res.status(statusCode).render('errorpage', { data: errorData });
+});
+
+// Set views and view engine so we can use EJS. Views are the pages, view engine is the template engine
+app.set('views', path.join(__dirname, '../views')); // this gets us out of the dir we're in and into the views, for separation
+app.set('view engine', 'ejs');
+
+
+// Other Constants
+const Port = process.env.PORT || 9001;
+
+// AMQP Constants
+const tempHost = process.env.BROKER_VHOST;
+const tempQueue = process.env.BROKER_QUEUE;
 
 const https_options = {
     key: fs.readFileSync(__dirname + "/cert/key.pem"),
@@ -33,21 +124,11 @@ const https_options = {
 
 
 
-
-
-// app.use(sessions({
-//     secret: "secretkeylol",
-//     resave: false,
-//     saveUninitialized: false,
-//     store
-// })
-// );
-
-const Port = process.env.PORT || 9001;
-
-// Load environment variables
-require('dotenv').config();
-
+/*I commented these out but  we might need them eventually. */
+// const { get } = require('http');
+// const { deprecate } = require('util');
+// var SpotifyWebApi = require('spotify-web-api-node'); // Only used up front to get the access token
+// const store = new sessions.MemoryStore();
 
 // Middleware - check for cookies
 // function checkCookies(req, res, next) {
@@ -58,42 +139,21 @@ require('dotenv').config();
 //     }
 // }
 
+/**
+ * getCookies - gets the cookies from the request
+ * @param {*} req - a request object
+ */
 function getCookie(req) {
     let cookie = req.headers.cookie;
     console.log(cookie.split('; '));
 };
 
-// status codes
-
-const statusMessageHandler = (req, res, next) => {
-    res.statusMessageHandler = (statusCode) => {
-        const statusMessages = {
-            200: 'OK',
-            404: 'Not Found! This does *not* rock.',
-            500: 'Internal Server Error... you caught us slipping.',
-            // We can add more as needed
-        };
-        return statusMessages[statusCode] || 'Unknown Status';
-    };
-
-    next();
-};
-
-//  Middleware to log traffic 
-const trafficLogger = (req, res, next) => {
-    //timber.logAndSend(`Incoming request: \ ${req.method} ${req.url}`);
-
-    const send = res.send;
-    res.send = function (string) {
-        // const body = string instanceof Buffer ? string.toString() : string;
-        timber.logAndSend(`Outgoing response: ${res.statusCode}`);
-        send.call(this, string);
-    };
-    next();
-};
-
-
-// session Cookies for login/validation after
+/**
+ * createSessionCookie - creates a session cookie
+ * @param {*} req - a request object
+ * @param {*} res - a response object
+ * @returns the session id
+ */
 const createSessionCookie = (req, res) => {
     const saltRounds = 10;
     const plains = process.env.SESSION_SECRET_ID;
@@ -104,6 +164,13 @@ const createSessionCookie = (req, res) => {
     return req.session.sessionId;
 };
 
+
+/**
+ * createUserCookie - creates a user cookie
+ * @param {*} req - a request object
+ * @param {*} res - a response object
+ * @returns a user cookie id
+ */
 const createUserCookie = (req, res) => {
     const saltRounds = 5;
     const plains = process.env.USER_SECRET_ID;
@@ -113,30 +180,6 @@ const createUserCookie = (req, res) => {
     res.cookie('usercookieid', usercookieid, { httpOnly: true });
     return req.session.usercookieid;
 };
-
-
-app.use(trafficLogger);
-app.use(statusMessageHandler);
-// app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use(express.static(__dirname + '../public'));
-// app.use('/css', express.static(__dirname + '../public/css'));
-app.use('/css', express.static('public'));
-app.use('/js', express.static(__dirname + '../public/js'));
-app.use('img', express.static(__dirname + '../public/img'));
-
-
-
-// Set views
-app.set('views', path.join(__dirname, '../views')); // this gets us out of the dir we're in and into the views, for separation
-app.set('view engine', 'ejs');
-
-
-app.use((err, req, res, next) => {
-    const statusCode = err.statusCode || 500;
-    const message = res.statusMessageHandler(statusCode);
-    res.status(statusCode).send(message);
-});
 
 
 /**
@@ -153,236 +196,74 @@ app.use((err, req, res, next) => {
  * =====================================================
  */
 
-// app.use(express.json()); // Commented out, already declared above
-app.use(express.urlencoded({ extended: true })); // Commented out the one above which was false
-app.use(cors());
-
-const spotURI = process.env.SPOT_TEST_URI;
-const spotClientID = process.env.SPOTIFY_CLIENT_ID;
-const spotClientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+// Set the Constants for Spotify
+const REDIRECT_URI = process.env.SPOT_TEST_URI;
+const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const spotAuthURL = process.env.SPOTIFY_AUTH_URL;
 const spotTokenURL = process.env.SPOTIFY_TOKEN_URL;
 const spotAPIURL = process.env.SPOTIFY_API_BASE_URL;
 
-
+// Route to handle login
 app.get('/spotlog', (req, res) => {
-    console.log("[SpotLog] We made it to the spotlog route.");
-    const generateState = () => {
-        let state = '';
-        for (let i = 0; i < 17; i++) {
-            state += Math.floor(Math.random() * 10);
-        }
-        return state;
-    };
-    var state = generateState();
-    res.cookie(spotClientID, state);
-    console.log(state);
-    const scope = 'user-read-private user-read-email user-library-modify playlist-modify-private playlist-modify-public playlist-read-private playlist-read-collaborative user-library-read user-top-read user-read-recently-played user-read-playback-state user-modify-playback-state user-read-currently-playing';
-    const query = querystring.stringify({
-        response_type: 'code',
-        client_id: spotClientID,
-        scope: scope,
-        redirect_uri: spotURI,
-        show_dialog: true,
-        state: state,
-
-    });
-    console.log(query);
-    // console.log(`\n[SPOTIFY] We received the form. \n\n {code: ${code}, redirect_uri: ${spotURI}, grant_type: authorization_code}\n`);
-    res.redirect(spotAuthURL + query);
+    // Set the scopes for the Spotify API
+    const scopes = 'user-read-private user-read-email';
+    // Redirect to the Spotify login page with the scopes and other params set
+    res.redirect('https://accounts.spotify.com/authorize' +
+        '?response_type=code' +
+        '&client_id=' + CLIENT_ID +
+        (scopes ? '&scope=' + encodeURIComponent(scopes) : '') +
+        '&redirect_uri=' + encodeURIComponent(REDIRECT_URI));
 });
 
+// Route to handle the callback from Spotify's OAuth
 app.get('/callback', async (req, res) => {
-    const { code, state } = req.query;
-    console.log(req.query);
-    const storedState = req.cookies ? req.cookies[spotClientID] : null;
-    if (state === null || state !== storedState) {
-        res.redirect('/#' + querystring.stringify({ error: 'state_mismatch' }));
-    } else {
-        // res.clearCookie(stateKey);
-        const params = new URLSearchParams({
-            grant_type: 'authorization_code',
-            code: code,
-            redirect_uri: spotURI,
-        });
-        var authOptions = {
+    const code = req.query.code || null;
+    try {
+        const response = await axios({
+            method: 'post',
             url: 'https://accounts.spotify.com/api/token',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                Authorization: `Basic ${Buffer.from(`${spotClientID}:${spotClientSecret}`).toString('base64')}`,
-            },
-            body: querystring.stringify({
+            data: new URLSearchParams({
                 grant_type: 'authorization_code',
-                code,
-                redirect_uri: spotURI,
-            }),
-        };
-
-        try {
-            const response = await axios(authOptions);
-            const { access_token, refresh_token } = response.data;
-            // const response = await axios(spotTokenURL, authOptions);
-            // const data = await response.json();
-            // const access_token = data.access_token;
-            // const refresh_token = data.refresh_token;
-
-            // Store the access token and refresh token in a secure manner
-            // (e.g. environment variables or a database)
-            console.log(`Access token: ${access_token}`);
-            console.log(`Refresh token: ${refresh_token}`);
-
-            res.redirection('/#' + querystring.stringify({ access_token, refresh_token }));
+                code: code,
+                redirect_uri: REDIRECT_URI
+            }).toString(),
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Basic ' + (new Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'))
+            }
+        });
+        if (response.data.access_token) {
+            var spotvHost = process.env.BROKER_VHOST;
+            var spotQueue = process.env.BROKER_QUEUE;
+            const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(spotvHost)}`;
+            console.log(amqpUrl);
+            let access_token = response.data.access_token;
+            let refresh_token = response.data.refresh_token;
+            let expires_in = response.data.expires_in;
+            let token_type = response.data.token_type;
+            mustang.sendAndConsumeMessage(amqpUrl, spotQueue, {
+                type: "spotToken",
+                access_token,
+                refresh_token,
+                expires_in,
+                token_type
+            }, (msg) => {
+                const response = JSON.parse(msg.content.toString());
+                if (response.returnCode === '0') {
+                    console.log(`[Spotify Token Grab] Success!`);
+                    timber.logAndSend('User requested some jams, got some.', "_SPOTIFY_");
+                    res.status(200).redirect('login'); //TODO: change this to a redirect to the account page or elsewhere.
+                } else {
+                    console.log(`[Spotify Token Grab] Failure!`);
+                    res.status(401).send('You have failed to authorize Spotify - did we do something?');
+                }
+            });
         }
-        catch (err) {
-            console.error(err);
-            // res.status(500).send('Error retrieving access token.');
-            res.redirect('/#' + querystring.stringify({ error: 'invalid_token' }));
-        }
+    } catch (error) {
+        res.status(500).send('Authentication Failed');
     }
 });
-
-
-
-
-// app.get('/spotcallback', (req, res) => {
-//     console.log("[SpotCallback] We made it to the spotcallback route.");
-//     var code = req.query.code || null;
-//     var state = req.query.state || null;
-
-//     if (state === null) {
-//         res.render('/');
-//         console.log('[SPOT ERROR] state_mismatch');
-//         timber.logAndSend('[SPOT ERROR] state_mismatch', "SPOTIFY");
-//     } else {
-//         var authOptions = {
-//             url: spotTokenURL,
-//             form: {
-//                 code: code,
-//                 redirect_uri: spotURI,
-//                 grant_type: 'authorization_code'
-//             },
-//             headers: {
-//                 'content-type': 'application/x-www-form-urlencoded',
-//                 'Authorization': 'Basic ' + (new Buffer.from(spotClientID + ':' + spotClientSecret).toString('base64'))
-//             },
-//             json: true
-//         };
-//         console.log(authOptions);
-//         console.log(`\n[SPOTIFY] We received the form. \n\n {code: ${code}, redirect_uri: ${spotURI}, grant_type: authorization_code}\n`);
-//         let spotdata = response.body;
-//         console.log('\n[SPOTIFY] Response body: ', spotdata, '\n');
-//         // let access = spotdata.access_token;
-//         // console.log(`\n[SPOTIFY] Access token: ${access}\n`);
-//         // let refresh = res.body.refresh_token;
-//         // console.log(`\n[SPOTIFY] Refresh token: ${refresh}\n`);
-//         res.render('success');
-//         // res.redirect('account' + querystring.stringify({ access_token: access_token, refresh_token: refresh_token }));
-//         // TODO: send and store this to the database through rmq!!!
-//     }
-//     // req.post(authOptions, function (error, response, body) {
-//     //     var access_token = body.access_token;
-//     //     var refresh_token = body.refresh_token;
-//     //     var options = {
-//     //         url: spotAPIURL + 'me',
-//     //         headers: { 'Authorization': 'Bearer ' + access_token },
-//     //         json: true
-//     //     };
-//     //     // use the access token to access the Spotify Web API
-//     //     req.get(options, function (error, response, body) {
-//     //         console.log(body);
-//     //     });
-//     //     // we can also pass the token to the browser to make requests from there
-//     //     res.redirect('account' +
-//     //         querystring.stringify({
-//     //             access_token: access_token,
-//     //             refresh_token: refresh_token
-//     //         }));
-//     // });
-// });
-
-// app.get('/spotLog', (req, res, next) => {
-//     var scope = 'user-read-private user-read-email user-library-modify playlist-modify-private playlist-modify-public playlist-read-private playlist-read-collaborative user-library-read user-top-read user-read-recently-played user-read-playback-state user-modify-playback-state user-read-currently-playing';
-//     console.log('spotClientID = ', spotClientID);
-//     console.log('spotURI = ', spotURI);
-//     const generateState = () => {
-//         // generate a string of numberes that is 17 characters long
-//         let state = '';
-//         for (let i = 0; i < 17; i++) {
-//             state += Math.floor(Math.random() * 10);
-//         }
-//         return state;
-//     };
-//     var state = generateState();
-
-//     res.redirect(`https://accounts.spotify.com/authorize?` + querystring.stringify({
-//         client_id: spotClientID,
-//         response_type: 'code',
-//         scope: scope,
-//         redirect_uri: spotURI,
-//         state: state,
-//         show_dialog: true
-//     })),
-//         err => {
-//             if (err) {
-//                 msg = 'Failed to redirect to spotify.'
-//                 timber.logAndSend(msg);
-//                 console.error(err);
-//             }
-//         },
-//         (req, res) => {
-//             console.log('tears');
-//             var code = req.query.code || null;
-//             var state = req.query.state || null;
-//             if (state === null) {
-//                 res.redirect('/#' + querystring.stringify({
-//                     error: 'state_mismatch'
-//                 }));
-//             } else {
-//                 var authOptions = {
-//                     url: 'https://accounts.spotify.com/api/token',
-//                     form: {
-//                         code: code,
-//                         redirect_uri: spotURI,
-//                         grant_type: 'authorization_code'
-//                     },
-//                     headers: {
-//                         'content-type': 'application/x-www-form-urlencoded',
-//                         'Authorization': 'Basic ' + (new Buffer.from(spotClientID + ':' + spotClientSecret).toString('base64'))
-//                     },
-//                     json: true
-//                 };
-//             }
-//         };
-// });
-
-// app.get('callback', function (req, res) {
-
-//     var code = req.query.code || null;
-//     var state = req.query.state || null;
-
-//     if (state === null) {
-//         res.redirect('/#' +
-//             querystring.stringify({
-//                 error: 'state_mismatch'
-//             }));
-//     } else {
-//         console.log('tears');
-//         var authOptions = {
-//             url: 'https://accounts.spotify.com/api/token',
-//             form: {
-//                 code: code,
-//                 redirect_uri: spotURI,
-//                 grant_type: 'authorization_code'
-//             },
-//             headers: {
-//                 'content-type': 'application/x-www-form-urlencoded',
-//                 'Authorization': 'Basic ' + (new Buffer.from(spotClientID + ':' + spotClientSecret).toString('base64'))
-//             },
-//             json: true
-//         };
-//     }
-// });
 
 /**
  * =====================================================
@@ -421,8 +302,6 @@ app.post('/account:param', (req, res) => {
 app.get('/:page', (req, res) => {
     const page = req.params.page;
     let sessionPages = ['account', 'dashboard', 'profile', 'forum', 'logout']
-
-    // if (page === 'login' || page === 'register') {
     if (page == 'login') {
         let errorStatus = null;
         let errorOutput = '';
@@ -444,13 +323,10 @@ app.get('/:page', (req, res) => {
         console.log(amqpUrl);
         const artist = req.body.artist;
         const typeOf = req.params.param;
-
-
         mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
             type: "byArtist",
             artist: artist,
             typeOf: typeOf,
-
         }, (msg) => {
             const response = JSON.parse(msg.content.toString());
             if (response.returnCode === '0') {
@@ -471,18 +347,14 @@ app.get('/:page', (req, res) => {
                         external_urls.push(musicdata[i].external_urls);
                         res.render('account', { data: data, tracks: tracks })
                     }
-
                 }
-
                 res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
-
             }
             else {
                 if (sessionPages.includes(page)) {
-                    let checkSession = ""; // call the db server and see if the session is valid
+                    let checkSession = ""; // call the db server and see if the session is valid. Doesn't work, sessions aren't implemented yet.
                     if (page === 'account') {
                         // req.session.data = response.data; //added to help retain data
-
                         res.status(200).render(page, data), err => {
                             if (err) {
                                 timber.logAndSend(err);

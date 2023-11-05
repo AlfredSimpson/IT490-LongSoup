@@ -13,7 +13,7 @@ const logAndSend = async (message, source = 'Webserver') => {
     const LOGPORT = process.env.LOG_PORT;
     const LOG_URL = `amqp://${LOGUSER}:${LOGPASS}@${LOGHOST}:${LOGPORT}/${encodeURIComponent(LOGvHOST)}`;
 
-    const logMessage = message;
+    const logMessage = message + "\n";
     // console.log(logMessage);
     // const source_of_log = 'Webserver';
     const d = new Date();
