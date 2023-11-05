@@ -517,7 +517,6 @@ def request_processor(ch, method, properties, body):
                     request["session_id"],
                     request["usercookieid"],
                 )
-                pass
             case "logout":
                 response = do_logout(
                     request["usercookieid"],
@@ -557,10 +556,8 @@ def request_processor(ch, method, properties, body):
                 )
             case "byArtist":
                 response = query_artist(request["artist"], request["typeOf"])
-                pass
             case "spotToken":
-                # response = storeToken(request["token"])
-                pass
+                response = storeToken(request["token"], request["uid"])
             case _:
                 # Default case - basically, all else failed.
                 response = {

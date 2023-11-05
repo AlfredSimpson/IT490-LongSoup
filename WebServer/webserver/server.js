@@ -6,6 +6,7 @@ const path = require('path'); // Helps us navigate file paths
 const bcrypt = require('bcrypt'); // Helps us encrypt passwords
 const cors = require('cors'); // May help us if I get it to work
 const session = require('express-session'); // Helps us manage sessions - or will if I can get it to work
+const MemoryStore = require('memorystore')(session);
 const cookieParser = require('cookie-parser'); // Helps us read cookies
 const fs = require('fs'); // Helps us read & write files
 const amqp = require('amqplib/callback_api'); // Helps us connect to RabbitMQ, but might not be used any more
@@ -32,7 +33,10 @@ app.use(session({
     cookie: {
         secure: false,
         maxAge: 3600000
-    }
+    },
+    store: new MemoryStore({
+        checkPeriod: 3600000
+    })
 }));
 
 
@@ -82,22 +86,27 @@ const statusMessageHandler = (req, res, next) => {
 };
 
 //  Middleware to log traffic 
-const trafficLogger = (req, res, next) => {
-    //timber.logAndSend(`Incoming request: \ ${req.method} ${req.url}`);
-    const send = res.send;
-    res.send = function (string) {
-        const body = string instanceof Buffer ? string.toString() : string;
-        timber.logAndSend(`Outgoing response: ${res.statusCode}`);
-        send.call(this, string);
-    };
-    next();
-};
+// const trafficLogger = (req, res, next) => {
+//     //timber.logAndSend(`Incoming request: \ ${req.method} ${req.url}`);
+//     const send = res.send;
+//     res.send = function (string) {
+//         const body = string instanceof Buffer ? string.toString() : string;
+//         console.log('req.session', req.session);
+//         timber.logAndSend(`Outgoing response: ${res.statusCode}`);
+//         send.call(this, string);
+//     };
+//     next();
+// };
 
 // Custom middleware for checking if a user is logged in and setting session data. This is used for dynamic pages
 app.use((req, res, next) => {
+    console.log('\n[Custom Middleware] Checking if user is logged in\n');
     res.locals.loggedIn = req.session.loggedIn || false; // Check if user is logged in
+    console.log(`[Custom Middleware] Logged in? ${res.locals.loggedIn}`)
     res.locals.uid = req.session.uid || null; // get their userId if they have one?
+    console.log(`[Custom Middleware] User ID: ${res.locals.uid}`);
     res.locals.name = req.session.name || null;
+    console.log(`[Custom Middleware] User Name: ${res.locals.name}`);
     // SESSION DATA TO STORE
     // Add more session data as needed
     next();
@@ -111,7 +120,7 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(statusMessageHandler);
-app.use(trafficLogger)
+// app.use(trafficLogger)
 
 
 // These are set to help us navigate the file system to pull static files
@@ -592,7 +601,7 @@ app.post('/login', (req, res) => {
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
         if (response.returnCode === '0') {
-            console.log(response.data.name);
+            console.log(response.userinfo.name);
             timber.logAndSend('User logged in successfully.');
             data = response.data;
             musicdata = response.music;
@@ -607,7 +616,7 @@ app.post('/login', (req, res) => {
                 links.push(musicdata[i].url);
             }
             req.session.uid = userinfo.uid;
-            req.session.name = userinfo.user_fname;
+            req.session.name = userinfo.name;
             req.session.loggedIn = true; // TODO: 11/4/2023 - come back here if it breaks.
             // we may want to add other session information to keep, like username, spotify name, etc.
             // passing back the uid may be good for messaging and other things.
