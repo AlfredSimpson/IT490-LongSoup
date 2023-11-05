@@ -669,6 +669,7 @@ app.post('/register', (req, res) => {
             userinfo = response.userinfo;
             console.log("[Register - response] testing musicdata");
             console.log('\n', musicdata, '\n');
+            console.log(userinfo);
             let tracks = [];
             let artists = [];
             let links = [];

@@ -2,7 +2,7 @@ import pika
 import os, sys, json, random
 import datetime
 
-import LongMongoDB
+# import LongMongoDB
 
 # import LongDB deprecated for now - will be used later
 import pymongo
@@ -292,10 +292,10 @@ def do_logout(usercookieid, session_id):
     """
 
     # Query db.users. and unset the session id where the usercookieid matches
-    LMDB = LongMongoDB.LongMongoDB(maindbuser, maindbpass, maindbhost, maindb)
-    LMDB.invalidate_session(usercookieid, session_id)
+    # LMDB = LongMongoDB.LongMongoDB(maindbuser, maindbpass, maindbhost, maindb)
+    # LMDB.invalidate_session(usercookieid, session_id)
     # An alternative:
-    # db.users.update_one({"cookieid": usercookieid}, {"$unset": {"sessionid": ""}})
+    db.users.update_one({"cookieid": usercookieid}, {"$unset": {"sessionid": ""}})
     # print(f"User {usercookieid} logged out")
     return {"\nreturnCode": "0", "message": "Logout successful\n"}
 
@@ -325,19 +325,29 @@ def do_login(useremail, password, session_id, usercookieid):
         type(maindb),
         "= db",
     )
-    LMDB = LongMongoDB.LongMongoDB(maindbuser, maindbpass, maindbhost, maindb)
+    # LMDB = LongMongoDB.LongMongoDB(maindbuser, maindbpass, maindbhost, maindb)
 
     # Connect to the database
     collection = db.users
     user = collection.find_one({"email": useremail})
     if user and user["password"] == password:
         # update/set the session id & user cookie id
-        LMDB.set_usercookieid(useremail, usercookieid)
-        LMDB.set_session(session_id, useremail)
+        # LMDB.set_usercookieid(useremail, usercookieid)
+        first_result = db.users.find_one({"email": useremail})
+        uid = first_result["uid"]
+        db.users.update_one(
+            {"uid": uid}, {"$set": {"usercookieid": usercookieid}}, upsert=False
+        )
+        # LMDB.set_session(session_id, useremail)
+        db.users.update_one(
+            {"uid": uid}, {"$set": {"sessionid": session_id}}, upsert=False
+        )
         # get the user's name and spot_name to pass back to the front end
-        user_fname = LMDB.get_name(usercookieid)
-        user_spot_name = LMDB.get_spot_name(usercookieid)
-        user_uid = LMDB.get_uid_by_email(useremail)
+        # user_fname = LMDB.get_name(usercookieid)
+        user_uid = uid
+        user_fname = db.userinfo.find_one({"uid": uid})["first_name"]
+        user_spot_name = db.userinfo.find_one({"uid": uid})["spot_name"]
+
         # Get some tunes
         genre = random.choice(["punk", "rock", "pop", "country", "rap", "hip-hop"])
         valence = random.uniform(0, 1)
