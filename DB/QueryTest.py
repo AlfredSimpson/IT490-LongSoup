@@ -4,18 +4,19 @@ import mysql.connector
 
 
 # Set your Spotify API credentials
-client_id = '10c241e9a6b944928d20497ef814ef7d'
-client_secret = 'b1cb224681ee4f8ea9d3f54ea1a3966a'
+client_id = 'YOUR_CLIENT_ID'
+client_secret = 'YOUR_CLIENT_SECRET'
+redirect_uri = 'YOUR_REDIRECT_URI'
 
-# Initialize Spotipy with OAuth2 authentication
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id, client_secret=client_secret))
+# Initialize Spotipy with OAuth2 authentication and set the redirect URI
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri))
 
 # Set up your MySQL database connection
 db_config = {
     'host': 'localhost',
-    'user': 'example',
-    'password': 'examp13!',
-    'database': 'tester'
+    'user': 'SecureSoupAdmin',
+    'password': 'Securesoup2023!',
+    'database': 'securesoupdb2'
 }
 
 # Connect to the MySQL database
