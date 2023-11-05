@@ -204,22 +204,27 @@ def query_artist(artist, typebyartist=None):
             }
 
 
-def storeToken(token, uid):
+def storeToken(acces_token, refresh_token, expires_in, token_type, usercookieid):
     """
     storeToken takes in token and uid as arguments and stores the token in the database.
 
     Args:
-        token (string): the token to store
+        access_token (string): the token to Spotify
+        refresh_token (string): the refresh token to Spotify
+        expires_in (string): the time the token expires
+        token_type (string): the type of token
+        usercookie (string): the usercookie to query with
         uid (string): the uid to store
 
     Returns:
         _type_: _description_
     """
     thedate = datetime.datetime.now()
-    print(f'\nAttempting to add token "{token}" to users\n')
+    print(f'\nAttempting to add token "{acces_token}" to users\n')
     print(f"\nAdding on {thedate}\n")
     db.users.update_one(
-        {"uid": uid}, {"$set": {"spotify_token": token, "spotify_token_time": thedate}}
+        {"usercookieid": usercookieid},
+        {"$set": {"spotify_token": acces_token, "spotify_token_time": thedate}},
     )
     return {"returnCode": 0, "message": "Successfully added token to database"}
 
@@ -557,7 +562,13 @@ def request_processor(ch, method, properties, body):
             case "byArtist":
                 response = query_artist(request["artist"], request["typeOf"])
             case "spotToken":
-                response = storeToken(request["token"], request["uid"])
+                response = storeToken(
+                    request["access_token"],
+                    request["refresh_token"],
+                    request["expires_in"],
+                    request["token_type"],
+                    request["usercookie"],
+                )
             case _:
                 # Default case - basically, all else failed.
                 response = {
