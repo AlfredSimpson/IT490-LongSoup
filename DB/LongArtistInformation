@@ -76,6 +76,12 @@ def get_recommendation_from_preference(token, valence_id, genre_id, popularity_i
     return json_result
 
 #def load_into_database()
+        #db = LongDB.LongDB(
+        #host="localhost",
+        #user="longestsoup",
+        #password="shortS0up!",
+        #database="securesoupdb",
+   # )
 
 
 token = get_token()
