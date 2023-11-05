@@ -6,12 +6,12 @@ const path = require('path'); // Helps us navigate file paths
 const bcrypt = require('bcrypt'); // Helps us encrypt passwords
 const cors = require('cors'); // May help us if I get it to work
 const session = require('express-session'); // Helps us manage sessions - or will if I can get it to work
-const MemoryStore = require('memorystore')(session);
-const cookieParser = require('cookie-parser'); // Helps us read cookies
+const MemoryStore = require('memorystore')(session); // Helps us store sessions in memory
 const fs = require('fs'); // Helps us read & write files
 const amqp = require('amqplib/callback_api'); // Helps us connect to RabbitMQ, but might not be used any more
 var https = require('https'); // Helps us create a secure server
 const querystring = require('node:querystring'); // Helps us parse query strings
+
 // Import .env files
 require('dotenv').config();
 // Possibly deprecated in usage locally
@@ -25,10 +25,14 @@ const handshake = require('./formHelper.js');
 // Create the server
 const app = express();
 
+
+app.use(express.json());
 // Set up the session, it will last one hour. If we move to SSL fully and use https, secure must be true
+// TODO: Note, MemoryStore will need replaced with something that works in production - not here.
 app.use(session({
     secret: process.env.SESSION_SECRET_KEYMAKER,
     resave: false,
+    name: 'CGS-sessions',
     saveUninitialized: true,
     cookie: {
         secure: false,
@@ -41,11 +45,10 @@ app.use(session({
 
 
 
+
 /**
  * Custom Middleware
  */
-
-
 
 
 // Handles Status Messages
@@ -86,37 +89,41 @@ const statusMessageHandler = (req, res, next) => {
 };
 
 //  Middleware to log traffic 
-// const trafficLogger = (req, res, next) => {
-//     //timber.logAndSend(`Incoming request: \ ${req.method} ${req.url}`);
-//     const send = res.send;
-//     res.send = function (string) {
-//         const body = string instanceof Buffer ? string.toString() : string;
-//         console.log('req.session', req.session);
-//         timber.logAndSend(`Outgoing response: ${res.statusCode}`);
-//         send.call(this, string);
-//     };
-//     next();
-// };
+const trafficLogger = (req, res, next) => {
+    timber.logAndSend(`Incoming request:  ${req.method}`);
+    const send = res.send;
+    res.send = function (string) {
+        const body = string instanceof Buffer ? string.toString() : string;
+        // console.log('req.session', req.session);
+        console.log(`res.status`, res.statusCode);
+        if (res.statusCode != 200) {
+            timber.logAndSend(`Outgoing response: ${res.statusCode}`);
+            send.call(this, string);
+        }
+    };
+    next();
+};
 
 // Custom middleware for checking if a user is logged in and setting session data. This is used for dynamic pages
+// sessionconstants
 app.use((req, res, next) => {
-    console.log('\n[Custom Middleware] Checking if user is logged in\n');
-    res.locals.loggedIn = req.session.loggedIn || false; // Check if user is logged in
-    console.log(`[Custom Middleware] Logged in? ${res.locals.loggedIn}`)
-    res.locals.uid = req.session.uid || null; // get their userId if they have one?
-    console.log(`[Custom Middleware] User ID: ${res.locals.uid}`);
+    res.locals.usercookieid = req.session.usercookieid || null;
+    // console.log('\n[Custom Middleware] Checking if user is logged in\n');
+    res.locals.loggedIn = req.session.loggedIn || false;
+    // console.log(`[Custom Middleware] Logged in? ${res.locals.loggedIn}`)
+    res.locals.uid = req.session.uid || null;
+    // console.log(`[Custom Middleware] User ID: ${res.locals.uid}`);
     res.locals.name = req.session.name || null;
-    console.log(`[Custom Middleware] User Name: ${res.locals.name}`);
-    // SESSION DATA TO STORE
+    // console.log(`[Custom Middleware] User Name: ${res.locals.name}`);
     // Add more session data as needed
     next();
 });
 
 
 // Set the middleware. Order matters -> It's like a pipeline and goes top to bottom, so we've gotta make sure we maintain this integrity. If something isn't quite working - it might be why
-app.use(express.json());
+// app.use(express.json()); -- testing moving this up top
 app.use(cors());
-app.use(cookieParser());
+// app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(statusMessageHandler);
@@ -130,14 +137,7 @@ app.use('/css', express.static('public'));
 app.use('/js', express.static(__dirname + '../public/js'));
 app.use('img', express.static(__dirname + '../public/img'));
 
-// Error handling middleware - Always at the end
-app.use((err, req, res, next) => {
-    const statusCode = err.statusCode || 500;
-    const message = res.statusMessageHandler(statusCode);
-    res.status(statusCode).send(message);
-    // const errorData = res.statusMessageHandler(statusCode);
-    // res.status(statusCode).render('errorpage', { data: errorData });
-});
+// We'll need an error handler here.
 
 // Set views and view engine so we can use EJS. Views are the pages, view engine is the template engine
 app.set('views', path.join(__dirname, '../views')); // this gets us out of the dir we're in and into the views, for separation
@@ -179,7 +179,7 @@ const https_options = {
  */
 function getCookie(req) {
     let cookie = req.headers.cookie;
-    console.log(cookie.split('; '));
+    // console.log(cookie.split('; '));
 };
 
 /**
@@ -193,8 +193,8 @@ const createSessionCookie = (req, res) => {
     const plains = process.env.SESSION_SECRET_ID;
     let salt = bcrypt.genSaltSync(saltRounds);
     let sessionId = bcrypt.hashSync(plains, salt);
-    req.session = { sessionId: sessionId };
-    res.cookie('sessionId', sessionId, { httpOnly: true });
+    req.session.sessionId = { sessionId: sessionId };
+    // res.cookie('sessionId', sessionId, { httpOnly: true });
     return req.session.sessionId;
 };
 
@@ -210,8 +210,8 @@ const createUserCookie = (req, res) => {
     const plains = process.env.USER_SECRET_ID;
     let salt = bcrypt.genSaltSync(saltRounds);
     let usercookieid = bcrypt.hashSync(plains, salt);
-    req.session = { usercookieid: usercookieid };
-    res.cookie('usercookieid', usercookieid, { httpOnly: true });
+    req.session.usercookieid = { usercookieid: usercookieid };
+    // res.cookie('usercookieid', usercookieid, { httpOnly: true });
     return req.session.usercookieid;
 };
 
@@ -244,13 +244,18 @@ app.get('/spotlog', (req, res) => {
      * spotlog - logs the user into Spotify for oAuth
      */
     // Set the scopes for the Spotify API
-    const scopes = 'user-read-private user-read-email';
+    const scopes = 'user-read-currently-playing playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-follow-modify user-follow-read user-top-read user-read-playback-position user-read-recently-played user-library-read user-library-modify user-read-email user-read-private';
     // Redirect to the Spotify login page with the scopes and other params set
+    // Generate a random state for the request, at least 16 digits long
+    var state = '';
+    for (var i = 0; i < 17; i++) {
+        state += Math.floor(Math.random() * 10);
+    };
     res.redirect('https://accounts.spotify.com/authorize' +
         '?response_type=code' +
         '&client_id=' + CLIENT_ID +
-        (scopes ? '&scope=' + encodeURIComponent(scopes) : '') +
-        '&redirect_uri=' + encodeURIComponent(REDIRECT_URI));
+        (scopes ? '&scope=' + encodeURIComponent(scopes) : '') + '&show_dialog=true' +
+        '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) + '&state=' + state);
 });
 
 // Route to handle the callback from Spotify's OAuth
@@ -263,6 +268,7 @@ app.get('/callback', async (req, res) => {
 
     const code = req.query.code || null;
     try {
+        console.log(`\n[Callback] Received code from Spotify: ${code}, attempting to get the real one\n`);
         const response = await axios({
             method: 'post',
             url: 'https://accounts.spotify.com/api/token',
@@ -277,6 +283,8 @@ app.get('/callback', async (req, res) => {
             }
         });
         if (response.data.access_token) {
+            console.log('\n[Callback] Received response from Spotify, parsing it...\n');
+            console.log(`response.data.access_token: ${response.data.access_token}`);
             // Probably can clean this up and import up top before sending to production
             var spotvHost = process.env.BROKER_VHOST;
             var spotQueue = process.env.BROKER_QUEUE;
@@ -287,7 +295,10 @@ app.get('/callback', async (req, res) => {
             let refresh_token = response.data.refresh_token;
             let expires_in = response.data.expires_in;
             let token_type = response.data.token_type;
-            usercookie = req.cookies.usercookieid;
+            usercookie = req.session.usercookieid['usercookieid']
+            // getCookie(req);
+            console.log(`[Spotify Token Grab] What's the usercookie? ${usercookie}`)
+            console.log(`[Spotify Token Grab] Sending data to broker...`);
             mustang.sendAndConsumeMessage(amqpUrl, spotQueue, {
                 type: "spotToken",
                 "usercookie": usercookie,
@@ -296,11 +307,15 @@ app.get('/callback', async (req, res) => {
                 "expires_in": expires_in,
                 "token_type": token_type
             }, (msg) => {
+                console.log(`[Spotify Token Grab] Received message from broker, parsing response`);
                 const response = JSON.parse(msg.content.toString());
-                if (response.returnCode === '0') {
+                console.log(`[Spotify Token Grab] Response: ${response}`);
+                console.log(`[Spotify Token Grab] Response.returnCode: ${response.returnCode}`);
+                console.log(`[Spotify Token Grab] Response.data: ${response.message}`);
+                if (response.returnCode === 0) {
                     console.log(`[Spotify Token Grab] Success!`);
                     timber.logAndSend('User requested some jams, got some.', "_SPOTIFY_");
-                    res.status(200).redirect('account'); //TODO: change this to a redirect to the account page or elsewhere.
+                    res.status(200).redirect('/index'); //TODO: change this to a redirect to the account page or elsewhere.
                 } else {
                     console.log(`[Spotify Token Grab] Failure!`);
                     res.status(401).send('You have failed to authorize Spotify - did we do something?');
@@ -517,9 +532,9 @@ app.post('/account', (req, res) => {
                 timber.logAndSend('\nUser requested some jams, got some.\n');
                 data = response.data;
                 musicdata = response.music
-                console.log("\n\nwe made it to getRecs, here's response.music/musicdata\n");
+                console.log("\n\nWe made it to simpleRecs, here's response.music/musicdata\n");
                 console.log(musicdata);
-                console.log("\n['account'] \ttesting musicdata\n");
+                console.log("\n['account'] \tTesting musicdata\n");
                 let tracks = [];
                 let artists = [];
                 let links = [];
@@ -584,8 +599,10 @@ app.post('/login', (req, res) => {
     const tempHost = process.env.BROKER_VHOST;
     const tempQueue = process.env.BROKER_QUEUE;
     let session_id = createSessionCookie(req, res);
+    // let session_id = req.session.sessionId;
+    // let usercookieid = req.session.usercookieid;
     let usercookieid = createUserCookie(req, res);
-    console.log(`session cookie Created?: ${session_id}`);
+    console.log(`session cookie Created?: ${req.session.sessionId['sessionId']}`);
     console.log(`user cookie Created?: ${usercookieid}`);
     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
     console.log(amqpUrl);
@@ -594,19 +611,19 @@ app.post('/login', (req, res) => {
 
     mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
         type: "login",
-        useremail,
-        password,
-        session_id,
-        usercookieid
+        "useremail": useremail,
+        "password": password,
+        "session_id": session_id['sessionId'],
+        "usercookieid": usercookieid['usercookieid']
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
         if (response.returnCode === '0') {
-            console.log(response.userinfo.name);
+            // console.log(`Name: Line, 606 \t ${response.userinfo.name}`);
             timber.logAndSend('User logged in successfully.');
             data = response.data;
             musicdata = response.music;
             userinfo = response.userinfo;
-            console.log("testing musicdata");
+            // console.log("testing musicdata");
             let tracks = [];
             let artists = [];
             let links = [];
@@ -615,12 +632,17 @@ app.post('/login', (req, res) => {
                 artists.push(musicdata[i].artist);
                 links.push(musicdata[i].url);
             }
+            console.log('\n[Login] Setting session data\n');
             req.session.uid = userinfo.uid;
             req.session.name = userinfo.name;
             req.session.loggedIn = true; // TODO: 11/4/2023 - come back here if it breaks.
+            let uidtest = req.session.uid;
+            let uname = req.session.name;
+            req.session.music = musicdata;
+            console.log(`\n[Login] Attempted to store session data: ${uidtest}, ${uname}\n`)
             // we may want to add other session information to keep, like username, spotify name, etc.
             // passing back the uid may be good for messaging and other things.
-            res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
+            res.status(200).render('account', { data: data, tracks: tracks, artists: artists, links: links });
             //res.redirect('/account');
         } else {
             let errorMSG = 'You have failed to login.';
@@ -670,7 +692,7 @@ app.post('/register', (req, res) => {
         spot_name
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
-        if (response.returnCode == "0") {
+        if (response.returnCode == '0') {
             // Set a cookie for userid to track locally; this will be used to validate session
             console.log("\n[Register - response] Successful registration, parsing data\n");
             data = response.data;

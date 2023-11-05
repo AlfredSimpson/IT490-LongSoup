@@ -28,7 +28,7 @@ module.exports = {
         amqp.connect(amqpUrl, (error, connection) => {
             // Attempt to connect to the RMQ broker
             if (error) {
-                console.error('Connection Error:', error);
+                // console.error('Connection Error:', error);
                 timber.logAndSend(`Error connecting to RMQ: ${error}. Error caught with ${amqpUrl}, ${requestPayload}, ${callback}`, 'RMQ');
                 throw error;
             }
@@ -45,16 +45,16 @@ module.exports = {
                 channel.assertQueue('', { exclusive: true }, (error2, q) => {
                     if (error2) {
                         timber.logAndSend(`Error asserting queue in RMQ: ${error2}. Error caught using queue: ${queueName}`, 'RMQ');
-                        console.error('\nQueue Assertion Error:', error2);
+                        // console.error('\nQueue Assertion Error:', error2);
                         throw error2;
                     }
-                    console.log('\nQueue asserted. Setting up consumer.');
+                    // console.log('\nQueue asserted. Setting up consumer.');
                     // Create a correlation ID and consume the queue. A correlation ID is used to match the response to the request.
                     const correlationId = generateUuid();
-                    console.log(`Correlation ID is ${correlationId}`);
+                    // console.log(`Correlation ID is ${correlationId}`);
                     // Consume the queue - Consume means to listen for messages on the queue.
                     channel.consume(q.queue, (msg) => {
-                        console.log('\nMessage received:\t', msg.properties.correlationId, correlationId);
+                        // console.log('\nMessage received:\t', msg.properties.correlationId, correlationId);
                         // If the correlation ID matches, call the callback function and close the connection.
                         if (msg.properties.correlationId === correlationId) {
                             console.log('Correlation ID matched. Calling callback.');

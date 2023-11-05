@@ -209,12 +209,11 @@ def storeToken(acces_token, refresh_token, expires_in, token_type, usercookieid)
     storeToken takes in token and uid as arguments and stores the token in the database.
 
     Args:
-        access_token (string): the token to Spotify
+        access_token (string): the token to access Spotify
         refresh_token (string): the refresh token to Spotify
         expires_in (string): the time the token expires
         token_type (string): the type of token
-        usercookie (string): the usercookie to query with
-        uid (string): the uid to store
+        usercookie (string): the usercookie to query with to tie it to an account. May switch to uid after sessions fully implemented
 
     Returns:
         _type_: _description_
@@ -224,8 +223,17 @@ def storeToken(acces_token, refresh_token, expires_in, token_type, usercookieid)
     print(f"\nAdding on {thedate}\n")
     db.users.update_one(
         {"usercookieid": usercookieid},
-        {"$set": {"spotify_token": acces_token, "spotify_token_time": thedate}},
+        {
+            "$set": {
+                "spotify_token": acces_token,
+                "refresh_token": refresh_token,
+                "token_type": token_type,
+                "expires_in": expires_in,
+                "spotify_token_time_in": thedate,
+            }
+        },
     )
+    # We'll want to call a way to check this - or set up another script on the dmz which queries us to query the database for any access tokens.
     return {"returnCode": 0, "message": "Successfully added token to database"}
 
 
@@ -302,7 +310,7 @@ def do_logout(usercookieid, session_id):
     # An alternative:
     db.users.update_one({"cookieid": usercookieid}, {"$unset": {"sessionid": ""}})
     # print(f"User {usercookieid} logged out")
-    return {"\nreturnCode": "0", "message": "Logout successful\n"}
+    return {"\nreturnCode": 0, "message": "Logout successful\n"}
 
 
 def do_login(useremail, password, session_id, usercookieid):
@@ -360,7 +368,7 @@ def do_login(useremail, password, session_id, usercookieid):
         popularity = random.randint(0, 100)
         music = get_recs(genre, valence, energy, popularity, True)
         return {
-            "returnCode": "0",
+            "returnCode": 0,
             "message": "Login successful",
             "sessionValid": "True",
             "music": music["musicdata"],
@@ -376,7 +384,7 @@ def do_login(useremail, password, session_id, usercookieid):
     else:
         print("\n[LOGIN ERROR] User Not Found\n")
         return {
-            "returnCode": "1",
+            "returnCode": 1,
             "message": "You have failed to login.",
             "sessionValid": False,
             "data": {
@@ -406,7 +414,7 @@ def do_register(
         print("\n[REGISTRATION ERROR]\tUser already exists!\n")
         e = {"ERROR": "User already exists"}
         msg = {
-            "returnCode": "1",
+            "returnCode": 1,
             "message": "Registration failed - useremail exists",
             session_id: False,
         }
@@ -441,7 +449,7 @@ def do_register(
             music = get_recs(fromlogin=True)
             music = music["musicdata"]
             return {
-                "returnCode": "0",
+                "returnCode": 0,
                 "message": "Registration successful",
                 "data": {
                     "loggedin": "True",
@@ -534,7 +542,7 @@ def request_processor(ch, method, properties, body):
                 #     request["session_id"],
                 # )
                 return {
-                    "returnCode": "1",
+                    "returnCode": 1,
                     "message": "Not right now chief I'm in the zone",
                 }
             case "register":
@@ -572,7 +580,7 @@ def request_processor(ch, method, properties, body):
             case _:
                 # Default case - basically, all else failed.
                 response = {
-                    "returnCode": "0",
+                    "returnCode": 0,
                     "message": "Server received request and processed - no action taken. Unknown type",
                 }
 

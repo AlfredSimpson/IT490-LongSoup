@@ -10,12 +10,16 @@ const PORT = 3900;
 
 // Route to handle login
 app.get('/spotlog', (req, res) => {
-    const scopes = 'user-read-private user-read-email';
+    var scopes = 'user-read-currently-playing playlist-read-private';
+    var state = '';
+    for (var i = 0; i < 17; i++) {
+        state += Math.floor(Math.random() * 10);
+    };
     res.redirect('https://accounts.spotify.com/authorize' +
         '?response_type=code' +
         '&client_id=' + CLIENT_ID +
         (scopes ? '&scope=' + encodeURIComponent(scopes) : '') +
-        '&redirect_uri=' + encodeURIComponent(REDIRECT_URI));
+        '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) + '&state=' + state);
 });
 
 // Route to handle the callback from Spotify's OAuth

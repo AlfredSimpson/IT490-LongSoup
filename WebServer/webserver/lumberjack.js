@@ -18,6 +18,15 @@ const logAndSend = async (message, source = 'Webserver') => {
     // const source_of_log = 'Webserver';
     const d = new Date();
     let date_of_log = d.toISOString();
+    // Now we can modify date_of_log to reflect NYC local time by subtracting 5 hours, accounting for any possible change in day as well.
+    // Not a perfect solution, but for this project, it works - especially since the time just went back an hour! We'll also remove markers that it was UTC time.
+    date_of_log = new Date(date_of_log);
+    date_of_log.setHours(date_of_log.getHours() - 5);
+    date_of_log = date_of_log.toISOString();
+    date_of_log = date_of_log.replace('Z', 'EST');
+
+
+
     // Set outmessage to a JSON string with type, source, date, log_message.
     const outmsg = JSON.stringify({ type: "log", source: source, date: date_of_log, log_message: logMessage });
     let fileName = '_webserver.log';
