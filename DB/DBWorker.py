@@ -456,6 +456,7 @@ def do_register(
                     "loggedin": "True",
                     "name": first_name,
                     "sessionValid": "True",
+                    "errorStatus": False,
                 },
                 "music": music,
                 "userinfo": {
@@ -470,6 +471,10 @@ def do_register(
             return {
                 "returnCode": 1,
                 "message": "[REGISTRATION ERROR] Unable to add user to database. Unknown error.",
+                "data": {
+                    "errorStatus": "True",
+                    "errorOutput": "Registration unsuccessful - Please try again with a different email.",
+                },
             }
 
 

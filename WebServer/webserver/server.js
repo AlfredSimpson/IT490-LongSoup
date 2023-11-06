@@ -720,7 +720,11 @@ app.post('/register', (req, res) => {
             res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
 
         } else {
-            res.status(401).send('You have failed to register.');
+            // res.status(401).send('You have failed to register.');
+            data = response.data;
+            console.log("showing data");
+            console.log(data);
+            res.status(401).render('register', data);
             // add handling for render isntead that prints message to user
         }
     });
