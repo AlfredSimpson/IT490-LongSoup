@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
     <link rel="shortcut icon" href="#">
     <link rel="stylesheet" type="text/css" href="css/style.css">
+    <!-- import the longajax.js file -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="js/longajax.js"></script>
 </head>
 
 <body>
@@ -16,11 +19,13 @@
         <section>
             <div class="col-md-5 container-fluid">
                 <!-- A button -->
-                <button id="executeProcessAjaxButton" class="btn btn-primary"></button>
+                <!-- <button id="executeProcessAjaxButton" class="btn btn-primary"></button> -->
+                <button id="fetchDataButton">Fetch Data from Server</button>
+                <div id="tableContainer"></div>
+
             </div>
         </section>
     </main>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>document.getElementById('executeProcessAjaxButton').addEventListener('click', function () {
             axios.get('/api/postMessage') // Make a GET request to the API endpoint
                 .then(function (response) {

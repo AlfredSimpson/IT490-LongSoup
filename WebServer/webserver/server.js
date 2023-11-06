@@ -133,11 +133,17 @@ app.use(statusMessageHandler);
 
 
 // These are set to help us navigate the file system to pull static files
-app.use(express.static(__dirname + '../public'));
-app.use('/css', express.static(__dirname + '../public/css'));
-app.use('/css', express.static('public'));
-app.use('/js', express.static(__dirname + '../public/js'));
-app.use('img', express.static(__dirname + '../public/img'));
+
+const publicPath = path.join(__dirname, '../public');
+// app.use(express.static(__dirname + '../public'));
+app.use(express.static(publicPath));
+// app.use('/css', express.static(__dirname + '../public/css'));
+// app.use('/css', express.static('public'));
+// app.use('/js', express.static(__dirname + '../public/js'));
+app.use('/css', express.static(path.join(publicPath, 'css')));
+app.use('/js', express.static(path.join(publicPath, 'js')));
+app.use('/img', express.static(path.join(publicPath, 'img')));
+// app.use('img', express.static(__dirname + '../public/img'));
 
 // We'll need an error handler here.
 
@@ -516,6 +522,18 @@ app.get('/:page', (req, res) => {
     }
 });
 
+function generateSampleData() {
+    const data = [];
+    for (let i = 1; i <= 5; i++) {
+        data.push({
+            column1: `Data ${i}-1`,
+            column2: `Data ${i}-2`,
+            column3: `Data ${i}-3`,
+        });
+    }
+    return data;
+}
+
 app.get('/api/:function', (req, res) => {
     console.log(`\n[GET /api/:function] Received request for: ${req.params.function}\n`);
     test = "postMessage";
@@ -524,6 +542,13 @@ app.get('/api/:function', (req, res) => {
     switch (req.params.function) {
         case 'postMessage':
             console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            break;
+        case 'get-data':
+            // TODO: change endpoint
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            console.log(`\n Moving to now get data to the front`);
+            const sampleData = generateSampleData();
+            res.status(200).json(sampleData);
             break;
         case 'browseArtists':
             console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
