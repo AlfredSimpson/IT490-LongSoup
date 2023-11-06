@@ -472,7 +472,7 @@ def do_register(
                 "returnCode": 1,
                 "message": "[REGISTRATION ERROR] Unable to add user to database. Unknown error.",
                 "data": {
-                    "errorStatus": "True",
+                    "errorStatus": True,
                     "errorOutput": "Registration unsuccessful - Please try again with a different email.",
                 },
             }

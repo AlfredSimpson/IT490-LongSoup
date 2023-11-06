@@ -721,7 +721,9 @@ app.post('/register', (req, res) => {
 
         } else {
             // res.status(401).send('You have failed to register.');
-            data = response.data;
+            data = { "errorStatus": false, "errorOutput": "You have failed to register." }
+            console.log(`\n[Register - response] testing data --- ${data}`);
+            console.log("[Register - response] testing for failure");
             console.log("showing data");
             console.log(data);
             res.status(401).render('register', data);
