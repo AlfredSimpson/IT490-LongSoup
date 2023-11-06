@@ -412,13 +412,14 @@ def do_register(
     if user:
         # User already exists
         print("\n[REGISTRATION ERROR]\tUser already exists!\n")
-        e = {"ERROR": "User already exists"}
+
         msg = {
             "returnCode": 1,
             "message": "Registration failed - useremail exists",
-            session_id: False,
+            "session_id": False,
+            "e": {"ERROR": "User already exists"},
         }
-        return e, msg
+        return msg
     else:
         print(
             "\n[REGISTRATION]\tUser email not found in users table. Attempting to register user!\n"

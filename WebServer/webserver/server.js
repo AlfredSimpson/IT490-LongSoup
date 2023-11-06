@@ -299,11 +299,8 @@ app.get('/callback', async (req, res) => {
             let refresh_token = response.data.refresh_token;
             let expires_in = response.data.expires_in;
             let token_type = response.data.token_type;
-            // let usercookie = getCookie(req)['usercookieid'];
-            console.log(`\n\n\n[301] Try to get the id: ${session.uid}\n\n\n`);
             let usercookie = res.locals.usercookieid;
             console.log(`[Spotify Token Grab] What's the usercookie? ${usercookie}`);
-            console.log(`[Spotify Token Grab] Sending data to broker...`);
             mustang.sendAndConsumeMessage(amqpUrl, spotQueue, {
                 type: "spotToken",
                 "usercookie": usercookie,
@@ -703,6 +700,7 @@ app.post('/register', (req, res) => {
             data = response.data;
             musicdata = response.music;
             userinfo = response.userinfo;
+            console.log(`[Register - response] testing data --- ${userinfo}`);
             console.log("[Register - response] testing musicdata");
             console.log('\n', musicdata, '\n');
             console.log(userinfo);
