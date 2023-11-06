@@ -1,0 +1,39 @@
+import pymongo
+#import base64
+from requests import post, get
+#import json
+#import os
+
+# Set your Spotify API credentials
+client_id = '10c241e9a6b944928d20497ef814ef7d'
+client_secret = 'b1cb224681ee4f8ea9d3f54ea1a3966a'
+
+# Initialize Spotipy with OAuth2 authentication
+#sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id, client_secret=client_secret))
+
+maindb = 'cgs'#os.getenv("MONGO_DB")
+maindbuser = 'longestsoup'#os.getenv("MONGO_USER")
+maindbpass = 'shorteststraw'#os.getenv("MONGO_PASS")
+maindbhost = 'localhost'#os.getenv("MONGO_HOST")
+
+myclient = pymongo.MongoClient(
+    "mongodb://%s:%s@localhost:27017/cgs" % (maindbuser, maindbpass)
+)
+db = myclient[maindb]
+
+# Query the 'Genres' collection to find the 'Rock' genre document
+rock_genre = db.Genres.find_one({"name": "rock"})
+
+if rock_genre:
+    # Retrieve the ObjectId of the 'Rock' genre
+    rock_genre_id = rock_genre["_id"]
+
+    # Query the 'Artists' collection to retrieve artists associated with the 'Rock' genre
+    rock_artists = db.Artists.find({"genres": rock_genre_id})
+
+    # Iterate through the results
+    for artist in rock_artists:
+        print(f"Artist Name: {artist['name']}")
+        # Add more fields as needed
+else:
+    print("The 'Rock' genre was not found in the 'Genres' collection.")
