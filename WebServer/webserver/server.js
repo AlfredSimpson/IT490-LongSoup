@@ -151,10 +151,10 @@ const Port = process.env.PORT || 9001;
 const tempHost = process.env.BROKER_VHOST;
 const tempQueue = process.env.BROKER_QUEUE;
 
-const https_options = {
-    key: fs.readFileSync(__dirname + "/cert/key.pem"),
-    cert: fs.readFileSync(__dirname + "/cert/cert.pem")
-};
+// const https_options = {
+//     key: fs.readFileSync(__dirname + "/cert/key.pem"),
+//     cert: fs.readFileSync(__dirname + "/cert/cert.pem")
+// };
 
 
 
@@ -390,7 +390,7 @@ app.get('/:page', (req, res) => {
             typeOf: typeOf,
         }, (msg) => {
             const response = JSON.parse(msg.content.toString());
-            if (response.returnCode === '0') {
+            if (response.returnCode === 0) {
                 data = response.data;
                 musicdata = response.music;
                 console.log("\n[Approx line 186] testing query artist data");
@@ -617,7 +617,7 @@ app.post('/login', (req, res) => {
         "usercookieid": usercookieid['usercookieid']
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
-        if (response.returnCode === '0') {
+        if (response.returnCode === 0) {
             // console.log(`Name: Line, 606 \t ${response.userinfo.name}`);
             timber.logAndSend('User logged in successfully.');
             data = response.data;
@@ -692,7 +692,7 @@ app.post('/register', (req, res) => {
         spot_name
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
-        if (response.returnCode == '0') {
+        if (response.returnCode == 0) {
             // Set a cookie for userid to track locally; this will be used to validate session
             console.log("\n[Register - response] Successful registration, parsing data\n");
             data = response.data;

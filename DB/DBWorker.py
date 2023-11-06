@@ -204,7 +204,7 @@ def query_artist(artist, typebyartist=None):
             }
 
 
-def storeToken(acces_token, refresh_token, expires_in, token_type, usercookieid):
+def storeToken(access_token, refresh_token, expires_in, token_type, usercookieid):
     """
     storeToken takes in token and uid as arguments and stores the token in the database.
 
@@ -219,13 +219,13 @@ def storeToken(acces_token, refresh_token, expires_in, token_type, usercookieid)
         _type_: _description_
     """
     thedate = datetime.datetime.now()
-    print(f'\nAttempting to add token "{acces_token}" to users\n')
+    print(f'\nAttempting to add token "{access_token}" to users\n')
     print(f"\nAdding on {thedate}\n")
     db.users.update_one(
         {"usercookieid": usercookieid},
         {
             "$set": {
-                "spotify_token": acces_token,
+                "access_token": access_token,
                 "refresh_token": refresh_token,
                 "token_type": token_type,
                 "expires_in": expires_in,
