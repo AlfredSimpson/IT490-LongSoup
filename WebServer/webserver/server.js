@@ -107,16 +107,18 @@ const trafficLogger = (req, res, next) => {
 
 // Custom middleware for checking if a user is logged in and setting session data. This is used for dynamic pages
 // sessionconstants
+// We should consider a separate file to keep track of this more easily.
 app.use((req, res, next) => {
     res.locals.usercookieid = req.session.usercookieid || null;
-    // console.log('\n[Custom Middleware] Checking if user is logged in\n');
+    res.locals.sessionId = req.session.sessionId || null;
     res.locals.loggedIn = req.session.loggedIn || false;
-    // console.log(`[Custom Middleware] Logged in? ${res.locals.loggedIn}`)
     res.locals.uid = req.session.uid || null;
-    // console.log(`[Custom Middleware] User ID: ${res.locals.uid}`);
     res.locals.name = req.session.name || null;
-    // console.log(`[Custom Middleware] User Name: ${res.locals.name}`);
-    // Add more session data as needed
+    res.locals.tracks = req.session.tracks || null;
+    res.locals.artists = req.session.artists || null;
+    res.locals.oAuthed = req.session.oAuthed || false;
+    res.locals.links = req.session.links || null;
+    res.locals.data = req.session.data || null;
     next();
 });
 
@@ -354,6 +356,7 @@ app.get('/', (req, res) => {
         }
     };
 });
+
 app.post('/account:param', (req, res) => {
     // const tempHost = process.env.BROKER_VHOST;
     // const tempQueue = process.env.BROKER_QUEUE;
@@ -363,88 +366,158 @@ app.post('/account:param', (req, res) => {
 });
 
 app.get('/:page', (req, res) => {
+    console.log(`\n[GET /:page] Received request for ${req.params.page}\n`);
     const page = req.params.page;
-    let sessionPages = ['account', 'dashboard', 'profile', 'forum', 'logout']
-    if (page == 'login') {
-        let errorStatus = null;
-        let errorOutput = '';
-        res.status(200).render(page, { data: { error_status: errorStatus, error_output: errorOutput } }), err => {
-            timber.logAndSend(err);
-        }
-    }
-    else if (page == 'register') {
-        let errorStatus = null;
-        let errorOutput = '';
-        res.status(200).render(page, { data: { error_status: errorStatus, error_output: errorOutput } }), err => {
-            timber.logAndSend(err);
-        }
-    }
-    else if (page == 'artists') {
-        // const tempHost = process.env.BROKER_VHOST;
-        // const tempQueue = process.env.BROKER_QUEUE;
-        const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
-        console.log(amqpUrl);
-        const artist = req.body.artist;
-        const typeOf = req.params.param;
-        mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
-            type: "byArtist",
-            artist: artist,
-            typeOf: typeOf,
-        }, (msg) => {
-            const response = JSON.parse(msg.content.toString());
-            if (response.returnCode === 0) {
-                data = response.data;
-                musicdata = response.music;
-                console.log("\n[Approx line 186] testing query artist data");
+    // let loggedin = session.locals.loggedIn;
+    // console.log(`[GET /:page] Logged in? ${loggedin}`);
+    try {
+        if (page == 'login') {
+            let errorStatus = null;
+            let errorOutput = '';
 
-                if (data.findAlbums) {
-                    let albums = [];
-                    let external_urls = [];
-                    for (var i = 0; i < musicdata.length; i++) {
-                        albums.push(musicdata[i].album);
-                        external_urls.push(musicdata[i].external_urls);
-                        res.render('account', { data: data, tracks: tracks })
+            res.status(200).render(page, { data: { error_status: errorStatus, error_output: errorOutput } });
+            // , err => {
+            //     timber.logAndSend(err);
+            // }
+        }
+        else if (page == 'account') {
+            if (req.session.loggedIn && req.session.data) {
+                try {
+                    console.log(`\n[GET /:page] User is logged in, rendering ${page}\n`);
+                    // console.log(`\n[GET /:page] User is logged in, rendering ${page}\n`);
+                    // // let data = req.session.data;
+                    // let data = res.locals.data;
+                    // console.log(`\n[GET /:page] data: ${data}\n`)
+                    // // let musicdata = req.session.music;
+                    // let musicdata = res.locals.music;
+                    // console.log(`\n[GET /:page] musicdata: ${musicdata}\n`);
+                    // // let tracks = req.session.tracks;
+                    // let tracks = res.locals.tracks;
+                    // // let artists = req.session.artists;
+                    // let artists = res.locals.artists;
+
+                    // // let links = req.session.links;
+                    // let links = res.locals.links;
+                    // // let loggedin = req.session.loggedIn;
+                    // let loggedin = res.locals.loggedIn;
+                    const data = req.session.data;
+                    const tracks = session.locals.tracks || [];
+                    const artists = req.session.artists || [];
+                    const links = req.session.links || [];
+                    console.log(`[Line 404] Get tracks: ${tracks}`);
+                    console.log(`[GET /:page] Logged in? ${loggedin}`);
+                    console.log(`[GET /:page] User ID: ${req.session.uid}`);
+                    console.log(`[GET /:page] User Name: ${req.session.name}`);
+                    console.log(`[GET /:page] User Music: ${req.session.music}`);
+                    res.status(200).render(page, { data: data, tracks: tracks, artists: artists, links: links });
+                } catch (error) {
+                    console.log(`\n[GET /:page] Error: ${error}\n`);
+                    res.status(200).render(page), err => {
+                        if (err) {
+                            timber.logAndSend(err);
+                            console.error(err);
+                        }
                     }
                 }
-                res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
             }
-            else {
-                if (sessionPages.includes(page)) {
-                    let checkSession = ""; // call the db server and see if the session is valid. Doesn't work, sessions aren't implemented yet.
-                    if (page === 'account') {
-                        res.status(200).render(page, data), err => {
-                            if (err) {
-                                timber.logAndSend(err);
-                                console.error(err);
+
+        }
+        else if (page == 'about') {
+            res.status(200).render(page), err => {
+                if (err) {
+                    timber.logAndSend(err);
+                    console.error(err);
+                }
+            }
+        }
+        else if (page == 'register') {
+            let errorStatus = null;
+            let errorOutput = '';
+            res.status(200).render(page, { data: { error_status: errorStatus, error_output: errorOutput } }), err => {
+                timber.logAndSend(err);
+            }
+        }
+        else if (page == 'artists') {
+            // const tempHost = process.env.BROKER_VHOST;
+            // const tempQueue = process.env.BROKER_QUEUE;
+            const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
+            console.log(amqpUrl);
+            const artist = req.body.artist;
+            const typeOf = req.params.param;
+            mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
+                type: "byArtist",
+                artist: artist,
+                typeOf: typeOf,
+            }, (msg) => {
+                const response = JSON.parse(msg.content.toString());
+                if (response.returnCode === 0) {
+                    data = response.data;
+                    musicdata = response.music;
+                    console.log("\n[Approx line 186] testing query artist data");
+
+                    if (data.findAlbums) {
+                        let albums = [];
+                        let external_urls = [];
+                        for (var i = 0; i < musicdata.length; i++) {
+                            albums.push(musicdata[i].album);
+                            external_urls.push(musicdata[i].external_urls);
+                            res.render('account', { data: data, tracks: tracks })
+                        }
+                    }
+                    res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
+                }
+                else {
+                    if (sessionPages.includes(page)) {
+                        let checkSession = ""; // call the db server and see if the session is valid. Doesn't work, sessions aren't implemented yet.
+                        if (page === 'account') {
+                            res.status(200).render(page, data), err => {
+                                if (err) {
+                                    timber.logAndSend(err);
+                                    console.error(err);
+                                }
                             }
                         }
+                        else {
+                            res.status(200).render(page), err => {
+                                if (err) {
+                                    timber.logAndSend(err);
+                                    console.error(err);
+                                }
+                            }
+                        }
+                        // run session check in another function, validate or reject, and render with data.
+                        //check to see if session cookie exists. If so, check db. If it passes, let them in. If not, redirect to login.
                     }
                     else {
                         res.status(200).render(page), err => {
                             if (err) {
                                 timber.logAndSend(err);
-                                console.error(err);
+                                // console.error(err);
                             }
                         }
-                    }
-                    // run session check in another function, validate or reject, and render with data.
-                    //check to see if session cookie exists. If so, check db. If it passes, let them in. If not, redirect to login.
-                }
-                else {
-                    res.status(200).render(page), err => {
-                        if (err) {
-                            timber.logAndSend(err);
-                            // console.error(err);
-                        }
-                    }
 
 
+                    }
                 }
-            }
-        });
+            });
+        }
+        else {
+            console.log("unknown error");
+        }
+    }
+    catch (error) {
+        console.log(error);
+        timber.logAndSend(error);
+        res.redirect('index');
     }
 });
 
+// app.get('/account/:page', (req, res) => {
+//     console.log(`\n[GET /account/stats] Received request for ${req.params.page}\n`);
+//     const page = req.params.page;
+//     let loggedin = req.session.loggedIn;
+//     console.log(`[GET /account/:page] Logged in? ${loggedin}`);
+// });
 
 const userData = [];
 /**
@@ -545,7 +618,11 @@ app.post('/account', (req, res) => {
                     artists.push(musicdata[i].artist);
                     links.push(musicdata[i].url);
                 }
-
+                req.session.tracks = tracks;
+                req.session.artists = artists;
+                req.session.links = links;
+                console.log('\n[account] Setting session data\n');
+                console.log('\n[account] req.session.uid: ', req.session.tracks);
                 res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
             } else {
                 console.log("Failure!");
@@ -620,12 +697,10 @@ app.post('/login', (req, res) => {
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
         if (response.returnCode === 0) {
-            // console.log(`Name: Line, 606 \t ${response.userinfo.name}`);
             timber.logAndSend('User logged in successfully.');
             data = response.data;
             musicdata = response.music;
             userinfo = response.userinfo;
-            // console.log("testing musicdata");
             let tracks = [];
             let artists = [];
             let links = [];
@@ -640,7 +715,11 @@ app.post('/login', (req, res) => {
             req.session.loggedIn = true; // TODO: 11/4/2023 - come back here if it breaks.
             let uidtest = req.session.uid;
             let uname = req.session.name;
+            req.session.data = data;
             req.session.music = musicdata;
+            req.session.tracks = tracks;
+            req.session.artists = artists;
+            req.session.links = links;
             console.log(`\n[Login] Attempted to store session data: ${uidtest}, ${uname}\n`)
             // we may want to add other session information to keep, like username, spotify name, etc.
             // passing back the uid may be good for messaging and other things.
