@@ -77,8 +77,8 @@ def search_for_artist(token, artist_name):
             }
 
             try:
-                db.spotifyArtists.insert_one(artist_data)
-                print("Successfully added artist data to spotifyArtists")
+                db.Artists.insert_one(artist_data)
+                print("Successfully added ") + spotify_name + (" to Artists")
             except Exception as e:
                 print(f"Could not add artist into the database: {str(e)}")
         else:
