@@ -116,7 +116,7 @@ app.use((req, res, next) => {
     res.locals.name = req.session.name || null;
     res.locals.tracks = req.session.tracks || null;
     res.locals.artists = req.session.artists || null;
-    res.locals.oAuthed = req.session.oAuthed || false;
+    res.locals.oAuthed = req.session.oAuthed || false; // This isn't passing to account nromally
     res.locals.links = req.session.links || null;
     res.locals.data = req.session.data || null;
     next();
@@ -124,9 +124,8 @@ app.use((req, res, next) => {
 
 
 // Set the middleware. Order matters -> It's like a pipeline and goes top to bottom, so we've gotta make sure we maintain this integrity. If something isn't quite working - it might be why
-// app.use(express.json()); -- testing moving this up top
+
 app.use(cors());
-// app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(statusMessageHandler);
@@ -319,7 +318,10 @@ app.get('/callback', async (req, res) => {
                 if (response.returnCode === 0) {
                     console.log(`[Spotify Token Grab] Success!`);
                     timber.logAndSend('User requested some jams, got some.', "_SPOTIFY_");
-                    res.status(200).render('success');
+                    req.session.oAuthed = true;
+                    let oAuthed = req.session.oAuthed;
+                    console.log(`[Spotify Token Grab] oAuthed? ${oAuthed}`);
+                    res.status(200).render('success', { oAuthed: oAuthed });
                 } else {
                     console.log(`[Spotify Token Grab] Failure!`);
                     res.status(401).send('You have failed to authorize Spotify - did we do something?');
@@ -374,8 +376,9 @@ app.get('/:page', (req, res) => {
         if (page == 'login') {
             let errorStatus = null;
             let errorOutput = '';
+            let oAuthed = req.session.oAuthed;
 
-            res.status(200).render(page, { data: { error_status: errorStatus, error_output: errorOutput } });
+            res.status(200).render(page, { data: { error_status: errorStatus, error_output: errorOutput }, oAuthed });
             // , err => {
             //     timber.logAndSend(err);
             // }
@@ -384,32 +387,19 @@ app.get('/:page', (req, res) => {
             if (req.session.loggedIn && req.session.data) {
                 try {
                     console.log(`\n[GET /:page] User is logged in, rendering ${page}\n`);
-                    // console.log(`\n[GET /:page] User is logged in, rendering ${page}\n`);
-                    // // let data = req.session.data;
-                    // let data = res.locals.data;
-                    // console.log(`\n[GET /:page] data: ${data}\n`)
-                    // // let musicdata = req.session.music;
-                    // let musicdata = res.locals.music;
-                    // console.log(`\n[GET /:page] musicdata: ${musicdata}\n`);
-                    // // let tracks = req.session.tracks;
-                    // let tracks = res.locals.tracks;
-                    // // let artists = req.session.artists;
-                    // let artists = res.locals.artists;
-
-                    // // let links = req.session.links;
-                    // let links = res.locals.links;
-                    // // let loggedin = req.session.loggedIn;
-                    // let loggedin = res.locals.loggedIn;
                     const data = req.session.data;
-                    const tracks = session.locals.tracks || [];
-                    const artists = req.session.artists || [];
-                    const links = req.session.links || [];
-                    console.log(`[Line 404] Get tracks: ${tracks}`);
+                    const tracks = req.session.tracks || []; // Passes!
+                    let loggedin = req.session.loggedIn; // Passes!
+                    const artists = req.session.artists || []; //Passes!
+                    const links = req.session.links || []; //Passes!
+                    let oAuthed = res.locals.oAuthed; // Does not pass
+
+                    console.log(`\n[GET /:page] oAuthed? ${oAuthed}`);
                     console.log(`[GET /:page] Logged in? ${loggedin}`);
                     console.log(`[GET /:page] User ID: ${req.session.uid}`);
                     console.log(`[GET /:page] User Name: ${req.session.name}`);
                     console.log(`[GET /:page] User Music: ${req.session.music}`);
-                    res.status(200).render(page, { data: data, tracks: tracks, artists: artists, links: links });
+                    res.status(200).render(page, { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed });
                 } catch (error) {
                     console.log(`\n[GET /:page] Error: ${error}\n`);
                     res.status(200).render(page), err => {
@@ -436,6 +426,12 @@ app.get('/:page', (req, res) => {
             res.status(200).render(page, { data: { error_status: errorStatus, error_output: errorOutput } }), err => {
                 timber.logAndSend(err);
             }
+        }
+        else if (page == 'success') {
+            req.session.oAuthed = true;
+            let oAuthed = req.session.oAuthed;
+            console.log(`\n[GET /:page] oAuthed? ${oAuthed}`);
+
         }
         else if (page == 'artists') {
             // const tempHost = process.env.BROKER_VHOST;
@@ -501,6 +497,14 @@ app.get('/:page', (req, res) => {
                 }
             });
         }
+        else if (page == 'testing') {
+            res.status(200).render(page), err => {
+                if (err) {
+                    timber.logAndSend(err);
+                    console.error(err);
+                }
+            }
+        }
         else {
             console.log("unknown error");
         }
@@ -509,6 +513,45 @@ app.get('/:page', (req, res) => {
         console.log(error);
         timber.logAndSend(error);
         res.redirect('index');
+    }
+});
+
+app.get('/api/:function', (req, res) => {
+    console.log(`\n[GET /api/:function] Received request for: ${req.params.function}\n`);
+    test = "postMessage";
+    result = (test == req.params.function)
+    console.log(`Result: ${result}`);
+    switch (req.params.function) {
+        case 'postMessage':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            break;
+        case 'browseArtists':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            break;
+        case 'browseAlbums':
+            console.log(`\n[GET /api/:function] Received  passed to case  ${req.params.function}\n`);
+            break;
+        case 'browseTracks':
+            console.log(`\n[GET /api/:function] Received  passed to case  ${req.params.function}\n`);
+            break;
+        case 'browsePlaylists':
+            console.log(`\n[GET /api/:function] Received  passed to case  ${req.params.function}\n`);
+            break;
+        case 'likeArtist':
+            console.log(`\n[GET /api/:function] Received  passed to case  ${req.params.function}\n`);
+            break;
+        case 'likeAlbum':
+            console.log(`\n[GET /api/:function] Received  passed to case  ${req.params.function}\n`);
+            break;
+        case 'likeTrack':
+            console.log(`\n[GET /api/:function] Received  passed to case  ${req.params.function}\n`);
+            break;
+        case 'likePlaylist':
+            console.log(`\n[GET /api/:function] Received  passed to case  ${req.params.function}\n`);
+            break;
+        default:
+            console.log(`\n [AJAX requests] Unknown request: ${req.params.function}\n`);
+            break;
     }
 });
 
@@ -621,9 +664,10 @@ app.post('/account', (req, res) => {
                 req.session.tracks = tracks;
                 req.session.artists = artists;
                 req.session.links = links;
+                let oAuthed = req.session.oAuthed;
                 console.log('\n[account] Setting session data\n');
                 console.log('\n[account] req.session.uid: ', req.session.tracks);
-                res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
+                res.render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed });
             } else {
                 console.log("Failure!");
                 console.log("Sending response data");
@@ -677,10 +721,15 @@ app.post('/login', (req, res) => {
     const password = req.body.password;
     const tempHost = process.env.BROKER_VHOST;
     const tempQueue = process.env.BROKER_QUEUE;
-    let session_id = createSessionCookie(req, res);
-    // let session_id = req.session.sessionId;
-    // let usercookieid = req.session.usercookieid;
-    let usercookieid = createUserCookie(req, res);
+    // Check to see if a session cookie exists, if not call the create sessionCookie function
+    if (!req.session.sessionId) {
+        let session_id = createSessionCookie(req, res);
+    }
+    if (!req.session.usercookieid) {
+        let usercookieid = createUserCookie(req, res);
+    }
+    let session_id = req.session.sessionId;
+    let usercookieid = req.session.usercookieid;
     console.log(`session cookie Created?: ${req.session.sessionId['sessionId']}`);
     console.log(`user cookie Created?: ${usercookieid}`);
     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
@@ -720,6 +769,8 @@ app.post('/login', (req, res) => {
             req.session.tracks = tracks;
             req.session.artists = artists;
             req.session.links = links;
+            let oAuthed = req.session.oAuthed;
+            console.log(`\n[Login] oAuthed? ${oAuthed}`);
             console.log(`\n[Login] Attempted to store session data: ${uidtest}, ${uname}\n`)
             // we may want to add other session information to keep, like username, spotify name, etc.
             // passing back the uid may be good for messaging and other things.

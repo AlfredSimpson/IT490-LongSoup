@@ -59,15 +59,23 @@
             <div class="container-fluid py-5">
                 <h1 class="display-5 fw-bold">Hey, welcome home! </h1>
                 <p class="col-md-8 fs-4">We're ready to start finding some great tunes for you.</p>
-                <p class="col-md-8 fs-4"></p>
+                <p></p>
+
             </div>
         </div>
         <div class="container col-md-8">
             <div class="container-fluid py-5">
                 <h1 class="display-5 fw-bold">Your most recent top tracks</h1>
                 <p class="col-md-8 fs-4">We're ready to start finding some great tunes for you.</p>
-                <% if (data.authorized) { %>
-                    <% }; %>
+                <% if (oAuthed) { %>
+                    <h1>
+                        <%= "We are oAuthed" %>
+                    </h1>
+                    <% } else{ %>
+                        <%= "We are not oAuthed" %>
+                            <a href="<%= '/spotlog' %>">Click here to authorize</a>
+                            <% }; %>
+
             </div>
         </div>
         <div class="container col-md-5 bg-light">
