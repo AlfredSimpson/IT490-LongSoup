@@ -458,6 +458,11 @@ def do_register(
                     "sessionValid": "True",
                 },
                 "music": music,
+                "userinfo": {
+                    "uid": uid,
+                    "user_fname": first_name,
+                    "usercookieid": usercookieid,
+                },
             }
         except:
             print("\n[REGISTRATION ERROR] Unknown error adding user to database\n")
