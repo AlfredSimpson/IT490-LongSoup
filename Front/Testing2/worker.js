@@ -4,17 +4,18 @@ const mysql = require('mysql');
 
 const con = mysql.createConnection({
     host:"localhost",
-    user:"longestsoup",
-    password:"shortS0up!",
+    user:"admin",
+    password:"admin",
     database:"securesoupdb"
     });
+
 
 con.connect((err) => {
   if (err) throw err;
   console.log("Connected to the MySQL server.");
 });
 
-    
+
 
 
 // setting up the rmq connection
@@ -32,18 +33,25 @@ amqp.connect('amqp://admin:admin@localhost', (error0, connection) => {
       throw error1;
     }
     const queue = 'messageQueue';
-
+    const confirmQueue = 'confirmationQueue';
+    //the db gets the messege delivered from the 'messegeQueue'
     channel.consume(queue, (msg) => {
+      //converts the rmq messege to a string
       console.log(`Received: ${msg.content.toString()}`);
       
-      // Insert into MySQL
+      // insert into the db
       const query = "INSERT INTO MessagingPosts (message) VALUES (?)";
       // parameterized queries can help prevent SQL injection
       con.query(query, [msg.content.toString()], (err, result) => {
         if (err) throw err;
+
+        
         console.log("Record inserted");
         
-        // Send acknowledgment
+    channel.sendToQueue(confirmQueue, Buffer.from("Message inserted!"));
+
+        
+        // Send acknowledgment to rmq that is was sent
         channel.ack(msg);
       });
     });
