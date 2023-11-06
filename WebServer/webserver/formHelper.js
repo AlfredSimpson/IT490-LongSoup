@@ -1,4 +1,4 @@
-
+// This is largely deprecated for now
 
 const sendLogin = async function (useremail, password) {
     const amqp = require('amqplib');

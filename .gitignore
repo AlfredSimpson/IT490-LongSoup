@@ -9,3 +9,8 @@
 # Node
 
 node_modules/
+
+.pem
+
+# Nobody wants to see our logs
+.log

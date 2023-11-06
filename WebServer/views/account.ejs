@@ -73,32 +73,22 @@
                     <% }; %>
             </ul>
         </ul>
-
     </div>
-
-
-
     <div class="container my-5">
         <div class="container-fluid py-5">
-            <!-- <h1 class="display-5 fw-bold">Your Top Tracks So Far</h1> -->
+            <h1 class="display-5 fw-bold"></h1>
             <form>
-
             </form>
         </div>
     </div>
     <div class="container my-5">
         <div class="container-fluid py-5">
-            <h1 class="display-5 fw-bold">Some new tunes</h1>
-
+            <h1 class="display-5 fw-bold"></h1>
             <p class="col-md-8 fs-4"></p>
-
-
         </div>
     </div>
     <div class="container my-5">
-
         <div class="container-fluid tester">
-
             <div class="container my-5">
                 <div class="container-fluid py-5">
                     <h1 class="display-5 fw-bold">Ready to find some new tunes?</h1>
@@ -113,7 +103,6 @@
                             <option value="country">country</option>
                             <option value="punk">Punk</option>
                             <option value="hip-hop">hip-hop</option>
-                            <!-- <option value="rap">Rap</option> -->
                             <option value="trip-hop">trip-hop</option>
                             <option value="indie">indie</option>
                             <option value="metal">metal</option>
@@ -134,13 +123,20 @@
             </div>
 
 
-
-
             <div class="container my-5">
                 <div class="container-fluid py-5">
-                    <!-- <h1 class="display-5 fw-bold">Your Top Tracks So Far</h1> -->
-                    <form>
-
+                    <h1 class="display-5 fw-bold">Want to find music by someone you already know? Start below!</h1>
+                    <form method="post" action="/account/artists">
+                        <label for="typebyartist" class="form-label">What do you want to find?</label>
+                        <select id="typebyartist" name="typebyartist">
+                            <option value="albums">Albums</option>
+                            <option value="tracks">Top Tracks</option>
+                            <option value="related">Related Artists</option>
+                        </select>
+                        <br>
+                        <label for="artist" class="form-label">Who are you looking for?</label>
+                        <input type="text" name="artist" id="artist" class="form-control" placeholder="Artist Name">
+                        <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
                 </div>
             </div>
