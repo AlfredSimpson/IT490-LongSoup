@@ -1,0 +1,73 @@
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Artist</th>
+                        <th>Track</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% data.forEach(item=> { %>
+                        <tr>
+                            <td>
+                                <%= item.top_artist_name %>
+                            </td>
+                            <td>
+                                <%= item.top_track_name %>
+                            </td>
+                            <td>
+                                <% if (data.loggedin) { %>
+                                <a class="nav-link active" aria-current="page" href="<%='/like' %>">
+                                <a class="nav-link" href="/<%= 'dislike' %>">Home</a>
+                                    <% } %>
+                            </td>
+                        </tr>
+                        <% }); %>
+                </tbody>
+            </table>
+
+
+
+
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Artist</th>
+                        <th>Track</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% data.forEach(item=> { %>
+                        <tr>
+                            <td>
+                                <%= item.rec_track_artist_name %>
+                            </td>
+                            <td>
+                                <%= item.rec_track_name %>
+                            </td>
+                        </tr>
+                        <% }); %>
+                </tbody>
+            </table>
+
+
+
+
+
+
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Artist</th>
+                        <th>Track</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% data.forEach(item=> { %>
+                        <tr>
+                            <td>
+                                <%= item.new_artist_name %>
+                            </td>
+                        </tr>
+                        <% }); %>
+                </tbody>
+            </table>

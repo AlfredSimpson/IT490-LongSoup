@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import LongDB
 import spotipy
 import LongSpotWorker
@@ -35,3 +36,17 @@ def runSpotTest():
     data = LongSpotWorker.LongDB("localhost", "example", "exampl3!", "tester")
     user = data.auth_user(table="spotusers", spot_username="spot_username")
     return user
+=======
+def test_LongDB(p1, p2):
+    result = p1 + p2
+    print(result)
+
+
+def runTest():
+    p1 = 5
+    p2 = 10
+    return test_LongDB(p1, p2)
+
+
+print(runTest())
+>>>>>>> b94acf3cc51404f8735aaff54c27d259130057c1

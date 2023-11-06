@@ -1,0 +1,11 @@
+#message-board {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    max-height: 300px;
+    overflow-y: scroll;
+}
+
+h1{
+    text-align: center;
+}

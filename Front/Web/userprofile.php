@@ -1,1 +1,0 @@
-<!-- A profile for a user that uses bootstrap to display the information. It also displays the user's name -->
