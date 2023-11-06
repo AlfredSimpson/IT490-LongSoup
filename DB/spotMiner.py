@@ -7,6 +7,86 @@ from dotenv import load_dotenv
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.oauth2 import SpotifyOAuth
 
+spotSchema = {
+    "uid": "",
+    "tasteid": "",
+    "spotifyInformation": {
+        "spotifyId": "",
+        "spotifyName": "",
+        "spotifyEmail": "",
+        "spotifyProfileImage": "",
+        "spotifyCountry": "",
+        "spotifyProduct": "",
+        "spotifyFollowers": "",
+        "spotifyUrl": "",
+        "spotAccessToken": "",
+        "spotRefreshToken": "",
+    },
+    "likes": [
+        {
+            "artists": [{"artist_name": "", "genres": "", "value": ""}],
+            "tracks": [
+                {
+                    "artist_name": "",
+                    "track_name": "",
+                    "popularity": "",
+                    "genres": "",
+                    "value": "",
+                }
+            ],
+            "genres": [{"genre_name": "", "value": ""}],
+        }
+    ],
+    "dislikes": [
+        {
+            "artists": [{"artist_name": "", "genres": "", "value": ""}],
+            "tracks": [
+                {
+                    "artist_name": "",
+                    "track_name": "",
+                    "popularity": "",
+                    "genres": "",
+                    "value": "",
+                }
+            ],
+            "genres": [{"genre_name": "", "value": ""}],
+        }
+    ],
+    "recentlyPlayed": [
+        {
+            "artist_name": "",
+            "artist_info": [
+                {
+                    "images": [{"height": "", "url": "", "width": ""}],
+                    "genres": [],
+                    "popularity": "",
+                    "uri": "",
+                }
+            ],
+            "track_name": "",
+            "track_info": [
+                {
+                    "album": {},
+                    "href": "",
+                    "id": "",
+                }
+            ],
+            "genres": [],
+        }
+    ],
+    "knownArtists": [
+        {
+            "artist_name": "",
+        }
+    ],
+    "knownTracks": [
+        {
+            "artist_name": "",
+            "track_name": "",
+            "track_url": "",
+        }
+    ],
+}
 
 load_dotenv()
 
@@ -31,20 +111,71 @@ myclient = pymongo.MongoClient(
 db = myclient[maindb]
 
 
-sp = spotipy.Spotify(
-    auth_manager=SpotifyOAuth(
-        client_id=SPOTID,
-        client_secret=SPOTSECRET,
-        redirect_uri=SPOTURI,
-        scope=SPOTSCOPE,
-        cache_path=".cache",
-    )
-)
+# sp = spotipy.Spotify(
+#     auth_manager=SpotifyOAuth(
+#         client_id=SPOTID,
+#         client_secret=SPOTSECRET,
+#         redirect_uri=SPOTURI,
+#         scope=SPOTSCOPE,
+#         cache_path=".cache",
+#     )
+# )
+
+
+def processProfile(api_json, uid):
+    """# processProfile
+
+    This takes in the json from the spotify api pull of a user profile and processes it into the schema.
+
+    Args:
+        api_json (json): The json from the spotify api for the user profile
+        uid (int): the integere of the user id. Or string. Whatever.
+    """
+
+
+    # First, read the data it receives, and then process it into the schema
+    display_name = api_json["display_name"]
+    given_email = api_json["email"]
+    spotify_link = api_json["external_urls"]["spotify"]
+    spotify_id = api_json["id"]
+    spotify_country = api_json["country"]  
+    spotify_product = api_json["product"] # premium, free, etc
+
+    spotify_images = []
+
+    if "images" in api_json:
+        for image_data in api_json["images"]:
+            url = image_data.get("url")
+            height = image_data.get("height")
+            width = image_data.get("width")
+            image_info = {
+                "url": url,
+                "height": height,
+                "width": width,
+            }
+            spotify_images.append(image_info)
+
+    user_data = {
+        "uid": uid,
+        "spotify_data": {
+            "spotifyId": spotify_id,
+            "spotifyName": display_name,
+            "spotifyEmail": given_email,
+            "spotifyCountry": spotify_country,
+            "spotifyProduct": spotify_product,
+            "spotifyUrl": spotify_link,
+            "spotifyPictures": spotify_images,
+        },
+    }
+
+    # Now we take user_data and shove it into the database
+    db.spotifyUsers.insert_one(user_data)
+
 
 
 def keepActive():
     """
-    This was designed to be called every hour.
+    This was designed to be called every hour... but we can only do that once lol
     """
     users = db["users"]
     tokens = {}
@@ -109,20 +240,8 @@ def readAccessToken():
             tokens[user["uid"]] = user["refresh_token"]
 
 
-# def get_recent_topArtists(uid=None, time_range="shrot_term", limit=10):
-#     """A user's top artists"""
-#     if uid is None:
-#         raise ValueError("No user id provided")
-#     users = db["users"]
-#     user = users.find_one({"uid": uid})
-#     if user is None:
-#         raise ValueError("User not found")
-#     if "access_token" not in user:
-#         raise ValueError("User has no access token")
-#     if "refresh_token" not in user:
-#         raise ValueError("User has no refresh token")
-#     # If all of this is good, we can continue to get the top artists
-
+def getProfile():
+    
 
 # def get_user_info(uid=None):
 #     """Get a user's info"""
@@ -164,16 +283,14 @@ def readAccessToken():
 #     print(sp.current_user_top_tracks(limit=3))
 
 
-def get_playlists(access_token=None, uid=None):
-    """Get a user's playlists"""
+def get_user_playlists(uid=None, access_token=None):
+    users = db.users.find_one({"uid": uid})
+    access_token = users["spotify_token"]
+    headers = {"Authorization": f"Bearer {access_token}"}
+    response = requests.get(SPOTAPIBASE + "/me/playlists", headers=headers)
+    new_r = response.json()
 
-    db.users.find_one({"uid": uid})
-    if access_token is None:
-        raise ValueError("No access token provided")
-    if uid is None:
-        raise ValueError("No user id provided")
-    else:
-        headers = {"Authorization": "Bearer " + access_token}
+    return new_r
 
 
 ####################

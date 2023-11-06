@@ -20,6 +20,7 @@ const { error } = require('console');
 const timber = require('./lumberjack.js');
 const mustang = require('./mustang.js');
 const handshake = require('./formHelper.js');
+const { get } = require('http');
 
 
 // Create the server
@@ -179,7 +180,8 @@ const tempQueue = process.env.BROKER_QUEUE;
  */
 function getCookie(req) {
     let cookie = req.headers.cookie;
-    // console.log(cookie.split('; '));
+    console.log(`\n\n[getCookie] Cookie: ${cookie}\n\n`);
+    return cookie;
 };
 
 /**
@@ -268,6 +270,8 @@ app.get('/callback', async (req, res) => {
 
     const code = req.query.code || null;
     try {
+        let uid = req.session.uid;
+        let usercookie = req.session.usercookieid;
         console.log(`\n[Callback] Received code from Spotify: ${code}, attempting to get the real one\n`);
         const response = await axios({
             method: 'post',
@@ -295,9 +299,10 @@ app.get('/callback', async (req, res) => {
             let refresh_token = response.data.refresh_token;
             let expires_in = response.data.expires_in;
             let token_type = response.data.token_type;
-            usercookie = req.session.usercookieid['usercookieid']
-            // getCookie(req);
-            console.log(`[Spotify Token Grab] What's the usercookie? ${usercookie}`)
+            // let usercookie = getCookie(req)['usercookieid'];
+            console.log(`\n\n\n[301] Try to get the id: ${session.uid}\n\n\n`);
+            let usercookie = res.locals.usercookieid;
+            console.log(`[Spotify Token Grab] What's the usercookie? ${usercookie}`);
             console.log(`[Spotify Token Grab] Sending data to broker...`);
             mustang.sendAndConsumeMessage(amqpUrl, spotQueue, {
                 type: "spotToken",
@@ -315,7 +320,7 @@ app.get('/callback', async (req, res) => {
                 if (response.returnCode === 0) {
                     console.log(`[Spotify Token Grab] Success!`);
                     timber.logAndSend('User requested some jams, got some.', "_SPOTIFY_");
-                    res.status(200).redirect('/index'); //TODO: change this to a redirect to the account page or elsewhere.
+                    res.status(200).render('success');
                 } else {
                     console.log(`[Spotify Token Grab] Failure!`);
                     res.status(401).send('You have failed to authorize Spotify - did we do something?');

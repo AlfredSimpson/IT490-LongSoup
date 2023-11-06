@@ -1,0 +1,33 @@
+{
+    "display_name": "Al Simpson",
+    "external_urls": {
+        "spotify": "https://open.spotify.com/user/alfredhsimpson"
+    },
+    "href": "https://api.spotify.com/v1/users/alfredhsimpson",
+    "id": "alfredhsimpson",
+    "images": [
+        {
+            "url": "https://i.scdn.co/image/ab67757000003b824ee6a82a2330356805f7c003",
+            "height": 64,
+            "width": 64
+        },
+        {
+            "url": "https://i.scdn.co/image/ab6775700000ee854ee6a82a2330356805f7c003",
+            "height": 300,
+            "width": 300
+        }
+    ],
+    "type": "user",
+    "uri": "spotify:user:alfredhsimpson",
+    "followers": {
+        "href": None,
+        "total": 8
+    },
+    "country": "US",
+    "product": "premium",
+    "explicit_content": {
+        "filter_enabled": False,
+        "filter_locked": False
+    },
+    "email": "alfredhsimpson@gmail.com"
+}
