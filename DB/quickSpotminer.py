@@ -99,6 +99,39 @@ def processTrack():
     pass
 
 
+def get_and_store_tracks_by_genre(genre, offset=0, limit=50):
+    access_token = get_our_token()
+    spotify_client = SPOTID
+    spotify_secret = SPOTSECRET
+    spotify_base_url = SPOTAPIBASE
+
+    print("Starting Spotify API pull")
+    print(
+        f"Client ID: {spotify_client}, Client Secret: {spotify_secret}, Base URL: {spotify_base_url}"
+    )
+    headers = {"Authorization": f"Bearer {access_token}"}
+    #  Build the query url
+    query_url = f"{spotify_base_url}/search?q=genre%3A{genre}&type=track&{limit}&offset={offset}"
+    # Query the API by getting it with the headers
+    response = requests.get(query_url, headers=headers).json()
+
+    collection = db.spotifyTracks
+
+    try:
+        items = response["tracks"]["items"]
+        for item in items:
+            existing_item = collection.find_one({"id": item["id"]})
+
+            if existing_item is None:
+                collection.insert_one(item)
+                print(f"Added {item['name']} to the database")
+            else:
+                print(f'{item["name"]} already exists in the database')
+
+    except Exception as e:
+        print(f"an error occurred: {e}")
+
+
 def get_and_store_artists_by_genre(genre, offset=0, limit=50):
     access_token = get_our_token()
     spotify_client = SPOTID
@@ -114,9 +147,9 @@ def get_and_store_artists_by_genre(genre, offset=0, limit=50):
     query_url = f"{spotify_base_url}/search?q=genre%3A{genre}&type=artist&{limit}&offset={offset}"
     # Query the API by getting it with the headers
     response = requests.get(query_url, headers=headers).json()
-    collection = db.spotifyArtists
+    collection = db.spotifyTracks
     try:
-        items = response["artists"]["items"]
+        items = response["tracks"]["items"]
         for item in items:
             existing_item = collection.find_one({"id": item["id"]})
 
