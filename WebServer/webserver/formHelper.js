@@ -15,8 +15,6 @@ const sendLogin = async function (useremail, password) {
     const BROKERPORT = process.env.BROKER_PORT;
     const BROKERURL = `amqp://${BROKERUSER}:${BROKERPASS}@${BROKERHOST}:${BROKERPORT}/${encodeURIComponent(BROKERVHOST)}`;
     console.log(BROKERURL);
-
-
 };
 
 

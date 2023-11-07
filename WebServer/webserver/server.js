@@ -313,11 +313,11 @@ app.get('/callback', async (req, res) => {
                 "expires_in": expires_in,
                 "token_type": token_type
             }, (msg) => {
-                console.log(`[Spotify Token Grab] Received message from broker, parsing response`);
+                // console.log(`[Spotify Token Grab] Received message from broker, parsing response`);
                 const response = JSON.parse(msg.content.toString());
-                console.log(`[Spotify Token Grab] Response: ${response}`);
-                console.log(`[Spotify Token Grab] Response.returnCode: ${response.returnCode}`);
-                console.log(`[Spotify Token Grab] Response.data: ${response.message}`);
+                // console.log(`[Spotify Token Grab] Response: ${response}`);
+                // console.log(`[Spotify Token Grab] Response.returnCode: ${response.returnCode}`);
+                // console.log(`[Spotify Token Grab] Response.data: ${response.message}`);
                 if (response.returnCode === 0) {
                     console.log(`[Spotify Token Grab] Success!`);
                     timber.logAndSend('User requested some jams, got some.', "_SPOTIFY_");
@@ -385,11 +385,9 @@ app.get('/account/:page', (req, res) => {
         default:
             console.log(`\n[GET /account/:page] Unknown request: ${page}\n`);
             break;
-
-
-
     }
 });
+
 app.post('/account:param', (req, res) => {
     // const tempHost = process.env.BROKER_VHOST;
     // const tempQueue = process.env.BROKER_QUEUE;
@@ -480,7 +478,6 @@ app.get('/:page', (req, res) => {
                 if (response.returnCode === 0) {
                     data = response.data;
                     musicdata = response.music;
-                    console.log("\n[Approx line 186] testing query artist data");
 
                     if (data.findAlbums) {
                         let albums = [];
@@ -589,7 +586,7 @@ app.post('/api/:function', (req, res) => {
             }, (msg) => {
                 console.log('[POST /api/:function] Received message from broker, parsing response');
                 timber.logAndSend('[POST /api/:function] Received message from broker, parsing response');
-                if (response.returnCode === 0) {
+                if (res.returnCode === 0) {
                     console.log('success in posting');
                     timber.logAndSend('success in posting');
                     res.render('messageboard');
