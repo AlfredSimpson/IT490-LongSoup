@@ -43,33 +43,51 @@
                 <h1>Welcome to CommonGrounds</h1>
                 <p class="lead">Start getting connected to the best music you never heard and the people who love it,
                     too!</p>
-                <form method="post" action="/register">
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email address</label>
-                        <input type="email" class="form-control" id="useremail" name="useremail" required>
-                        <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+                <% if (data.errorStatus==false || data.errorStatus==null) { %>
+                    <div class=" err-msg" style="background-color: rgb(0, 255, 34); color: black">
+                        <p>
+                            <%= "Come join the crowd!" %>
+                        </p>
                     </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="userpassword" name="password" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="first_name" class="form-label">First Name</label>
-                        <input type="first_name" class="form-control" id="first_name" name="first_name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="last_name" class="form-label">Last Name</label>
-                        <input type="last_name" class="form-control" id="last_name" name="last_name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="spot_name" class="form-label">Spotify Username</label>
-                        <input type="spot_name" class="form-control" id="spot_name" name="spot_name" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
-                <div class="col-md-6">
-                    <img src="https://via.placeholder.com/500x500" alt="CommonGrounds Image" class="img-fluid">
-                </div>
+                    <% } else { %>
+
+                        <div class="err-msg" style="background-color: red; color: black; font-weight:500;">
+                            <%= data.errorOutput %>
+                        </div>
+                        <% } %>
+                            <form method="post" action="/register">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email address</label>
+                                    <input type="email" class="form-control" id="useremail" name="useremail" required>
+                                    <div id="emailHelp" class="form-text">We'll never share your email with anyone else.
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="userpassword" name="password"
+                                        required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="first_name" class="form-label">First Name</label>
+                                    <input type="first_name" class="form-control" id="first_name" name="first_name"
+                                        required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="last_name" class="form-label">Last Name</label>
+                                    <input type="last_name" class="form-control" id="last_name" name="last_name"
+                                        required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="spot_name" class="form-label">Spotify Username</label>
+                                    <input type="spot_name" class="form-control" id="spot_name" name="spot_name"
+                                        required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </form>
+                            <div class="col-md-6">
+                                <img src="https://via.placeholder.com/500x500" alt="CommonGrounds Image"
+                                    class="img-fluid">
+                            </div>
             </div>
         </div>
 

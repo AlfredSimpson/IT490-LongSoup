@@ -204,7 +204,7 @@ def query_artist(artist, typebyartist=None):
             }
 
 
-def storeToken(acces_token, refresh_token, expires_in, token_type, usercookieid):
+def storeToken(access_token, refresh_token, expires_in, token_type, usercookieid):
     """
     storeToken takes in token and uid as arguments and stores the token in the database.
 
@@ -219,13 +219,13 @@ def storeToken(acces_token, refresh_token, expires_in, token_type, usercookieid)
         _type_: _description_
     """
     thedate = datetime.datetime.now()
-    print(f'\nAttempting to add token "{acces_token}" to users\n')
+    print(f'\nAttempting to add token "{access_token}" to users\n')
     print(f"\nAdding on {thedate}\n")
     db.users.update_one(
         {"usercookieid": usercookieid},
         {
             "$set": {
-                "spotify_token": acces_token,
+                "access_token": access_token,
                 "refresh_token": refresh_token,
                 "token_type": token_type,
                 "expires_in": expires_in,
@@ -412,13 +412,14 @@ def do_register(
     if user:
         # User already exists
         print("\n[REGISTRATION ERROR]\tUser already exists!\n")
-        e = {"ERROR": "User already exists"}
+
         msg = {
             "returnCode": 1,
             "message": "Registration failed - useremail exists",
-            session_id: False,
+            "session_id": False,
+            "e": {"ERROR": "User already exists"},
         }
-        return e, msg
+        return msg
     else:
         print(
             "\n[REGISTRATION]\tUser email not found in users table. Attempting to register user!\n"
@@ -455,8 +456,14 @@ def do_register(
                     "loggedin": "True",
                     "name": first_name,
                     "sessionValid": "True",
+                    "errorStatus": False,
                 },
                 "music": music,
+                "userinfo": {
+                    "uid": uid,
+                    "user_fname": first_name,
+                    "usercookieid": usercookieid,
+                },
             }
         except:
             print("\n[REGISTRATION ERROR] Unknown error adding user to database\n")
@@ -464,6 +471,10 @@ def do_register(
             return {
                 "returnCode": 1,
                 "message": "[REGISTRATION ERROR] Unable to add user to database. Unknown error.",
+                "data": {
+                    "errorStatus": True,
+                    "errorOutput": "Registration unsuccessful - Please try again with a different email.",
+                },
             }
 
 

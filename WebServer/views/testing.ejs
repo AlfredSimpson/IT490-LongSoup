@@ -9,200 +9,42 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
     <link rel="shortcut icon" href="#">
     <link rel="stylesheet" type="text/css" href="css/style.css">
+    <!-- import the longajax.js file -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="js/longajax.js"></script>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">CommonGrounds</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <% if (data.loggedin) { %>
-                            <a class="nav-link active" aria-current="page" href="<%='/account' %>">
-                                <%= "Account" %>
-                            </a>
-                            <% } else { %>
-                                <a class="nav-link" href="/">Home</a>
-                                <% } %>
-                    </li>
-                    <!-- <li class="nav-item">
-                        <a class="nav-link" href="/about">About</a>
-                    </li> -->
-                    <li class="nav-item">
+    <main>
+        <section>
+            <div class="col-md-5 container-fluid">
+                <!-- A button -->
+                <!-- <button id="executeProcessAjaxButton" class="btn btn-primary"></button> -->
+                <button id="fetchDataButton">Fetch Data from Server</button>
+                <div id="tableContainer" class="table table-dark table-striped"></div>
 
-                        <% if (data.loggedin) { %>
-                            <a class="nav-link" href="<%= '/logout' %>">
-                                <%= "Logout" %>
-                            </a>
-                            <% } else { %>
-                                <a class="nav-link" href="/login">Login</a>
-                                <% } %>
-                    </li>
-                    <li class="nav-item">
-                        <% if (data.loggedin) { %>
-                            <a class="nav-link" href="<%= '/account' %>">Account</a>
-                            <% } else { %>
-                                <a class="nav-link" href="/register">Register</a>
-                                <% } %>
-                    </li>
-                </ul>
             </div>
+        </section>
+    </main>
+    <script>document.getElementById('executeProcessAjaxButton').addEventListener('click', function () {
+            axios.get('/api/postMessage') // Make a GET request to the API endpoint
+                .then(function (response) {
+                    // Handle the response data (optional)
+                    console.log(response.data.message); // Should print 'processAjax() executed successfully.'
+                })
+                .catch(function (error) {
+                    // Handle any errors here
+                    console.error(error);
+                });
+        });</script>
+    <footer class="bg-light py-3">
+        <div class="container">
+            <p class="text-center">&copy; 2023 CommonGrounds</p>
         </div>
-    </nav>
+    </footer>
 
-    <div class="container my-5">
-        <div class="container-fluid py-5">
-            <h1 class="display-5 fw-bold">Hey, welcome home! </h1>
-            <p class="col-md-8 fs-4">We're ready to start finding some great tunes for you.</p>
-            <!-- <button class="btn btn-primary btn-lg" type="button"></button> -->
-        </div>
-    </div>
-    <div class="container">
-        <h1>Here's some music to get you going</h1>
-        <ul>
-            <ul>
-                <% for(var i=0; i<tracks.length; i++) {%>
-                    <li>
-                        <%= tracks[i] %> , <%= artists[i] %>, <a href="<%= links[i] %>">Listen Now!</a>"
-                    </li>
-                    <% }; %>
-            </ul>
-        </ul>
-    </div>
-    <div class="container my-5">
-        <div class="container-fluid py-5">
-            <h1 class="display-5 fw-bold"></h1>
-            <form>
-            </form>
-        </div>
-    </div>
-    <div class="container my-5">
-        <div class="container-fluid py-5">
-            <h1 class="display-5 fw-bold"></h1>
-            <p class="col-md-8 fs-4"></p>
-        </div>
-    </div>
-    <div class="container my-5">
-        <div class="container-fluid tester">
-            <div class="container my-5">
-                <div class="container-fluid py-5">
-                    <h1 class="display-5 fw-bold">Ready to find some new tunes?</h1>
-                    <p class="col-md-8 fs-4">Let's get ready to rock! We'll get to know you over time, but let's start
-                        by
-                        sharing what you're looking for.</p>
-                    <form method="post" action="/account?recs">
-                        <label for="genres" class="form-label">What genre are you looking for?</label>
-                        <select id="genres" name="genres">
-                            <option value="alt-rock">alt-rock</option>
-                            <option value="alternative">alternative</option>
-                            <option value="country">country</option>
-                            <option value="punk">Punk</option>
-                            <option value="hip-hop">hip-hop</option>
-                            <option value="trip-hop">trip-hop</option>
-                            <option value="indie">indie</option>
-                            <option value="metal">metal</option>
-                            <option value="emo">emo</option>
-                            <option value="blues">blues</option>
-                            <option value="philippines-opm">philippines opm</option>
-                        </select>
-                        <br>
-                        <label for="vibe" class="form-label special-range">1-10 right now, what's the vibe like?</label>
-                        <input type="range" name="vibe" class="form-range" id="vibe" min="0" max="1.0" step="0.01">
-                        <br>
-                        <label for="pop" class="form-label special-range">On a scale of 1-10, do you want what's on the
-                            radio(10) or something more secret(less than 10)?</label>
-                        <input type="range" class="form-range" name="pop" id="pop" min="0" max="100" step="1">
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
-                </div>
-            </div>
-
-            <div class="container col-md-8">
-                <div class="container-fluid col-md-8">
-                    <%= try {%>
-                        <% if data.byArtist %>
-                            <h1>Here's what you were looking for from that artist!</h1>
-                            <ul>
-                                <% if data.findAlbums %>
-                                    <% for(var i=0; i<music.length; i++) {%>
-                                        <li>
-                                            <%= music.album[i] %>
-                                                <%= music.url[i] %>
-                                        </li>
-                                        <% }; %>
-                                            <% } %>
-                                                <% if data.findTracks %>
-                                                    <% for(var i=0; i<music.length; i++) {%>
-                                                        <li>
-                                                            <%= music.track[i] %>
-                                                                <%= music.url[i] %>
-                                                        </li>
-                                                        <% }; %>
-                                                            <% } %>
-                                                                <% if data.findRelated %>
-                                                                    <% for(var i=0; i<music.length; i++) {%>
-                                                                        <li>
-                                                                            <%= music.artist[i] %>
-                                                                                <%= music.url[i] %>
-                                                                        </li>
-                                                                        <% }; %>
-                                                                            <% } %>
-                                                                                <% } %>
-                                                                                    <% } catch (e) { %>
-                                                                                        <h1></h1>
-                                                                                        <% } %>
-                                                                                            <h1></h1>
-                </div>
-            </div>
-
-
-            <div class="container my-5">
-                <div class="container-fluid py-5">
-                    <h1 class="display-5 fw-bold">Want to find music by someone you already know? Start below!</h1>
-                    <form method="post" action="/account/artists">
-                        <label for="typebyartist" class="form-label">What do you want to find?</label>
-                        <select id="typebyartist" name="typebyartist">
-                            <option value="albums">Albums</option>
-                            <option value="tracks">Top Tracks</option>
-                            <option value="related">Related Artists</option>
-                        </select>
-                        <br>
-                        <label for="artist" class="form-label">Who are you looking for?</label>
-                        <input type="text" name="artist" id="artist" class="form-control" placeholder="Artist Name">
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
-                </div>
-            </div>
-            <div class="container my-5">
-                <div class="container-fluid py-5">
-                    <h1 class="display-5 fw-bold">Some new tunes</h1>
-
-                    <p class="col-md-8 fs-4"></p>
-
-                </div>
-            </div>
-            <div class="container my-5">
-                <div class="container-fluid py-5">
-                    <!-- <h1 class="display-5 fw-bold">A few new artists</h1> -->
-
-                    <p class="col-md-8 fs-4"></p>
-                    <!-- <div class=""></div> -->
-                </div>
-            </div>
-        </div>
-        <footer class="bg-light py-3">
-            <div class="container">
-                <p class="text-center">&copy; 2023 CommonGrounds</p>
-            </div>
-        </footer>
-
-        <!-- Bootstrap 5 JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

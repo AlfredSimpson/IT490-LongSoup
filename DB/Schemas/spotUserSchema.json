@@ -65,6 +65,34 @@
           ]
        }
     ],
+    "recentlyPlayed": [
+        {
+            "artist_name": "",
+            "artist_info": [
+                {
+                    "images": [
+                        {
+                            "height": "",
+                            "url": "",
+                            "width": ""
+                        }
+                    ],
+                    "genres": [],
+                    "popularity": "",
+                    "uri": ""
+                }
+            ],
+            "track_name": "",
+            "track_info": [
+                {
+                    "album": {},
+                    "href": "",
+                    "id": "",
+                }
+            ],
+            "genres": []
+        }
+    ],
     "knownArtists": [
        {
           "artist_name": ""

@@ -20,6 +20,7 @@ const { error } = require('console');
 const timber = require('./lumberjack.js');
 const mustang = require('./mustang.js');
 const handshake = require('./formHelper.js');
+const { get } = require('http');
 
 
 // Create the server
@@ -106,24 +107,25 @@ const trafficLogger = (req, res, next) => {
 
 // Custom middleware for checking if a user is logged in and setting session data. This is used for dynamic pages
 // sessionconstants
+// We should consider a separate file to keep track of this more easily.
 app.use((req, res, next) => {
     res.locals.usercookieid = req.session.usercookieid || null;
-    // console.log('\n[Custom Middleware] Checking if user is logged in\n');
+    res.locals.sessionId = req.session.sessionId || null;
     res.locals.loggedIn = req.session.loggedIn || false;
-    // console.log(`[Custom Middleware] Logged in? ${res.locals.loggedIn}`)
     res.locals.uid = req.session.uid || null;
-    // console.log(`[Custom Middleware] User ID: ${res.locals.uid}`);
     res.locals.name = req.session.name || null;
-    // console.log(`[Custom Middleware] User Name: ${res.locals.name}`);
-    // Add more session data as needed
+    res.locals.tracks = req.session.tracks || null;
+    res.locals.artists = req.session.artists || null;
+    res.locals.oAuthed = req.session.oAuthed || false; // This isn't passing to account nromally
+    res.locals.links = req.session.links || null;
+    res.locals.data = req.session.data || null;
     next();
 });
 
 
 // Set the middleware. Order matters -> It's like a pipeline and goes top to bottom, so we've gotta make sure we maintain this integrity. If something isn't quite working - it might be why
-// app.use(express.json()); -- testing moving this up top
+
 app.use(cors());
-// app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(statusMessageHandler);
@@ -131,13 +133,16 @@ app.use(statusMessageHandler);
 
 
 // These are set to help us navigate the file system to pull static files
-app.use(express.static(__dirname + '../public'));
-app.use('/css', express.static(__dirname + '../public/css'));
-app.use('/css', express.static('public'));
-app.use('/js', express.static(__dirname + '../public/js'));
-app.use('img', express.static(__dirname + '../public/img'));
 
-// We'll need an error handler here.
+const publicPath = path.join(__dirname, '../public');
+app.use(express.static(publicPath));
+app.use('/css', express.static(path.join(publicPath, 'css')));
+app.use('/js', express.static(path.join(publicPath, 'js')));
+app.use('/img', express.static(path.join(publicPath, 'img')));
+app.use('/account', express.static(path.join(publicPath, 'account')));
+// app.use('img', express.static(__dirname + '../public/img'));
+
+app.use('/account/js', express.static(path.join(publicPath, 'js')));
 
 // Set views and view engine so we can use EJS. Views are the pages, view engine is the template engine
 app.set('views', path.join(__dirname, '../views')); // this gets us out of the dir we're in and into the views, for separation
@@ -151,10 +156,10 @@ const Port = process.env.PORT || 9001;
 const tempHost = process.env.BROKER_VHOST;
 const tempQueue = process.env.BROKER_QUEUE;
 
-const https_options = {
-    key: fs.readFileSync(__dirname + "/cert/key.pem"),
-    cert: fs.readFileSync(__dirname + "/cert/cert.pem")
-};
+// const https_options = {
+//     key: fs.readFileSync(__dirname + "/cert/key.pem"),
+//     cert: fs.readFileSync(__dirname + "/cert/cert.pem")
+// };
 
 
 
@@ -179,7 +184,8 @@ const https_options = {
  */
 function getCookie(req) {
     let cookie = req.headers.cookie;
-    // console.log(cookie.split('; '));
+    console.log(`\n\n[getCookie] Cookie: ${cookie}\n\n`);
+    return cookie;
 };
 
 /**
@@ -268,6 +274,8 @@ app.get('/callback', async (req, res) => {
 
     const code = req.query.code || null;
     try {
+        let uid = req.session.uid;
+        let usercookie = req.session.usercookieid;
         console.log(`\n[Callback] Received code from Spotify: ${code}, attempting to get the real one\n`);
         const response = await axios({
             method: 'post',
@@ -295,10 +303,8 @@ app.get('/callback', async (req, res) => {
             let refresh_token = response.data.refresh_token;
             let expires_in = response.data.expires_in;
             let token_type = response.data.token_type;
-            usercookie = req.session.usercookieid['usercookieid']
-            // getCookie(req);
-            console.log(`[Spotify Token Grab] What's the usercookie? ${usercookie}`)
-            console.log(`[Spotify Token Grab] Sending data to broker...`);
+            let usercookie = res.locals.usercookieid;
+            console.log(`[Spotify Token Grab] What's the usercookie? ${usercookie}`);
             mustang.sendAndConsumeMessage(amqpUrl, spotQueue, {
                 type: "spotToken",
                 "usercookie": usercookie,
@@ -315,7 +321,10 @@ app.get('/callback', async (req, res) => {
                 if (response.returnCode === 0) {
                     console.log(`[Spotify Token Grab] Success!`);
                     timber.logAndSend('User requested some jams, got some.', "_SPOTIFY_");
-                    res.status(200).redirect('/index'); //TODO: change this to a redirect to the account page or elsewhere.
+                    req.session.oAuthed = true;
+                    let oAuthed = req.session.oAuthed;
+                    console.log(`[Spotify Token Grab] oAuthed? ${oAuthed}`);
+                    res.status(200).render('success', { oAuthed: oAuthed });
                 } else {
                     console.log(`[Spotify Token Grab] Failure!`);
                     res.status(401).send('You have failed to authorize Spotify - did we do something?');
@@ -352,6 +361,35 @@ app.get('/', (req, res) => {
         }
     };
 });
+
+app.get('/account/:page', (req, res) => {
+    console.log(`\n[GET /account/stats] Received request for ${req.params.page}\n`);
+    const page = req.params.page;
+    const viewPath = path.join(__dirname, '../views/account/', page + '.ejs');
+    let uid = req.session.uid;
+    console.log(`[GET /account/:page] User ID: ${uid}`);
+
+    switch (page) {
+        case 'stats':
+            console.log(`\n[GET /account/:page] Received passed to case ${page}\n`);
+            res.status(200).render(viewPath);
+            break;
+        case 'messageboard':
+            console.log(`\n[GET /account/:page] Received passed to case ${page}\n`);
+            res.status(200).render(viewPath);
+            break;
+        case 'browse':
+            console.log(`\n[GET /account/:page] Received passed to case ${page}\n`);
+            res.status(200).render(viewPath);
+            break;
+        default:
+            console.log(`\n[GET /account/:page] Unknown request: ${page}\n`);
+            break;
+
+
+
+    }
+});
 app.post('/account:param', (req, res) => {
     // const tempHost = process.env.BROKER_VHOST;
     // const tempQueue = process.env.BROKER_QUEUE;
@@ -361,85 +399,234 @@ app.post('/account:param', (req, res) => {
 });
 
 app.get('/:page', (req, res) => {
+    console.log(`\n[GET /:page] Received request for ${req.params.page}\n`);
     const page = req.params.page;
-    let sessionPages = ['account', 'dashboard', 'profile', 'forum', 'logout']
-    if (page == 'login') {
-        let errorStatus = null;
-        let errorOutput = '';
-        res.status(200).render(page, { data: { error_status: errorStatus, error_output: errorOutput } }), err => {
-            timber.logAndSend(err);
-        }
-    }
-    else if (page == 'register') {
-        let errorStatus = null;
-        let errorOutput = '';
-        res.status(200).render(page, { data: { error_status: errorStatus, error_output: errorOutput } }), err => {
-            timber.logAndSend(err);
-        }
-    }
-    else if (page == 'artists') {
-        // const tempHost = process.env.BROKER_VHOST;
-        // const tempQueue = process.env.BROKER_QUEUE;
-        const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
-        console.log(amqpUrl);
-        const artist = req.body.artist;
-        const typeOf = req.params.param;
-        mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
-            type: "byArtist",
-            artist: artist,
-            typeOf: typeOf,
-        }, (msg) => {
-            const response = JSON.parse(msg.content.toString());
-            if (response.returnCode === '0') {
-                data = response.data;
-                musicdata = response.music;
-                console.log("\n[Approx line 186] testing query artist data");
+    // let loggedin = session.locals.loggedIn;
+    // console.log(`[GET /:page] Logged in? ${loggedin}`);
+    try {
+        if (page == 'login') {
+            let errorStatus = null;
+            let errorOutput = '';
+            let oAuthed = req.session.oAuthed;
 
-                if (data.findAlbums) {
-                    let albums = [];
-                    let external_urls = [];
-                    for (var i = 0; i < musicdata.length; i++) {
-                        albums.push(musicdata[i].album);
-                        external_urls.push(musicdata[i].external_urls);
-                        res.render('account', { data: data, tracks: tracks })
+            res.status(200).render(page, { data: { error_status: errorStatus, error_output: errorOutput }, oAuthed });
+            // , err => {
+            //     timber.logAndSend(err);
+            // }
+        }
+        else if (page == 'account') {
+            if (req.session.loggedIn && req.session.data) {
+                try {
+                    console.log(`\n[GET /:page] User is logged in, rendering ${page}\n`);
+                    const data = req.session.data;
+                    const tracks = req.session.tracks || []; // Passes!
+                    let loggedin = req.session.loggedIn; // Passes!
+                    const artists = req.session.artists || []; //Passes!
+                    const links = req.session.links || []; //Passes!
+                    let oAuthed = res.locals.oAuthed; // Does not pass
+
+                    console.log(`\n[GET /:page] oAuthed? ${oAuthed}`);
+                    console.log(`[GET /:page] Logged in? ${loggedin}`);
+                    console.log(`[GET /:page] User ID: ${req.session.uid}`);
+                    console.log(`[GET /:page] User Name: ${req.session.name}`);
+                    console.log(`[GET /:page] User Music: ${req.session.music}`);
+                    res.status(200).render(page, { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed });
+                } catch (error) {
+                    console.log(`\n[GET /:page] Error: ${error}\n`);
+                    res.status(200).render(page), err => {
+                        if (err) {
+                            timber.logAndSend(err);
+                            console.error(err);
+                        }
                     }
                 }
-                res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
             }
-            else {
-                if (sessionPages.includes(page)) {
-                    let checkSession = ""; // call the db server and see if the session is valid. Doesn't work, sessions aren't implemented yet.
-                    if (page === 'account') {
-                        res.status(200).render(page, data), err => {
-                            if (err) {
-                                timber.logAndSend(err);
-                                console.error(err);
+
+        }
+        else if (page == 'about') {
+            res.status(200).render(page), err => {
+                if (err) {
+                    timber.logAndSend(err);
+                    console.error(err);
+                }
+            }
+        }
+        else if (page == 'register') {
+            let errorStatus = null;
+            let errorOutput = '';
+            res.status(200).render(page, { data: { error_status: errorStatus, error_output: errorOutput } }), err => {
+                timber.logAndSend(err);
+            }
+        }
+        else if (page == 'success') {
+            req.session.oAuthed = true;
+            let oAuthed = req.session.oAuthed;
+            console.log(`\n[GET /:page] oAuthed? ${oAuthed}`);
+
+        }
+        else if (page == 'artists') {
+            // const tempHost = process.env.BROKER_VHOST;
+            // const tempQueue = process.env.BROKER_QUEUE;
+            const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
+            console.log(amqpUrl);
+            const artist = req.body.artist;
+            const typeOf = req.params.param;
+            mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
+                type: "byArtist",
+                artist: artist,
+                typeOf: typeOf,
+            }, (msg) => {
+                const response = JSON.parse(msg.content.toString());
+                if (response.returnCode === 0) {
+                    data = response.data;
+                    musicdata = response.music;
+                    console.log("\n[Approx line 186] testing query artist data");
+
+                    if (data.findAlbums) {
+                        let albums = [];
+                        let external_urls = [];
+                        for (var i = 0; i < musicdata.length; i++) {
+                            albums.push(musicdata[i].album);
+                            external_urls.push(musicdata[i].external_urls);
+                            res.render('account', { data: data, tracks: tracks })
+                        }
+                    }
+                    res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
+                }
+                else {
+                    if (sessionPages.includes(page)) {
+                        let checkSession = ""; // call the db server and see if the session is valid. Doesn't work, sessions aren't implemented yet.
+                        if (page === 'account') {
+                            res.status(200).render(page, data), err => {
+                                if (err) {
+                                    timber.logAndSend(err);
+                                    console.error(err);
+                                }
                             }
                         }
+                        else {
+                            res.status(200).render(page), err => {
+                                if (err) {
+                                    timber.logAndSend(err);
+                                    console.error(err);
+                                }
+                            }
+                        }
+                        // run session check in another function, validate or reject, and render with data.
+                        //check to see if session cookie exists. If so, check db. If it passes, let them in. If not, redirect to login.
                     }
                     else {
                         res.status(200).render(page), err => {
                             if (err) {
                                 timber.logAndSend(err);
-                                console.error(err);
+                                // console.error(err);
                             }
                         }
+
+
                     }
-                    // run session check in another function, validate or reject, and render with data.
-                    //check to see if session cookie exists. If so, check db. If it passes, let them in. If not, redirect to login.
                 }
-                else {
-                    res.status(200).render(page), err => {
-                        if (err) {
-                            timber.logAndSend(err);
-                            // console.error(err);
-                        }
-                    }
-
-
+            });
+        }
+        else if (page == 'testing') {
+            res.status(200).render(page), err => {
+                if (err) {
+                    timber.logAndSend(err);
+                    console.error(err);
                 }
             }
+        }
+        else {
+            console.log("unknown error");
+        }
+    }
+    catch (error) {
+        console.log(error);
+        timber.logAndSend(error);
+        res.redirect('index');
+    }
+});
+
+function generateSampleData() {
+    const data = [];
+    for (let i = 1; i <= 25; i++) {
+        data.push({
+            column1: `Data ${i}-1`,
+            column2: `Data ${i}-2`,
+            column3: `Data ${i}-3`,
         });
+    }
+    return data;
+}
+
+app.get('/api/:function', (req, res) => {
+    console.log(`\n[GET /api/:function] Received request for: ${req.params.function}\n`);
+    // test = "postMessage";
+    // result = (test == req.params.function)
+    // console.log(`Result: ${result}`);
+    let sampleData = generateSampleData();
+    switch (req.params.function) {
+        case 'postMessage':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            break;
+        case 'get-songs':
+            // TODO: change endpoint
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            console.log(`\n Moving to now get data to the front`);
+
+            res.status(200).json(sampleData);
+            break;
+        case 'get-punk':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            // let sampleData = generateSampleData();
+            res.status(200).json(sampleData);
+            break;
+        case 'get-rock':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            // const sampleDate = generateSampleData();
+            res.status(200).json(sampleData);
+            break;
+        case 'get-pop':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            res.status(200).json(sampleData);
+            break;
+        case 'get-rap':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            // set method to get data from db
+            res.status(200).json(sampleData);
+            break;
+        case 'get-suggested':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            // set method to get data from db
+            res.status(200).json(sampleData);
+            break;
+        case 'browseArtists':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            break;
+        case 'browseAlbums':
+            console.log(`\n[GET /api/:function] Received  passed to case  ${req.params.function}\n`);
+            break;
+        case 'browseTracks':
+            console.log(`\n[GET /api/:function] Received  passed to case  ${req.params.function}\n`);
+            break;
+        case 'browsePlaylists':
+            console.log(`\n[GET /api/:function] Received  passed to case  ${req.params.function}\n`);
+            break;
+        case 'likeArtist':
+            console.log(`\n[GET /api/:function] Received  passed to case  ${req.params.function}\n`);
+            break;
+        case 'likeAlbum':
+            console.log(`\n[GET /api/:function] Received  passed to case  ${req.params.function}\n`);
+            break;
+        case 'likeTrack':
+            console.log(`\n[GET /api/:function] Received  passed to case  ${req.params.function}\n`);
+            break;
+        case 'likePlaylist':
+            console.log(`\n[GET /api/:function] Received  passed to case  ${req.params.function}\n`);
+            break;
+        default:
+            console.log(`\n [AJAX requests] Unknown request: ${req.params.function}\n`);
+            break;
     }
 });
 
@@ -543,8 +730,13 @@ app.post('/account', (req, res) => {
                     artists.push(musicdata[i].artist);
                     links.push(musicdata[i].url);
                 }
-
-                res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
+                req.session.tracks = tracks;
+                req.session.artists = artists;
+                req.session.links = links;
+                let oAuthed = req.session.oAuthed;
+                console.log('\n[account] Setting session data\n');
+                console.log('\n[account] req.session.uid: ', req.session.tracks);
+                res.render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed });
             } else {
                 console.log("Failure!");
                 console.log("Sending response data");
@@ -598,10 +790,15 @@ app.post('/login', (req, res) => {
     const password = req.body.password;
     const tempHost = process.env.BROKER_VHOST;
     const tempQueue = process.env.BROKER_QUEUE;
-    let session_id = createSessionCookie(req, res);
-    // let session_id = req.session.sessionId;
-    // let usercookieid = req.session.usercookieid;
-    let usercookieid = createUserCookie(req, res);
+    // Check to see if a session cookie exists, if not call the create sessionCookie function
+    if (!req.session.sessionId) {
+        let session_id = createSessionCookie(req, res);
+    }
+    if (!req.session.usercookieid) {
+        let usercookieid = createUserCookie(req, res);
+    }
+    let session_id = req.session.sessionId;
+    let usercookieid = req.session.usercookieid;
     console.log(`session cookie Created?: ${req.session.sessionId['sessionId']}`);
     console.log(`user cookie Created?: ${usercookieid}`);
     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
@@ -617,13 +814,11 @@ app.post('/login', (req, res) => {
         "usercookieid": usercookieid['usercookieid']
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
-        if (response.returnCode === '0') {
-            // console.log(`Name: Line, 606 \t ${response.userinfo.name}`);
+        if (response.returnCode === 0) {
             timber.logAndSend('User logged in successfully.');
             data = response.data;
             musicdata = response.music;
             userinfo = response.userinfo;
-            // console.log("testing musicdata");
             let tracks = [];
             let artists = [];
             let links = [];
@@ -638,7 +833,13 @@ app.post('/login', (req, res) => {
             req.session.loggedIn = true; // TODO: 11/4/2023 - come back here if it breaks.
             let uidtest = req.session.uid;
             let uname = req.session.name;
+            req.session.data = data;
             req.session.music = musicdata;
+            req.session.tracks = tracks;
+            req.session.artists = artists;
+            req.session.links = links;
+            let oAuthed = req.session.oAuthed;
+            console.log(`\n[Login] oAuthed? ${oAuthed}`);
             console.log(`\n[Login] Attempted to store session data: ${uidtest}, ${uname}\n`)
             // we may want to add other session information to keep, like username, spotify name, etc.
             // passing back the uid may be good for messaging and other things.
@@ -651,9 +852,10 @@ app.post('/login', (req, res) => {
             console.log("Sending response data");
             // console.log(response.data['loggedin']);
             data = response.data;
+            data.errorStatus = true;
             console.log("showing data");
             console.log(data);
-            res.status(401).render('login', data);
+            res.status(401).render('login', { data });
         }
     });
 });
@@ -692,12 +894,13 @@ app.post('/register', (req, res) => {
         spot_name
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
-        if (response.returnCode == '0') {
+        if (response.returnCode == 0) {
             // Set a cookie for userid to track locally; this will be used to validate session
             console.log("\n[Register - response] Successful registration, parsing data\n");
             data = response.data;
             musicdata = response.music;
             userinfo = response.userinfo;
+            console.log(`[Register - response] testing data --- ${userinfo}`);
             console.log("[Register - response] testing musicdata");
             console.log('\n', musicdata, '\n');
             console.log(userinfo);
@@ -717,7 +920,13 @@ app.post('/register', (req, res) => {
             res.render('account', { data: data, tracks: tracks, artists: artists, links: links });
 
         } else {
-            res.status(401).send('You have failed to register.');
+            // res.status(401).send('You have failed to register.');
+            data = { "errorStatus": true, "errorOutput": "You have failed to register." }
+            console.log(`\n[Register - response] testing data --- ${data}`);
+            console.log("[Register - response] testing for failure");
+            console.log("showing data");
+            console.log(data);
+            res.status(401).render('register', { data });
             // add handling for render isntead that prints message to user
         }
     });

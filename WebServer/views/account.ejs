@@ -22,138 +22,133 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <% if (data.loggedin) { %>
-                            <a class="nav-link active" aria-current="page" href="<%='/account' %>">
-                                <%= "Account" %>
-                            </a>
-                            <% } else { %>
-                                <a class="nav-link" href="/">Home</a>
-                                <% } %>
-                    </li>
-                    <!-- <li class="nav-item">
-                        <a class="nav-link" href="/about">About</a>
-                    </li> -->
-                    <li class="nav-item">
-
-                        <% if (data.loggedin) { %>
-                            <a class="nav-link" href="<%= '/logout' %>">
-                                <%= "Logout" %>
-                            </a>
-                            <% } else { %>
-                                <a class="nav-link" href="/login">Login</a>
-                                <% } %>
+                        <a class="nav-link" href="/">Home</a>
                     </li>
                     <li class="nav-item">
-                        <% if (data.loggedin) { %>
-                            <a class="nav-link" href="<%= '/account' %>">Account</a>
-                            <% } else { %>
-                                <a class="nav-link" href="/register">Register</a>
-                                <% } %>
+                        <a class="nav-link" href="/account">Account</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/account/browse">Browse</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/account/stats">Stats</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/account/messageboard">MessageBoard</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
+    <div class="container-fluid">
+        <div class="container my-5">
+            <div class="container-fluid py-5">
+                <h1 class="display-5 fw-bold">Hey, welcome home! </h1>
+                <p class="col-md-8 fs-4">We're ready to start finding some great tunes for you.</p>
+                <p></p>
 
-    <div class="container my-5">
-        <div class="container-fluid py-5">
-            <h1 class="display-5 fw-bold">Hey, welcome home! </h1>
-            <p class="col-md-8 fs-4">We're ready to start finding some great tunes for you.</p>
-            <!-- <button class="btn btn-primary btn-lg" type="button"></button> -->
+            </div>
         </div>
-    </div>
-    <div class="container">
-        <h1>Here's some music to get you going</h1>
-        <ul>
+        <div class="container col-md-8">
+            <div class="container-fluid py-5">
+                <h1 class="display-5 fw-bold">Your most recent top tracks</h1>
+                <p class="col-md-8 fs-4">We're ready to start finding some great tunes for you.</p>
+                <% if (oAuthed) { %>
+                    <h1>
+                        <%= "We are oAuthed" %>
+                    </h1>
+                    <% } else{ %>
+                        <%= "We are not oAuthed" %>
+                            <a href="<%= '/spotlog' %>">Click here to authorize</a>
+                            <% }; %>
+
+            </div>
+        </div>
+        <div class="container col-md-5 bg-light">
+            <h1>Here's some music to get you going</h1>
             <ul>
-                <% for(var i=0; i<tracks.length; i++) {%>
-                    <li>
-                        <%= tracks[i] %> , <%= artists[i] %>, <a href="<%= links[i] %>">Listen Now!</a>"
-                    </li>
-                    <% }; %>
+                <ul>
+                    <% console.log(tracks) %>
+                        <% for(var i=0; i<tracks.length; i++) {%>
+                            <li>
+
+                                <%= tracks[i] %> , <%= artists[i] %>, <a href="<%= links[i] %>">Listen Now!</a>"
+                            </li>
+                            <% }; %>
+                </ul>
             </ul>
-        </ul>
-    </div>
-    <div class="container my-5">
-        <div class="container-fluid py-5">
-            <h1 class="display-5 fw-bold"></h1>
-            <form>
-            </form>
         </div>
-    </div>
-    <div class="container my-5">
-        <div class="container-fluid py-5">
-            <h1 class="display-5 fw-bold"></h1>
-            <p class="col-md-8 fs-4"></p>
-        </div>
-    </div>
-    <div class="container my-5">
-        <div class="container-fluid tester">
-            <div class="container my-5">
-                <div class="container-fluid py-5">
-                    <h1 class="display-5 fw-bold">Ready to find some new tunes?</h1>
-                    <p class="col-md-8 fs-4">Let's get ready to rock! We'll get to know you over time, but let's start
-                        by
-                        sharing what you're looking for.</p>
-                    <form method="post" action="/account?recs">
-                        <label for="genres" class="form-label">What genre are you looking for?</label>
-                        <select id="genres" name="genres">
-                            <option value="alt-rock">alt-rock</option>
-                            <option value="alternative">alternative</option>
-                            <option value="country">country</option>
-                            <option value="punk">Punk</option>
-                            <option value="hip-hop">hip-hop</option>
-                            <option value="trip-hop">trip-hop</option>
-                            <option value="indie">indie</option>
-                            <option value="metal">metal</option>
-                            <option value="emo">emo</option>
-                            <option value="blues">blues</option>
-                            <option value="philippines-opm">philippines opm</option>
-                        </select>
-                        <br>
-                        <label for="vibe" class="form-label special-range">1-10 right now, what's the vibe like?</label>
-                        <input type="range" name="vibe" class="form-range" id="vibe" min="0" max="1.0" step="0.01">
-                        <br>
-                        <label for="pop" class="form-label special-range">On a scale of 1-10, do you want what's on the
-                            radio(10) or something more secret(less than 10)?</label>
-                        <input type="range" class="form-range" name="pop" id="pop" min="0" max="100" step="1">
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
+        <div class="container col-md-5 bg-light">
+            <div class="container-fluid tester">
+                <div class="container-fluid">
+                    <div class="container-fluid">
+                        <h1 class="display-5 fw-bold">Ready to find some new tunes?</h1>
+                        <p class="col-md-8 fs-4">Let's get ready to rock! We'll get to know you over time, but let's
+                            start
+                            by
+                            sharing what you're looking for.</p>
+                        <form method="post" action="/account?recs">
+                            <label for="genres" class="form-label">What genre are you looking for?</label>
+                            <select id="genres" name="genres">
+                                <option value="alt-rock">alt-rock</option>
+                                <option value="alternative">alternative</option>
+                                <option value="country">country</option>
+                                <option value="punk">Punk</option>
+                                <option value="hip-hop">hip-hop</option>
+                                <option value="trip-hop">trip-hop</option>
+                                <option value="indie">indie</option>
+                                <option value="metal">metal</option>
+                                <option value="emo">emo</option>
+                                <option value="blues">blues</option>
+                                <option value="philippines-opm">philippines opm</option>
+                            </select>
+                            <br>
+                            <label for="vibe" class="form-label special-range">1-10 right now, what's the vibe
+                                like?</label>
+                            <input type="range" name="vibe" class="form-range" id="vibe" min="0" max="1.0" step="0.01">
+                            <br>
+                            <label for="pop" class="form-label special-range">On a scale of 1-10, do you want what's on
+                                the
+                                radio(10) or something more secret(less than 10)?</label>
+                            <input type="range" class="form-range" name="pop" id="pop" min="0" max="100" step="1">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
 
 
-            <div class="container my-5">
-                <div class="container-fluid py-5">
-                    <h1 class="display-5 fw-bold">Want to find music by someone you already know? Start below!</h1>
-                    <form method="post" action="/account/artists">
-                        <label for="typebyartist" class="form-label">What do you want to find?</label>
-                        <select id="typebyartist" name="typebyartist">
-                            <option value="albums">Albums</option>
-                            <option value="tracks">Top Tracks</option>
-                            <option value="related">Related Artists</option>
-                        </select>
-                        <br>
-                        <label for="artist" class="form-label">Who are you looking for?</label>
-                        <input type="text" name="artist" id="artist" class="form-control" placeholder="Artist Name">
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
+                <div class="container my-5">
+                    <div class="container-fluid py-5">
+                        <h1 class="display-5 fw-bold">Want to find music by someone you already know? Start below!</h1>
+                        <form method="post" action="/account/artists">
+                            <label for="typebyartist" class="form-label">What do you want to find?</label>
+                            <select id="typebyartist" name="typebyartist">
+                                <option value="albums">Albums</option>
+                                <option value="tracks">Top Tracks</option>
+                                <option value="related">Related Artists</option>
+                            </select>
+                            <br>
+                            <label for="artist" class="form-label">Who are you looking for?</label>
+                            <input type="text" name="artist" id="artist" class="form-control" placeholder="Artist Name">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
-            <div class="container my-5">
-                <div class="container-fluid py-5">
-                    <h1 class="display-5 fw-bold">Some new tunes</h1>
+                <div class="container my-5">
+                    <div class="container-fluid py-5">
+                        <h1 class="display-5 fw-bold">Some new tunes</h1>
 
-                    <p class="col-md-8 fs-4"></p>
+                        <p class="col-md-8 fs-4"></p>
 
+                    </div>
                 </div>
-            </div>
-            <div class="container my-5">
-                <div class="container-fluid py-5">
-                    <!-- <h1 class="display-5 fw-bold">A few new artists</h1> -->
+                <div class="container my-5">
+                    <div class="container-fluid py-5">
+                        <!-- <h1 class="display-5 fw-bold">A few new artists</h1> -->
 
-                    <p class="col-md-8 fs-4"></p>
-                    <!-- <div class=""></div> -->
+                        <p class="col-md-8 fs-4"></p>
+                        <!-- <div class=""></div> -->
+                    </div>
                 </div>
             </div>
         </div>
