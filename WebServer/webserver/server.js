@@ -559,6 +559,11 @@ function generateSampleData() {
     return data;
 }
 
+
+
+
+
+
 app.get('/api/:function', (req, res) => {
     console.log(`\n[GET /api/:function] Received request for: ${req.params.function}\n`);
     // test = "postMessage";
@@ -566,7 +571,22 @@ app.get('/api/:function', (req, res) => {
     // console.log(`Result: ${result}`);
     let sampleData = generateSampleData();
     switch (req.params.function) {
-        case 'postMessage':
+        case 'send-message':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            break;
+        case 'get-all-talk':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            break;
+        case 'get-rock-boards':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            break;
+        case 'get-pop-boards':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            break;
+        case 'get-rap-boards':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            break;
+        case 'get-punk-boards':
             console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
             break;
         case 'get-songs':
