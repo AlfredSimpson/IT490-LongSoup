@@ -46,13 +46,14 @@ messages = db.messages
 
 
 def loadMessages(
-    uid=None, board_id=None, usercookieid=None, thread_id=None, first_name=None
+    board_id=None,
 ):
     try:
-        pass
+        board_content = messages.find_one({"board_id": board_id})
+        return {"returnCode": 0, "message": board_content}
     except:
-        pass
-    pass
+        board_content = None
+        return {"returnCode": 1, "message": "Error loading messages"}
 
 
 def postMessage(uid=None, board_id=None, message=None):
@@ -108,11 +109,7 @@ def request_processor(ch, method, properties, body):
         match request["type"]:
             case "loadMessages":
                 response = loadMessages(
-                    request["uid"],
                     request["board_id"],
-                    request["usercookieid"],
-                    request["thread_id"],
-                    request["first_name"],
                 )
             case "postMessage":
                 response = postMessage(
