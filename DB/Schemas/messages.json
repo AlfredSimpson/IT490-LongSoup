@@ -1,7 +1,6 @@
 {
     "messageboards": {
-        "genre": {
-            "thread_id": "id",
+        "messages": {
             "thread_content": {
                 "total_messages": "",
                 "messages": [

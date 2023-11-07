@@ -55,14 +55,14 @@ def loadMessages(
     pass
 
 
-def postMessage(
-    uid=None, board_id=None, usercookieid=None, thread_id=None, first_name=None
-):
+def postMessage(uid=None, board_id=None, message=None):
     try:
-        pass
+        messages.find_one_and_update(
+            {board_id: board_id}, {"$push": {"thread_content": message}}
+        )
+        return {"returnCode": 0, "message": "Message posted successfully"}
     except:
-        pass
-    pass
+        return {"returnCode": 1, "message": "Error posting message"}
 
 
 def getLastMessageId(board_id, thread_id):
@@ -116,11 +116,7 @@ def request_processor(ch, method, properties, body):
                 )
             case "postMessage":
                 response = postMessage(
-                    request["uid"],
-                    request["board_id"],
-                    request["usercookieid"],
-                    request["thread_id"],
-                    request["first_name"],
+                    request["uid"], request["board_id"], request["message"]
                 )
             case _:
                 # Default case - basically, all else failed.
