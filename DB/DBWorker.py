@@ -588,6 +588,21 @@ def request_processor(ch, method, properties, body):
                     request["token_type"],
                     request["usercookie"],
                 )
+            case "loadMessages":
+                response = ""
+                pass
+            case "postMessage":
+                response = ""
+                pass
+            case "getMusic":
+                response = ""
+                pass
+            case "likeTrack":
+                response = ""
+                pass
+            case "dislikeTrack":
+                response = ""
+                pass
             case _:
                 # Default case - basically, all else failed.
                 response = {
