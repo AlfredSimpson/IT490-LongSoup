@@ -132,14 +132,13 @@ def processProfile(api_json, uid):
         uid (int): the integere of the user id. Or string. Whatever.
     """
 
-
     # First, read the data it receives, and then process it into the schema
     display_name = api_json["display_name"]
     given_email = api_json["email"]
     spotify_link = api_json["external_urls"]["spotify"]
     spotify_id = api_json["id"]
-    spotify_country = api_json["country"]  
-    spotify_product = api_json["product"] # premium, free, etc
+    spotify_country = api_json["country"]
+    spotify_product = api_json["product"]  # premium, free, etc
 
     spotify_images = []
 
@@ -170,7 +169,6 @@ def processProfile(api_json, uid):
 
     # Now we take user_data and shove it into the database
     db.spotifyUsers.insert_one(user_data)
-
 
 
 def keepActive():
@@ -241,7 +239,8 @@ def readAccessToken():
 
 
 def getProfile():
-    
+    pass
+
 
 # def get_user_info(uid=None):
 #     """Get a user's info"""

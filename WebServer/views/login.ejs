@@ -45,7 +45,7 @@
                 </p>
                 <form method="post" action="/login">
                     <div class="mb-3">
-                        <% if (data.errorStatus) { %>
+                        <% if (data.errorStatus=="true" ) { %>
                             <div class="err-msg" style="background-color: rgb(0, 255, 34); color: black">
                                 <p>
                                     <%= "Logging in" %>

@@ -1,5 +1,5 @@
 function fetchData() {
-    return axios.get('/api/get-data') // Replace with your API endpoint
+    return axios.get('/api/get-songs') // Replace with your API endpoint
         .then(response => response.data)
         .catch(error => {
             throw error;
@@ -7,9 +7,11 @@ function fetchData() {
 }
 
 // Function to create the table row with like/dislike buttons
-function createTableRow(data) {
+function createTableRow(data, rowIndex) {
     const row = document.createElement('tr');
-    const columns = ['Column 1 Data', 'Column 2 Data', 'Column 3 Data'];
+    const columns = ['Track Name', 'Artist Name', 'URLs'];
+
+    row.id = `row-${data.id}`; // Optional: Add a unique ID to each row
 
     // Create and add table columns
     columns.forEach(columnData => {

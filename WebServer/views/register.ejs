@@ -43,10 +43,10 @@
                 <h1>Welcome to CommonGrounds</h1>
                 <p class="lead">Start getting connected to the best music you never heard and the people who love it,
                     too!</p>
-                <% if (data.errorStatus) { %>
-                    <div class="err-msg" style="background-color: rgb(0, 255, 34); color: black">
+                <% if (data.errorStatus==false || data.errorStatus==null) { %>
+                    <div class=" err-msg" style="background-color: rgb(0, 255, 34); color: black">
                         <p>
-                            <%= "Logging in" %>
+                            <%= "Come join the crowd!" %>
                         </p>
                     </div>
                     <% } else { %>

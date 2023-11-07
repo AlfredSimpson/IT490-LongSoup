@@ -135,17 +135,14 @@ app.use(statusMessageHandler);
 // These are set to help us navigate the file system to pull static files
 
 const publicPath = path.join(__dirname, '../public');
-// app.use(express.static(__dirname + '../public'));
 app.use(express.static(publicPath));
-// app.use('/css', express.static(__dirname + '../public/css'));
-// app.use('/css', express.static('public'));
-// app.use('/js', express.static(__dirname + '../public/js'));
 app.use('/css', express.static(path.join(publicPath, 'css')));
 app.use('/js', express.static(path.join(publicPath, 'js')));
 app.use('/img', express.static(path.join(publicPath, 'img')));
+app.use('/account', express.static(path.join(publicPath, 'account')));
 // app.use('img', express.static(__dirname + '../public/img'));
 
-// We'll need an error handler here.
+app.use('/account/js', express.static(path.join(publicPath, 'js')));
 
 // Set views and view engine so we can use EJS. Views are the pages, view engine is the template engine
 app.set('views', path.join(__dirname, '../views')); // this gets us out of the dir we're in and into the views, for separation
@@ -365,6 +362,34 @@ app.get('/', (req, res) => {
     };
 });
 
+app.get('/account/:page', (req, res) => {
+    console.log(`\n[GET /account/stats] Received request for ${req.params.page}\n`);
+    const page = req.params.page;
+    const viewPath = path.join(__dirname, '../views/account/', page + '.ejs');
+    let uid = req.session.uid;
+    console.log(`[GET /account/:page] User ID: ${uid}`);
+
+    switch (page) {
+        case 'stats':
+            console.log(`\n[GET /account/:page] Received passed to case ${page}\n`);
+            res.status(200).render(viewPath);
+            break;
+        case 'messageboard':
+            console.log(`\n[GET /account/:page] Received passed to case ${page}\n`);
+            res.status(200).render(viewPath);
+            break;
+        case 'browse':
+            console.log(`\n[GET /account/:page] Received passed to case ${page}\n`);
+            res.status(200).render(viewPath);
+            break;
+        default:
+            console.log(`\n[GET /account/:page] Unknown request: ${page}\n`);
+            break;
+
+
+
+    }
+});
 app.post('/account:param', (req, res) => {
     // const tempHost = process.env.BROKER_VHOST;
     // const tempQueue = process.env.BROKER_QUEUE;
@@ -524,7 +549,7 @@ app.get('/:page', (req, res) => {
 
 function generateSampleData() {
     const data = [];
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 25; i++) {
         data.push({
             column1: `Data ${i}-1`,
             column2: `Data ${i}-2`,
@@ -536,18 +561,43 @@ function generateSampleData() {
 
 app.get('/api/:function', (req, res) => {
     console.log(`\n[GET /api/:function] Received request for: ${req.params.function}\n`);
-    test = "postMessage";
-    result = (test == req.params.function)
-    console.log(`Result: ${result}`);
+    // test = "postMessage";
+    // result = (test == req.params.function)
+    // console.log(`Result: ${result}`);
+    let sampleData = generateSampleData();
     switch (req.params.function) {
         case 'postMessage':
             console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
             break;
-        case 'get-data':
+        case 'get-songs':
             // TODO: change endpoint
             console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
             console.log(`\n Moving to now get data to the front`);
-            const sampleData = generateSampleData();
+
+            res.status(200).json(sampleData);
+            break;
+        case 'get-punk':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            // let sampleData = generateSampleData();
+            res.status(200).json(sampleData);
+            break;
+        case 'get-rock':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            // const sampleDate = generateSampleData();
+            res.status(200).json(sampleData);
+            break;
+        case 'get-pop':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            res.status(200).json(sampleData);
+            break;
+        case 'get-rap':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            // set method to get data from db
+            res.status(200).json(sampleData);
+            break;
+        case 'get-suggested':
+            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
+            // set method to get data from db
             res.status(200).json(sampleData);
             break;
         case 'browseArtists':
@@ -580,12 +630,6 @@ app.get('/api/:function', (req, res) => {
     }
 });
 
-// app.get('/account/:page', (req, res) => {
-//     console.log(`\n[GET /account/stats] Received request for ${req.params.page}\n`);
-//     const page = req.params.page;
-//     let loggedin = req.session.loggedIn;
-//     console.log(`[GET /account/:page] Logged in? ${loggedin}`);
-// });
 
 const userData = [];
 /**
@@ -808,9 +852,10 @@ app.post('/login', (req, res) => {
             console.log("Sending response data");
             // console.log(response.data['loggedin']);
             data = response.data;
+            data.errorStatus = true;
             console.log("showing data");
             console.log(data);
-            res.status(401).render('login', data);
+            res.status(401).render('login', { data });
         }
     });
 });
@@ -876,12 +921,12 @@ app.post('/register', (req, res) => {
 
         } else {
             // res.status(401).send('You have failed to register.');
-            data = { "errorStatus": false, "errorOutput": "You have failed to register." }
+            data = { "errorStatus": true, "errorOutput": "You have failed to register." }
             console.log(`\n[Register - response] testing data --- ${data}`);
             console.log("[Register - response] testing for failure");
             console.log("showing data");
             console.log(data);
-            res.status(401).render('register', data);
+            res.status(401).render('register', { data });
             // add handling for render isntead that prints message to user
         }
     });
