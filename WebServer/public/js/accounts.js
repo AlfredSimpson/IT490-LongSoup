@@ -140,43 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         }
     })
+
+
 });
-
-// Event listener for fetching data and creating the table
-// document.addEventListener('DOMContentLoaded', () => {
-//     document.getElementById('rock').addEventListener('click', () => {
-//         fetchBrowse()
-//             .then(data => {
-//                 const tableContainer = document.getElementById('tableContainer');
-//                 const table = document.createElement('table');
-//                 table.classList.add('data-table'); // Optional: Apply CSS class for styling
-
-//                 // Create table header (optional)
-//                 const headerRow = document.createElement('tr');
-//                 ['Header 1', 'Header 2', 'Header 3', 'Actions'].forEach(headerText => {
-//                     const th = document.createElement('th');
-//                     th.textContent = headerText;
-//                     headerRow.appendChild(th);
-//                 });
-//                 table.appendChild(headerRow);
-
-//                 // Create table rows and add data
-//                 data.forEach(item => {
-//                     const row = createTableRow(item);
-//                     table.appendChild(row);
-//                 });
-
-//                 // Replace existing table if it exists
-//                 if (tableContainer.firstChild) {
-//                     tableContainer.removeChild(tableContainer.firstChild);
-//                 }
-
-//                 // Append the new table to the container
-//                 tableContainer.appendChild(table);
-//             })
-//             .catch(error => {
-//                 // Handle errors
-//                 console.error(error);
-//             });
-//     });
-// });

@@ -1,0 +1,73 @@
+{
+    "tracks": {
+        "items": [
+            {
+                "album": {
+                    "album_type": "album",
+                    "total_tracks": 0,
+                    "available_markets": [],
+                    "external_urls": {
+                        "spotify": "url"
+                    },
+                    "href": "url to album",
+                    "id": "albumid",
+                    "images": [
+                        {
+                            "url": "https://i.scdn.co/image/ab67616d0000b2737d384516b23347e92a587ed1",
+                            "height": 640,
+                            "width": 640
+                        },
+                        {
+                            "url": "https://i.scdn.co/image/ab67616d00001e027d384516b23347e92a587ed1",
+                            "height": 300,
+                            "width": 300
+                        },
+                        {
+                            "url": "https://i.scdn.co/image/ab67616d000048517d384516b23347e92a587ed1",
+                            "height": 64,
+                            "width": 64
+                        }
+                    ]
+                },
+                "artists": [
+                    {
+                        "external_urls": {
+                            "spotify": "artist url"
+                        },
+                        "href": "again",
+                        "id": "artistid",
+                        "name": "artistname",
+                        "uri": "artisturi"
+                    },
+                    {
+                        "external_urls": {
+                            "spotify": "x"
+                        },
+                        "href": "x",
+                        "id": "otherartistid",
+                        "name": "otherartistname",
+                        "type": "artist",
+                        "uri": "otherartisturi"
+                    }
+                ],
+                "available_markets": [],
+                "disc_number": 0,
+                "duration_ms": 0,
+                "explicit": true,
+                "external_ids": {
+                    "isrc": "USUG12306072"
+                },
+                "external_urls": {
+                    "spotify": "https://open.spotify.com/track/2YSzYUF3jWqb9YP9VXmpjE"
+                },
+                "href": "track url",
+                "id": "trackid",
+                "name": "track name",
+                "popularity": 0,
+                "track_number": 0,
+                "type": "track",
+                "uri": "trackuri",
+                "is_local": false
+            }
+        ]
+    }

@@ -28,7 +28,7 @@ module.exports = {
         amqp.connect(amqpUrl, (error, connection) => {
             // Attempt to connect to the RMQ broker
             if (error) {
-                // console.error('Connection Error:', error);
+                console.error('Connection Error:', error);
                 timber.logAndSend(`Error connecting to RMQ: ${error}. Error caught with ${amqpUrl}, ${requestPayload}, ${callback}`, 'RMQ');
                 throw error;
             }
