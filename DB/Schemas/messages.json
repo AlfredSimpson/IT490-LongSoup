@@ -1,15 +1,17 @@
 {
     "messageboards": {
-        "thread_id": "id",
-        "thread_content": {
-            "total_messages": "",
-            "messages": [
-                {
-                    "message_id": "m_id",
-                    "message_sender": "uid",
-                    "message_content": "content"
-                }
-            ]
+        "genre": {
+            "thread_id": "id",
+            "thread_content": {
+                "total_messages": "",
+                "messages": [
+                    {
+                        "message_id": "m_id",
+                        "message_sender": "uid",
+                        "message_content": "content"
+                    }
+                ]
+            }
         }
     }
 }
