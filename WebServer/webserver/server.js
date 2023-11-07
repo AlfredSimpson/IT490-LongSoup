@@ -701,7 +701,6 @@ app.post('/account', (req, res) => {
     console.log(`\ngenre: ${genre}, popularity: ${popularity}, valence: ${valence}`);
     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
 
-
     // getCookie(req);
     mustang.sendAndConsumeMessage(amqpUrl, tempQueue, {
         type: "simplerecs",
