@@ -584,16 +584,19 @@ app.post('/api/:function', (req, res) => {
                 type: "postMessage",
                 uid: uid,
                 board_id: genre,
-                first_name: first_name
+                first_name: first_name,
+                message: outmessage
             }, (msg) => {
                 console.log('[POST /api/:function] Received message from broker, parsing response');
                 timber.logAndSend('[POST /api/:function] Received message from broker, parsing response');
                 if (response.returnCode === 0) {
                     console.log('success in posting');
                     timber.logAndSend('success in posting');
+                    res.render('messageboard');
                 } else {
                     console.log('failure in posting');
                     timber.logAndSend('failure in posting');
+                    res.status(401).send('You have failed to post a message - did we do something?');
                 }
 
             });

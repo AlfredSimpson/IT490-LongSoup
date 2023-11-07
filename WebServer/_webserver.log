@@ -136,3 +136,6 @@
 {"type":"log","source":"Webserver","date":"2023-11-06T23:23:09.411EST","log_message":"User logged in successfully.\n"}
 {"type":"log","source":"Webserver","date":"2023-11-06T23:32:50.059EST","log_message":"User logged in successfully.\n"}
 {"type":"log","source":"Webserver","date":"2023-11-06T23:36:12.196EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-06T23:46:40.622EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-06T23:51:16.610EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-06T23:51:23.118EST","log_message":"[POST /api/:function] Received message from broker, parsing response\n"}
