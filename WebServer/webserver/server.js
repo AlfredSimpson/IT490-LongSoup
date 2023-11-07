@@ -562,7 +562,48 @@ function generateSampleData() {
 
 
 
+app.post('/api/:function', (req, res) => {
+    console.log(`\n[POST /api/:function] Received request for: ${req.params.function}\n`);
+    switch (req.params.function) {
+        case 'send-message':
+            let uid = req.session.uid;
+            let outmessage = req.body.messageContent;
+            let genre = req.body.genre;
+            let first_name = req.session.name;
+            const messagehost = process.env.MBOARD_HOST;
+            const messagequeue = process.env.MBOARD_QUEUE;
+            const msguser = process.env.MBOARD_USER;
+            const msgpass = process.env.MBOARD_PASS;
+            const mqueue = process.env.MBOARD_QUEUE;
+            const mexchange = process.env.MBOARD_EXCHANGE;
+            const mvhost = process.env.MBOARD_VHOST;
 
+            // console.log(`All the things: ${uid}, ${outmessage}, ${genre}, ${messagehost}, ${messagequeue}, ${msguser}, ${msgpass}`);
+            const amqpUrl = `amqp://${msguser}:${msgpass}@${messagehost}:5672/${encodeURIComponent(mvhost)}`;
+            mustang.sendAndConsumeMessage(amqpUrl, mqueue, {
+                type: "postMessage",
+                uid: uid,
+                board_id: genre,
+                first_name: first_name
+            }, (msg) => {
+                console.log('[POST /api/:function] Received message from broker, parsing response');
+                timber.logAndSend('[POST /api/:function] Received message from broker, parsing response');
+                if (response.returnCode === 0) {
+                    console.log('success in posting');
+                    timber.logAndSend('success in posting');
+                } else {
+                    console.log('failure in posting');
+                    timber.logAndSend('failure in posting');
+                }
+
+            });
+            break;
+
+        default:
+            console.log(`\n[POST /api/:function] Unknown request: ${req.params.function}\n`);
+            break;
+    }
+});
 
 app.get('/api/:function', (req, res) => {
     console.log(`\n[GET /api/:function] Received request for: ${req.params.function}\n`);
@@ -571,9 +612,6 @@ app.get('/api/:function', (req, res) => {
     // console.log(`Result: ${result}`);
     let sampleData = generateSampleData();
     switch (req.params.function) {
-        case 'send-message':
-            console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
-            break;
         case 'get-all-talk':
             console.log(`\n[GET /api/:function] Received passed to case ${req.params.function}\n`);
             break;
