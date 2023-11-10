@@ -1,165 +1,288 @@
 <!DOCTYPE html>
-<html lang="en">
+<html data-bs-theme="light" lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CommonGrounds</title>
-    <!-- Bootstrap 5 CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
-    <link rel="shortcut icon" href="#">
-    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Account | CGS</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/styles.min.css">
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">CommonGrounds</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/account">Account</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/account/browse">Browse</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/account/stats">Stats</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/account/messageboard">MessageBoard</a>
-                    </li>
-                </ul>
+    <nav class="navbar navbar-expand-md bg-dark py-0" data-bs-theme="dark">
+        <div class="container"><a class="navbar-brand d-flex align-items-center" href="#"><span
+                    class="bs-icon-sm bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center me-2 bs-icon">
+                    <svg width="64px" height="64px" viewBox="-7.8 -7.8 35.60 35.60" version="1.1"
+                        xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#ffd700"
+                        stroke="#ffd700">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0">
+                            <path transform="translate(-7.8, -7.8), scale(2.225)" fill="#000000"
+                                d="M9.166.33a2.25 2.25 0 00-2.332 0l-5.25 3.182A2.25 2.25 0 00.5 5.436v5.128a2.25 2.25 0 001.084 1.924l5.25 3.182a2.25 2.25 0 002.332 0l5.25-3.182a2.25 2.25 0 001.084-1.924V5.436a2.25 2.25 0 00-1.084-1.924L9.166.33z"
+                                strokewidth="0"></path>
+                        </g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                            <title>radio_tower [#FFD700ffd700]</title>
+                            <desc>Created with Sketch.</desc>
+                            <defs> </defs>
+                            <g id="Page-1" stroke-width="0.0002" fill="none" fill-rule="evenodd">
+                                <g id="Dribbble-Light-Preview" transform="translate(-60.000000, -3320.000000)"
+                                    fill="#FFD700">
+                                    <g id="icons" transform="translate(56.000000, 160.000000)">
+                                        <path
+                                            d="M14.0000871,3171.007 L13.9940871,3171 L8.00008712,3177.4 L9.49808712,3179 L14.0000871,3174.194 L18.5020871,3179 L20.0000871,3177.4 L14.0060871,3171 L14.0000871,3171.007 Z M12.6360871,3168.586 C13.4170871,3169.367 14.7560871,3169.294 15.4640871,3168.587 C16.1290871,3167.921 16.2530871,3166.543 15.3670871,3165.657 L15.3640871,3165.66 C14.5830871,3164.879 13.2430871,3164.952 12.5360871,3165.659 C11.8710871,3166.325 11.7470871,3167.703 12.6330871,3168.589 L12.6360871,3168.586 Z M9.80508712,3171.417 L11.2190871,3170.003 C9.80508712,3168.589 9.70608712,3165.657 11.1200871,3164.243 L9.70608712,3162.829 C7.58408712,3164.95 7.68308712,3169.296 9.80508712,3171.417 L9.80508712,3171.417 Z M8.29108712,3161.415 L6.87708712,3160 C2.63408712,3164.243 3.44108712,3170.71 6.97608712,3174.246 L8.39008712,3172.832 C5.56208712,3170.003 5.46308712,3164.243 8.29108712,3161.415 L8.29108712,3161.415 Z M16.8800871,3170.003 L18.2940871,3171.417 C20.4160871,3169.296 20.3170871,3164.95 18.1950871,3162.829 L16.7810871,3164.243 C18.1950871,3165.657 18.2940871,3168.589 16.8800871,3170.003 L16.8800871,3170.003 Z M21.1230871,3174.246 L19.7090871,3172.832 C22.5370871,3170.003 22.4380871,3164.243 19.6100871,3161.415 L21.0240871,3160 C24.5590871,3163.536 25.3650871,3170.003 21.1230871,3174.246 L21.1230871,3174.246 Z"
+                                            id="radio_tower-[#FFD700ffd700]"> </path>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
+                </span><span>CGS</span></a><button data-bs-toggle="collapse" class="navbar-toggler"
+                data-bs-target="#navcol-5"><span class="visually-hidden">Toggle navigation</span><span
+                    class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navcol-5">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="/account">Account</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/account/browse">Browse</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/account/stats">Stats</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/account/messageboard">MessageBoards</a></li>
+                </ul><a class="btn btn-primary ms-md-2" role="button" href="/logout">Logout</a>
             </div>
         </div>
     </nav>
-    <div class="container-fluid">
-        <div class="container my-5">
-            <div class="container-fluid py-5">
-                <h1 class="display-5 fw-bold">Hey, welcome home! </h1>
-                <p class="col-md-8 fs-4">We're ready to start finding some great tunes for you.</p>
-                <p></p>
+    <div style="background: var(--bs-emphasis-color);">
+        <div class="container">
+            <section class="py-4 py-xl-5">
+                <div class="container">
+                    <div class="bg-dark border rounded border-0 border-dark overflow-hidden">
+                        <div class="row g-0">
+                            <div class="col-md-6">
+                                <div class="text-white p-4 p-md-5">
+                                    <h1 class="fw-bold text-gold">Hey, welcome home!</h1>
+                                    <h2 class="fw-bold text-white mb-3">Looking for something specific?</h2>
+                                    <p class="mb-4">Give a search for anything below - we can take tracks, artists,
+                                        genres, or albums.</p>
+                                    <div class="my-3">
+                                        <!-- A text search bar pre filled with 'rolling stones' 'blues' 'jawbreaker'. There is a button after that which, when clicked, should activate a script to send it to the server. -->
+                                        <form action="/account/browse" method="POST">
+                                            <div class="input-group">
+                                                <input class="form-control" type="text" name="search"
+                                                    placeholder="Search for something..." style="color: black;" />
+                                                <button class="btn btn-primary" type="submit">Search</button>
+                                            </div>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-md-6 order-first order-md-last" style="min-height: 250px;">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Track</th>
+                                                    <th>Artist</th>
+                                                    <th>URL</th>
+                                                    <th>Like it?</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Cell 1</td>
+                                                    <td>Cell 2</td>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div> -->
+                            </div>
+                        </div>
+                    </div>
+            </section>
+            <div class="row py-4">
+                <div class="col-md-4 py-2">
+                    <div class="card container-fluid">
+                        <div class="card-body justify-content-center">
+                            <h4 class="card-title">Are we getting recent data?</h4>
+                            <h6 class="text-muted card-subtitle mb-2"></h6>
+                            <p class="card-text mx-auto">
+                                <% if (oAuthed) { %>
+                                    <h1>
+                                        <div class="alert alert-success" role="alert">
+                                            <%= "We are oAuthed" %>
+                                        </div>
+                                    </h1>
+                                    <% } else{ %>
+                                        <div class="alert alert-warning mx-auto" role="alert">
 
-            </div>
-        </div>
-        <div class="container col-md-8">
-            <div class="container-fluid py-5">
-                <h1 class="display-5 fw-bold">Your most recent top tracks</h1>
-                <p class="col-md-8 fs-4">We're ready to start finding some great tunes for you.</p>
-                <% if (oAuthed) { %>
-                    <h1>
-                        <%= "We are oAuthed" %>
-                    </h1>
-                    <% } else{ %>
-                        <%= "We are not oAuthed" %>
-                            <a href="<%= '/spotlog' %>">Click here to authorize</a>
-                            <% }; %>
+                                            <%= "We are not oAuthed! Go back to spotify and give us your data!" %>
+                                                <!-- A button that has posts to /spotlog --><br>
 
-            </div>
-        </div>
-        <div class="container col-md-5 bg-light">
-            <h1>Here's some music to get you going</h1>
-            <ul>
-                <ul>
-                    <% console.log(tracks) %>
-                        <% for(var i=0; i<tracks.length; i++) {%>
-                            <li>
-
-                                <%= tracks[i] %> , <%= artists[i] %>, <a href="<%= links[i] %>">Listen Now!</a>"
-                            </li>
-                            <% }; %>
-                </ul>
-            </ul>
-        </div>
-        <div class="container col-md-5 bg-light">
-            <div class="container-fluid tester">
-                <div class="container-fluid">
-                    <div class="container-fluid">
-                        <h1 class="display-5 fw-bold">Ready to find some new tunes?</h1>
-                        <p class="col-md-8 fs-4">Let's get ready to rock! We'll get to know you over time, but let's
-                            start
-                            by
-                            sharing what you're looking for.</p>
-                        <form method="post" action="/account?recs">
-                            <label for="genres" class="form-label">What genre are you looking for?</label>
-                            <select id="genres" name="genres">
-                                <option value="alt-rock">alt-rock</option>
-                                <option value="alternative">alternative</option>
-                                <option value="country">country</option>
-                                <option value="punk">Punk</option>
-                                <option value="hip-hop">hip-hop</option>
-                                <option value="trip-hop">trip-hop</option>
-                                <option value="indie">indie</option>
-                                <option value="metal">metal</option>
-                                <option value="emo">emo</option>
-                                <option value="blues">blues</option>
-                                <option value="philippines-opm">philippines opm</option>
-                            </select>
-                            <br>
-                            <label for="vibe" class="form-label special-range">1-10 right now, what's the vibe
-                                like?</label>
-                            <input type="range" name="vibe" class="form-range" id="vibe" min="0" max="1.0" step="0.01">
-                            <br>
-                            <label for="pop" class="form-label special-range">On a scale of 1-10, do you want what's on
-                                the
-                                radio(10) or something more secret(less than 10)?</label>
-                            <input type="range" class="form-range" name="pop" id="pop" min="0" max="100" step="1">
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                        </form>
+                                        </div>
+                                        <button type="button" class="btn btn-danger mx-auto"><a href="<%= '/spotlog' %>"
+                                                class="text-dark mx-auto">Click here to
+                                                authorize</a></button>
+                                        <% } %>
+                            </p>
+                        </div>
                     </div>
                 </div>
+                <div class="col-md-4 py-2">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Want something new but not too sure what?</h4>
+                            <h6 class="text-muted card-subtitle mb-2"></h6>
+                            <p class="card-text">
+                            <form method="post" action="/account?recs">
+                                <label for="genres" class="form-label">What genre are you looking for?</label>
+                                <select id="genres" name="genres">
+                                    <option value="alt-rock">alt-rock</option>
+                                    <option value="alternative">alternative</option>
+                                    <option value="country">country</option>
+                                    <option value="punk">Punk</option>
+                                    <option value="hip-hop">hip-hop</option>
+                                    <option value="trip-hop">trip-hop</option>
+                                    <option value="indie">indie</option>
+                                    <option value="metal">metal</option>
+                                    <option value="emo">emo</option>
+                                    <option value="blues">blues</option>
+                                    <option value="philippines-opm">philippines opm</option>
+                                </select>
+                                <br>
+                                <label for="vibe" class="form-label special-range">1-10 right now, what's the vibe
+                                    like?</label>
+                                <input type="range" name="vibe" class="form-range" id="vibe" min="0" max="1.0"
+                                    step="0.01">
+                                <br>
+                                <label for="pop" class="form-label special-range">On a scale of 1-10, do you want what's
+                                    on
+                                    the
+                                    radio(10) or something more secret(less than 10)?</label>
+                                <input type="range" class="form-range" name="pop" id="pop" min="0" max="100" step="1">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </form>
+                            <ul>
+                                <ul>
+                                    <% console.log(tracks) %>
+                                        <% for(var i=0; i<tracks.length; i++) {%>
+                                            <li>
 
-
-                <div class="container my-5">
-                    <div class="container-fluid py-5">
-                        <h1 class="display-5 fw-bold">Want to find music by someone you already know? Start below!</h1>
-                        <form method="post" action="/account/artists">
-                            <label for="typebyartist" class="form-label">What do you want to find?</label>
-                            <select id="typebyartist" name="typebyartist">
-                                <option value="albums">Albums</option>
-                                <option value="tracks">Top Tracks</option>
-                                <option value="related">Related Artists</option>
-                            </select>
-                            <br>
-                            <label for="artist" class="form-label">Who are you looking for?</label>
-                            <input type="text" name="artist" id="artist" class="form-control" placeholder="Artist Name">
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                        </form>
+                                                <%= tracks[i] %> , <%= artists[i] %>, <a href="<%= links[i] %>">Listen
+                                                            Now!</a>"
+                                            </li>
+                                            <% }; %>
+                                </ul>
+                            </ul>
+                            </p>
+                        </div>
                     </div>
                 </div>
-                <div class="container my-5">
-                    <div class="container-fluid py-5">
-                        <h1 class="display-5 fw-bold">Some new tunes</h1>
-
-                        <p class="col-md-8 fs-4"></p>
-
-                    </div>
-                </div>
-                <div class="container my-5">
-                    <div class="container-fluid py-5">
-                        <!-- <h1 class="display-5 fw-bold">A few new artists</h1> -->
-
-                        <p class="col-md-8 fs-4"></p>
-                        <!-- <div class=""></div> -->
+                <div class="col-md-4 py-2">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">And another one</h4>
+                            <h6 class="text-muted card-subtitle mb-2">DJ KHALED</h6>
+                            <p class="card-text">Another one.</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <footer class="bg-light py-3">
-            <div class="container">
-                <p class="text-center">&copy; 2023 CommonGrounds</p>
+    </div>
+    <footer class="text-white bg-dark">
+        <div class="container py-0 py-sm-3 ">
+            <div class="row justify-content-center py-0">
+                <div class="col-sm-2 col-md-3 text-center text-sm-start d-flex flex-column item">
+                    <h3 class="fs-6 text-white">Account Services</h3>
+                    <ul class="list-unstyled">
+                        <li><a class="link-light" href="/account">Main</a></li>
+                        <li><a class="link-light" href="/account/stats">Stats</a></li>
+                        <li><a class="link-light" href="/logout">Logout</a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-2 col-md-3 text-center text-lg-start d-flex flex-column item">
+                    <h3 class="fs-6 text-white">About</h3>
+                    <ul class="list-unstyled">
+                        <li><a class="link-light" href="/commongrounds">CommonGrounds</a></li>
+                        <li><a class="link-light" href="/team">Team</a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-2 col-md-3 text-center text-lg-start d-flex flex-column item">
+                    <h3 class="fs-6 text-white">Resources</h3>
+                    <ul class="list-unstyled">
+                        <li><a class="link-light" href="https://github.com/AlfredSimpson/IT490-LongSoup">Github</a></li>
+                    </ul>
+                </div>
+                <div
+                    class="col-lg-3 text-center text-lg-start d-flex flex-column align-items-center order-first align-items-lg-start order-lg-last item social">
+                    <div class="fw-bold d-flex align-items-center mb-0"><span
+                            class="bs-icon-sm bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center bs-icon me-2">
+                            <svg width="64px" height="64px" viewBox="-7.8 -7.8 35.60 35.60" version="1.1"
+                                xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                fill="#ffd700" stroke="#ffd700">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0">
+                                    <path transform="translate(-7.8, -7.8), scale(2.225)" fill="#000000"
+                                        d="M9.166.33a2.25 2.25 0 00-2.332 0l-5.25 3.182A2.25 2.25 0 00.5 5.436v5.128a2.25 2.25 0 001.084 1.924l5.25 3.182a2.25 2.25 0 002.332 0l5.25-3.182a2.25 2.25 0 001.084-1.924V5.436a2.25 2.25 0 00-1.084-1.924L9.166.33z"
+                                        strokewidth="0"></path>
+                                </g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <title>radio_tower [#FFD700ffd700]</title>
+                                    <desc>Created with Sketch.</desc>
+                                    <defs> </defs>
+                                    <g id="Page-1" stroke-width="0.0002" fill="none" fill-rule="evenodd">
+                                        <g id="Dribbble-Light-Preview" transform="translate(-60.000000, -3320.000000)"
+                                            fill="#FFD700">
+                                            <g id="icons" transform="translate(56.000000, 160.000000)">
+                                                <path
+                                                    d="M14.0000871,3171.007 L13.9940871,3171 L8.00008712,3177.4 L9.49808712,3179 L14.0000871,3174.194 L18.5020871,3179 L20.0000871,3177.4 L14.0060871,3171 L14.0000871,3171.007 Z M12.6360871,3168.586 C13.4170871,3169.367 14.7560871,3169.294 15.4640871,3168.587 C16.1290871,3167.921 16.2530871,3166.543 15.3670871,3165.657 L15.3640871,3165.66 C14.5830871,3164.879 13.2430871,3164.952 12.5360871,3165.659 C11.8710871,3166.325 11.7470871,3167.703 12.6330871,3168.589 L12.6360871,3168.586 Z M9.80508712,3171.417 L11.2190871,3170.003 C9.80508712,3168.589 9.70608712,3165.657 11.1200871,3164.243 L9.70608712,3162.829 C7.58408712,3164.95 7.68308712,3169.296 9.80508712,3171.417 L9.80508712,3171.417 Z M8.29108712,3161.415 L6.87708712,3160 C2.63408712,3164.243 3.44108712,3170.71 6.97608712,3174.246 L8.39008712,3172.832 C5.56208712,3170.003 5.46308712,3164.243 8.29108712,3161.415 L8.29108712,3161.415 Z M16.8800871,3170.003 L18.2940871,3171.417 C20.4160871,3169.296 20.3170871,3164.95 18.1950871,3162.829 L16.7810871,3164.243 C18.1950871,3165.657 18.2940871,3168.589 16.8800871,3170.003 L16.8800871,3170.003 Z M21.1230871,3174.246 L19.7090871,3172.832 C22.5370871,3170.003 22.4380871,3164.243 19.6100871,3161.415 L21.0240871,3160 C24.5590871,3163.536 25.3650871,3170.003 21.1230871,3174.246 L21.1230871,3174.246 Z"
+                                                    id="radio_tower-[#FFD700ffd700]"> </path>
+                                            </g>
+                                        </g>
+                                    </g>
+                                </g>
+                            </svg>
+                        </span><span>CommonGrounds</span></div>
+                    <p class="text-muted copyright">Sem eleifend donec molestie, integer quisque orci aliquam.</p>
+                </div>
             </div>
-        </footer>
-
-        <!-- Bootstrap 5 JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+            <div class="d-flex justify-content-center align-items-center text-center py-0">
+                <p class="text-center">Copyright © 2023 CommonGrounds</p>
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/script.min.js"></script>
 </body>
 
 </html>
