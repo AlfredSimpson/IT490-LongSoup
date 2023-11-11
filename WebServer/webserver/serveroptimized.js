@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const accounts = require('./routes/accounts.js');
+const accountsRouter = require('./routes/accountsRouter.js');
 const api = require('./routes/api.js');
 var cache = require('memory-cache');
 const axios = require('axios'); // Helps with AJAX requests
@@ -52,41 +52,39 @@ app.use(express.static(publicPath));
 app.use('/css', express.static(path.join(publicPath, 'css')));
 app.use('/js', express.static(path.join(publicPath, 'js')));
 app.use('/img', express.static(path.join(publicPath, 'img')));
-// app.use('/partials', express.static(path.join(publicPath, 'partials')));
 app.use('/account', express.static(path.join(publicPath, 'account')));
 app.use('/account/js', express.static(path.join(publicPath, 'js')));
 app.use('/account/css', express.static(path.join(publicPath, 'js')));
+
 
 
 // Set views and view engine so we can use EJS. Views are the pages, view engine is the template engine
 app.set('views', path.join(__dirname, '../views')); // this gets us out of the dir we're in and into the views, for separation
 app.set('view engine', 'ejs');
 
+
+
 /**
  * These are routing middleware functions. They are called before the request is passed to the router.
  * They are called in the order they are defined.
  * This is important to note and I'm commenting so we all can understand. What they do is tell the express server to use these routers if a request is made to, for example, account/anything or api/anything. Middleware before this should still be called and passed through. 
  */
-app.use("/account", accounts); // Routing done in accounts.js
+app.use("/account", function (req, res, next) {
+    req.account_config = {
+        loggedIn: cache.get('loggedIn'),
+        uid: cache.get('uid'),
+        tracks: cache.get('tracks'),
+        artists: cache.get('artists'),
+        links: cache.get('links'),
+        data: cache.get('data'),
+        oAuthed: cache.get('oAuthed'),
+        data: cache.get('data'),
+    };
+    next();
+}, accountsRouter);
+
+// Routing done in accounts.js
 app.use("/api", api); // Routing done in api.js
-
-// sessionStorage.setItem('uid', )
-// Middleware to add variables for dynamic content generation
-// app.use((req, res, next) => {
-//     res.dynamicData = {
-//         data: req.session.data || { errorStatus: false, errorOutput: null },
-//         uid: req.session.uid || null,
-//         name: req.session.name || null,
-//         loggedIn: req.session.loggedIn || false,
-//         oAuthed: req.session.oAuthed || false,
-//         tracks: req.session.tracks || null,
-//         artists: req.session.artists || null,
-//         links: req.session.links || null
-//     };
-//     next();
-// });
-
-
 
 
 /**
@@ -203,7 +201,8 @@ app.get('/callback', async (req, res) => {
             let refresh_token = response.data.refresh_token;
             let expires_in = response.data.expires_in;
             let token_type = response.data.token_type;
-            let usercookie = res.locals.usercookieid;
+            // let usercookie = res.locals.usercookieid;
+            let usercookie = cache.get('usercookieid');
             console.log(`[Spotify Token Grab] What's the usercookie? ${usercookie}`);
             mustang.sendAndConsumeMessage(amqpUrl, spotQueue, {
                 type: "spotToken",
@@ -293,6 +292,16 @@ app.get("/:page", (req, res) => {
                 }
             };
             break;
+        // case "account":
+        //     res.status(200).render('account', { data }), err => {
+        //         if (err) {
+        //             d = new Date();
+        //             d = d.toTimeString();
+        //             msg = `${d} : Failed to render account page.`
+        //             timber.logAndSend(msg);
+        //         }
+        //     }
+        //     break;
         default:
             res.status(200).render('index'), err => {
                 if (err) {
@@ -366,8 +375,6 @@ app.post('/account', (req, res) => {
 app.post('/login', (req, res) => {
     const useremail = req.body.useremail;
     const password = req.body.password;
-    // const broker_vHost = process.env.BROKER_VHOST;
-    // const broker_Queue = process.env.BROKER_QUEUE;
     // Check to see if a session cookie exists, if not call the create sessionCookie function
     let session_id = createSessionCookie(req, res);
 
