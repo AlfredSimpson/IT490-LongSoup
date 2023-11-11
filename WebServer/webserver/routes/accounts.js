@@ -22,6 +22,9 @@ router
         let page = req.params.param;
         // handle where it goes
         switch (page) {
+            case "/":
+                console.log(`Requesting ${page}...`);
+                break;
             case "browse":
                 console.log(page);
                 break;
