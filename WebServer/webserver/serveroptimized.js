@@ -417,8 +417,10 @@ app.post('/login', (req, res) => {
             }
             console.log('\n[Login] Setting session data\n');
             cache.put('uid', userinfo.uid, 3600000);
+            console.log(`uid is ${userinfo.uid}`);
             cache.put('name', userinfo.name, 3600000);
             let loggedIn = true;
+            let uid = cache.get('uid');
             cache.put('loggedIn', loggedIn, 3600000);
             cache.put('tracks', tracks, 3600000);
             cache.put('artists', artists, 3600000);
@@ -428,7 +430,7 @@ app.post('/login', (req, res) => {
 
             // we may want to add other session information to keep, like username, spotify name, etc.
             // passing back the uid may be good for messaging and other things.
-            res.status(200).render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed });
+            res.status(200).render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid });
             //res.redirect('/account');
         } else {
             let errorMSG = 'You have failed to login.';

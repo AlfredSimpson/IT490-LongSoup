@@ -51,6 +51,8 @@ def spotQuery(query_type, by_type, query, uid=None, limit=10):
     # If they don't, we use the client credentials flow to query the Spotify API
 
     results = db.users.find_one({"uid": uid})
+
+    print(f"\nResults: {results}\n")
     # if results:
     #     if "access_token" in results:
     #         access_token = results["access_token"]
@@ -114,6 +116,7 @@ def request_processor(ch, method, properties, body):
         match request["type"]:
             case "spot_query":
                 response = spotQuery(
+                    request["uid"],
                     request["query_type"],
                     request["by_type"],
                     request["query"],

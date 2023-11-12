@@ -65,3 +65,19 @@
 {"type":"log","source":"_SPOTIFY_","date":"2023-11-11T21:29:13.123EST","log_message":"User requested some jams, got some.\n"}
 {"type":"log","source":"Webserver","date":"2023-11-11T21:41:38.753EST","log_message":"User logged in successfully.\n"}
 {"type":"log","source":"_SPOTIFY_","date":"2023-11-11T22:30:17.946EST","log_message":"User requested some jams, got some.\n"}
+{"type":"log","source":"_SPOTIFY_","date":"2023-11-11T22:35:55.139EST","log_message":"User requested some jams, got some.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T22:35:59.067EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T22:44:25.000EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T22:53:58.413EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T23:19:22.813EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T23:19:52.927EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T23:20:26.324EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T23:21:12.227EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T23:22:42.122EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T23:24:05.359EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T23:24:37.298EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"_SPOTIFY_","date":"2023-11-11T23:25:04.266EST","log_message":"User requested some jams, got some.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T23:27:33.108EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T23:28:32.390EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T23:31:37.838EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T23:33:14.828EST","log_message":"User logged in successfully.\n"}

@@ -46,12 +46,16 @@ router
     })
     .post((req, res) => {
         let type = req.params.param;
+        // let uid = req.body.uid;
         // handle where it goes
         switch (type) {
             case "query":
                 // Get the Params to send to the query function
                 let query = req.body.query;
                 let query_type = req.body.query_type;
+                let by_type = req.body.by_type;
+                let uid = req.body.uid;
+                console.log(`Query: ${query} | Type: ${query_type} | By Type: ${by_type} | UID: ${uid}`);
                 // url encode query
                 query = encodeURIComponent(query);
                 const amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
