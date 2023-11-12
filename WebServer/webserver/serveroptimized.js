@@ -372,6 +372,13 @@ app.post('/account', (req, res) => {
     });
 });
 
+
+/**
+ * =====================================================
+ * USER REGISTRATION BEGINS HERE
+ * =====================================================
+ * This is the login process after a user has clicked login.
+ */
 app.post('/login', (req, res) => {
     const useremail = req.body.useremail;
     const password = req.body.password;

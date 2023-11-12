@@ -34,3 +34,7 @@
 {"type":"log","source":"Webserver","date":"2023-11-11T18:54:40.860EST","log_message":"\n[Account Post]\tUser requested some jams, got some.\n\n"}
 {"type":"log","source":"Webserver","date":"2023-11-11T18:54:48.751EST","log_message":"\n[Account Post]\tUser requested some jams, got some.\n\n"}
 {"type":"log","source":"_SPOTIFY_","date":"2023-11-11T18:55:11.693EST","log_message":"User requested some jams, got some.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T19:05:46.076EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T19:05:54.300EST","log_message":"\n[Account Post]\tUser requested some jams, got some.\n\n"}
+{"type":"log","source":"_SPOTIFY_","date":"2023-11-11T19:06:02.038EST","log_message":"User requested some jams, got some.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-11T19:07:00.852EST","log_message":"User logged in successfully.\n"}

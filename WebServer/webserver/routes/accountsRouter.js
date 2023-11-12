@@ -19,8 +19,20 @@ router.use(function (req, res, next) {
     next();
 });
 
+// A function, requireAuthentication, which will be used as middleware to check if a user is logged in or not
+function requireAuthentication(req, res, next) {
+    var loggedIn = req.account_config.loggedIn ?? false;
+    if (loggedIn === true) {
+        next();
+    } else {
+        // if the user is not logged in, redirect them to the login page
+        res.redirect('/login');
+    }
+}
+
 // router.all('*', requireAuthentication);
-router.get('/', (req, res) => {
+router.get('/', requireAuthentication, (req, res) => {
+
     var uid = req.account_config.uid;
     console.log('uid is: ', uid);
     var loggedIn = req.account_config.loggedIn ?? false;
@@ -42,7 +54,7 @@ router.get('/', (req, res) => {
 });
 
 router.route("/:page")
-    .get((req, res) => {
+    .get(requireAuthentication, (req, res) => {
         console.log('checking for page in the accoutns router');
         var page = req.params.page;
         var viewPath = path.join(__dirname, '../../views/account/', page + '.ejs');
