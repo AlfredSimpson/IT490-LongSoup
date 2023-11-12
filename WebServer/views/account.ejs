@@ -23,20 +23,28 @@
                                         <div class="my-3">
                                             <!-- A text search bar pre filled with 'rolling stones' 'blues' 'jawbreaker'. There is a button after that which, when clicked, should activate a script to send it to the server. -->
                                             <form action="/api/query" method="POST">
+                                                <!-- An H3 for the drop down telling them to specify what they want -->
+                                                <h5>Search for a track, artist, genre, etc...</h5>
                                                 <!-- dropdown options giving tracks, artists, genres, albums as options -->
-                                                <select id="query_type" name="query_type">
+                                                <select name="query_type" id="query_type" title="query_type">
                                                     <option value="track">Track</option>
                                                     <option value="artist">Artist</option>
                                                     <option value="genre">Genre</option>
                                                     <option value="album">Album</option>
                                                 </select>
+                                                <h5>And what are you looking for in that type of query?</h5>
                                                 <div class="input-group">
-                                                    <input class="form-control" type="text" name="query"
+                                                    <input class="form-control" type="text" name="query" id="query"
                                                         placeholder="blues, rock, jawbreaker - what are you looking for?"
                                                         style="color: black;" />
-                                                    <button class="btn btn-primary" type="submit">Search</button>
+                                                    <button class="btn btn-primary" id="queryButton">Search</button>
                                                 </div>
                                             </form>
+                                        </div>
+                                        <div class="my-3">
+                                            <table class="table-dark table-striped" id="query_table">
+
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
@@ -137,6 +145,8 @@
                 </div>
             </div>
         </div>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="js/handler.js"></script>
         <%- include('partials/footer'); %>
 </body>
 

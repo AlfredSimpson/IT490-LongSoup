@@ -30,17 +30,35 @@ function requireAuthentication(req, res, next) {
     }
 }
 
+function cacheAgain(stuff) {
+    console.log('trying to recache stuff');
+    console.log(`stuff is: ${stuff}`);
+    // Iterate over a dictionary, and cache each key/value pair
+    for (let [key, value] of Object.entries(stuff)) {
+        console.log(`${key}: ${value}`);
+        cache.put(key, value);
+    }
+}
+
 // router.all('*', requireAuthentication);
 router.get('/', requireAuthentication, (req, res) => {
 
     var uid = req.account_config.uid;
-    console.log('uid is: ', uid);
     var loggedIn = req.account_config.loggedIn ?? false;
     var oAuthed = req.account_config.oAuthed ?? null;
     var data = req.account_config.data ?? null;
     var links = req.account_config.links ?? null;
     var artists = req.account_config.artists ?? null;
     var tracks = req.account_config.tracks ?? null;
+    var attributes = {}
+    attributes['uid'] = uid;
+    attributes['loggedIn'] = loggedIn;
+    attributes['oAuthed'] = oAuthed;
+    attributes['data'] = data;
+    attributes['links'] = links;
+    attributes['artists'] = artists;
+    attributes['tracks'] = tracks;
+    cacheAgain(attributes);
     var accountPath = path.join(__dirname, '../../views/account.ejs');
     res.render(accountPath, {
         loggedIn: loggedIn,
@@ -61,10 +79,10 @@ router.route("/:page")
         console.log('__dirname is: ', __dirname);
         switch (page) {
             case "":
-                console.log(`Rendering ${page}... Is it blank?`);
+                console.log(`Rendering ${page}...Is it blank ? `);
                 break;
             case "account":
-                console.log(`Rendering ${page}... Is it account?`);
+                console.log(`Rendering ${page}...Is it account ? `);
                 break;
             case 'stats':
             case 'messageboard':
@@ -96,14 +114,14 @@ router.route("/:page")
 // router.get("/:page", (req, res) => {
 //     var page = req.params.page;
 //     // page = path.join(accountPath, page + '.ejs');
-//     console.log(`Requesting ${page}...`);
+//     console.log(`Requesting ${ page }...`);
 //     const viewPath = path.join(__dirname, '../views/account/', page + '.ejs');
-//     console.log(`Requesting ${viewPath}... - but where is it?`);
+//     console.log(`Requesting ${ viewPath }... - but where is it ? `);
 
 //     // handle where it goes
 //     switch (page) {
 //         case "/":
-//             console.log(`Requesting ${page}...`);
+//             console.log(`Requesting ${ page }...`);
 //             res.render('account', {
 //                 loggedIn: loggedIn,
 //                 uid: uid,
@@ -127,7 +145,7 @@ router.route("/:page")
 //             })
 //             break;
 //         case "browse":
-//             console.log(`passed to switch case ${page}...`);
+//             console.log(`passed to switch case ${ page }...`);
 //             res.render('browse', {
 //                 loggedIn: loggedIn,
 //                 uid: uid,
