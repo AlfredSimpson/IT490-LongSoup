@@ -57,6 +57,9 @@ router
                 const amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
                 mustang.sendAndConsumeMessage(amqpURL, SPOTQUEUE, {
                     type: "spot_query",
+                    query: query,
+                    by_type: by_type,
+                    query_type: query_type
                 });
                 return "hi"; // Keep hi here for a few until we come back and add the query to the db
                 break;

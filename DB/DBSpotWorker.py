@@ -40,7 +40,7 @@ myclient = pymongo.MongoClient(
 db = myclient[maindb]
 
 
-def spotQuery(query_type, query, uid=None, limit=10):
+def spotQuery(query_type, by_type, query, uid=None, limit=10):
     # First, check our database to see if we have the query stored already
     # If we do, return the query
     # If we don't, query the Spotify API and store the result in the database
@@ -61,6 +61,11 @@ def spotQuery(query_type, query, uid=None, limit=10):
     # else:
     #     print("\nNo user found in db\n")
     #     access_token = None
+    if by_type == "anything":
+        by_type = ""
+
+    query = by_type + "%3A" + query
+    print(f"\nQuery: {query}\n")
 
     access_token = results["access_token"]
     headers = {"Authorization": f"Bearer {access_token}"}
@@ -110,6 +115,7 @@ def request_processor(ch, method, properties, body):
             case "spot_query":
                 response = spotQuery(
                     request["query_type"],
+                    request["by_type"],
                     request["query"],
                 )
                 pass

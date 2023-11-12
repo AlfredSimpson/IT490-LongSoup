@@ -9,9 +9,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // If the query button is clicked, we need to get the value of the input box AND the value of the select box
         var queryInput = document.getElementById('query').value;
         var querySelect = document.getElementById('query_type').value;
-        console.log(`Query: ${queryInput} | Type: ${querySelect}`);
+        var byType = document.getElementById('by_type').value;
+        console.log(`Query: ${queryInput} | Type: ${querySelect} | By Type: ${byType}`);
         // Then we need to send the query to the server
-        axios.post('/api/query', { queryInput, querySelect })
+        axios.post('/api/query', { queryInput, byType, querySelect })
             .then(response => {
                 // After the response, for each item in the response, we need to create a table row
                 // and add it to the table
