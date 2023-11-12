@@ -109,14 +109,16 @@
                                 <ul>
                                     <ul>
                                         <% console.log(tracks) %>
-                                            <% for(var i=0; i<tracks.length; i++) {%>
-                                                <li>
+                                            <% if (tracks && tracks.length) { %>
+                                                <% for(var i=0; i<tracks.length; i++) {%>
+                                                    <li>
 
-                                                    <%= tracks[i] %> , <%= artists[i] %>, <a
-                                                                href="<%= links[i] %>">Listen
-                                                                Now!</a>"
-                                                </li>
-                                                <% }; %>
+                                                        <%= tracks[i] %> , <%= artists[i] %>, <a
+                                                                    href="<%= links[i] %>">Listen
+                                                                    Now!</a>"
+                                                    </li>
+                                                    <% }; %>
+                                                        <% } %>
                                     </ul>
                                 </ul>
                                 </p>
