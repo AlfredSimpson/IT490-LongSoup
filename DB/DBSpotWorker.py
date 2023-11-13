@@ -8,7 +8,7 @@ import spotipy
 import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import load_dotenv
-from dotenv import load_dotenv
+
 
 load_dotenv()
 
@@ -107,12 +107,28 @@ def request_processor(ch, method, properties, body):
         logging.error("Error decoding incoming JSON")
         response = {"ERROR": "Invalid JSON Format Received"}
         return return_error(ch, method, properties, body, response)
-    print(f"\nincoming request: {request}\n")
+    print(f"\nIncoming request: {request}\n")
     if "type" not in request:
-        print(f"\n{request}\n")
+        print(f"\n The Request coming is looks like this: {request}\n")
         logging.error(f"Error in type. Request received without type: {request}")
         response = "ERROR: No type specified by message"
     else:
+        # iterate over all key value pairs in the request
+        for key, value in request.items():
+            print(f"\nKey: {key}\n")
+            print(f"\nValue: {value}\n")
+            # if value == "":
+            #     print(f"\nValue is empty\n")
+            #     logging.error(
+            #         f"Error in value. Request received with empty value: {key}"
+            #     )
+            #     response = "ERROR: Empty value specified by message"
+            #     return return_error(ch, method, properties, body, response)
+            # else:
+            #     print(f"\nValue is not empty\n")
+            #     logging.debug(f"\nValue is not empty: {value}\n")
+            #     response = "ERROR: No value specified by message"
+
         match request["type"]:
             case "spot_query":
                 response = spotQuery(

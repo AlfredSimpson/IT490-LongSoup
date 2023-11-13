@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`[HANDLER]\t uid is: ${uid}`);
         console.log(`Query: ${queryInput} | Type: ${querySelect} | By Type: ${byType}`);
         // Then we need to send the query to the server
-        axios.post('/api/query', { uid, queryInput, byType, querySelect })
+        axios.post('/api/query', { uid: uid, query: queryInput, by: byType, queryT: querySelect })
             .then(response => {
                 // After the response, for each item in the response, we need to create a table row
                 // and add it to the table

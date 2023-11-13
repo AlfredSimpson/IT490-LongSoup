@@ -11,7 +11,7 @@ import spotipy
 import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import load_dotenv
-from dotenv import load_dotenv
+
 
 load_dotenv()
 
@@ -516,9 +516,9 @@ def request_processor(ch, method, properties, body):
         logging.error("Error decoding incoming JSON")
         response = {"ERROR": "Invalid JSON Format Received"}
         return return_error(ch, method, properties, body, response)
-    print(f"\nincoming request: {request}\n")
+    print(f"\nIncoming request: {request}\n")
     if "type" not in request:
-        print(f"\n{request}\n")
+        print(f"\n The Request coming is looks like this: {request}\n")
         logging.error(f"Error in type. Request received without type: {request}")
         response = "ERROR: No type specified by message"
     else:

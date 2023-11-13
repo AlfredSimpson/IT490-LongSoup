@@ -93,7 +93,19 @@ app.use("/account", function (req, res, next) {
 }, accountsRouter);
 
 // Routing done in accounts.js
-// app.use("/api", api); // Routing done in api.js
+app.use("/api", function (req, res, next) {
+    req.api_config = {
+        loggedIn: cache.get('loggedIn'),
+        uid: cache.get('uid'),
+        tracks: cache.get('tracks'),
+        artists: cache.get('artists'),
+        links: cache.get('links'),
+        data: cache.get('data'),
+        oAuthed: cache.get('oAuthed'),
+        data: cache.get('data'),
+    };
+    next();
+}, api); // Routing done in api.js
 
 
 /**
@@ -395,13 +407,14 @@ app.post('/account', (req, res) => {
                 // req.session.links = links;
                 // let oAuthed = req.session.oAuthed;
                 let oAuthed = cache.get('oAuthed');
+                let uid = cache.get('uid');
                 cache.put('tracks', tracks, 3600000);
                 cache.put('artists', artists, 3600000);
                 cache.put('links', links, 3600000);
                 cache.put('data', data, 3600000);
                 console.log('\n[Account] Setting session data\n');
                 // console.log('\n[Account] req.session.uid: ', req.session.tracks);
-                res.render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed });
+                res.render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid });
             } else {
                 console.log("Failure!");
                 console.log("Sending response data");
@@ -471,7 +484,7 @@ app.post('/login', (req, res) => {
             cache.put('links', links, 3600000);
             cache.put('data', data, 3600000);
             let oAuthed = cache.get('oAuthed');
-
+            console.log(`We are passing oAuthed: ${oAuthed}, uid: ${uid}, loggedIn: ${loggedIn}, data: ${data}, tracks: ${tracks}, artists: ${artists}, links: ${links}`)
             // we may want to add other session information to keep, like username, spotify name, etc.
             // passing back the uid may be good for messaging and other things.
             res.status(200).render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid });

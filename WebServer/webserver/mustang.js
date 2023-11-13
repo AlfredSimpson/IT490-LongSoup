@@ -24,7 +24,11 @@ module.exports = {
          * @param {object} requestPayload - The payload to send to the queue
          * @param {function} callback - The callback function to run when a response is received
          */
-        console.log(`The payload is ${requestPayload}`);
+        console.log(`[MUSTANG] The payload is ${requestPayload}`);
+        // Iterate over the requestPayload and log each key/value pair
+        for (let [key, value] of Object.entries(requestPayload)) {
+            console.log(`[MUSTANG] ${key}: ${value}`);
+        }
         amqp.connect(amqpUrl, (error, connection) => {
             // Attempt to connect to the RMQ broker
             if (error) {
@@ -68,7 +72,11 @@ module.exports = {
                         }
                     }, { noAck: true }); // noAck means that the message is not acknowledged. This means that the message will be lost if the consumer dies before the message is processed.
                     // console.log('[MUSTANG] Step 7 |  Attempting to send message to queue.')
-                    // console.log(`\n[MUSTANG exports] Sending message to queue ${queueName}\n`);
+                    console.log(`\n[MUSTANG exports] Sending message to queue ${queueName}\n`);
+                    console.log(`\n\n\n End of the line for mustang \n\n\n`);
+                    for (let [key, value] of Object.entries(requestPayload)) {
+                        console.log(`\n[MUSTANG]\t ${key}:\t ${value}`);
+                    }
                     // Send the message to the queue
                     channel.sendToQueue(
                         queueName,

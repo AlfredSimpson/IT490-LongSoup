@@ -31,11 +31,11 @@ function requireAuthentication(req, res, next) {
 }
 
 function cacheAgain(stuff) {
-    console.log('trying to recache stuff');
-    console.log(`stuff is: ${stuff}`);
+    console.log('\n\ntrying to recache stuff');
+    console.log(`\n\nstuff is: ${stuff}`);
     // Iterate over a dictionary, and cache each key/value pair
     for (let [key, value] of Object.entries(stuff)) {
-        console.log(`${key}: ${value}`);
+        console.log(`\n${key}: ${value}`);
         cache.put(key, value);
     }
 }
@@ -71,12 +71,28 @@ router.get('/', requireAuthentication, (req, res) => {
     });
 });
 
+
 router.route("/:page")
     .get(requireAuthentication, (req, res) => {
-        console.log('checking for page in the accoutns router');
+        console.log('checking for page in the accounts router');
         var page = req.params.page;
         var viewPath = path.join(__dirname, '../../views/account/', page + '.ejs');
         console.log('__dirname is: ', __dirname);
+        var uid = req.account_config.uid;
+        var loggedIn = req.account_config.loggedIn ?? false;
+        var oAuthed = req.account_config.oAuthed ?? null;
+        var data = req.account_config.data ?? null;
+        var links = req.account_config.links ?? null;
+        var artists = req.account_config.artists ?? null;
+        var tracks = req.account_config.tracks ?? null;
+        var attributes = {}
+        attributes['uid'] = uid;
+        attributes['loggedIn'] = loggedIn;
+        attributes['oAuthed'] = oAuthed;
+        attributes['data'] = data;
+        attributes['links'] = links;
+        attributes['artists'] = artists;
+        attributes['tracks'] = tracks;
         switch (page) {
             case "":
                 console.log(`Rendering ${page}...Is it blank ? `);
