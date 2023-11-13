@@ -7,14 +7,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Then we need to add an event listener to the query button
     queryButton.addEventListener('click', (event) => {
         // If the query button is clicked, we need to get the value of the input box AND the value of the select box
-        var queryInput = document.getElementById('query').value;
-        var querySelect = document.getElementById('query_type').value;
-        var byType = document.getElementById('by_type').value;
+        var query = document.getElementById('query').value;
+        var queryT = document.getElementById('query_type').value;
+        var by = document.getElementById('by_type').value;
         var uid = document.getElementById('uid').innerText;
         console.log(`[HANDLER]\t uid is: ${uid}`);
-        console.log(`Query: ${queryInput} | Type: ${querySelect} | By Type: ${byType}`);
+        console.log(`Query: ${queryInput} | Type: ${queryT} | By Type: ${by}`);
         // Then we need to send the query to the server
-        axios.post('/api/query', { uid: uid, query: queryInput, by: byType, queryT: querySelect })
+        axios.post('/api/query', { "uid": uid, "queryT": queryT, "query": query, "by": by })
             .then(response => {
                 // After the response, for each item in the response, we need to create a table row
                 // and add it to the table
