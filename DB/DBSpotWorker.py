@@ -117,17 +117,10 @@ def request_processor(ch, method, properties, body):
             case "spot_query":
                 response = spotQuery(
                     request["uid"],
-                    request["query_type"],
-                    request["by_type"],
+                    request["queryT"],
                     request["query"],
+                    request["by"],
                 )
-                pass
-            # case "simplerecs":
-            #     response = get_recs(
-            #         request["genre"],
-            #         request["popularity"],
-            #         request["valence"],
-            #     )
             case _:
                 # Default case - basically, all else failed.
                 response = {

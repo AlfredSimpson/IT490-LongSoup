@@ -34,6 +34,16 @@ router.use(function (req, res, next) {
 router
     .route("/:param")
     .get((req, res) => {
+        var attributes = {}
+        attributes['uid'] = uid;
+        attributes['loggedIn'] = loggedIn;
+        attributes['oAuthed'] = oAuthed;
+        attributes['data'] = data;
+        attributes['links'] = links;
+        attributes['artists'] = artists;
+        attributes['tracks'] = tracks;
+        console.log(`attributes: ${attributes}, ${attributes['uid']}`);
+
         let page = req.params.param;
         // handle where it goes
         switch (page) {
@@ -51,29 +61,38 @@ router
         switch (type) {
             case "query":
                 // Get the Params to send to the query function
+                console.log(`Sending a request to the query function in api.js`);
                 let query = req.body.query;
-                let query_type = req.body.query_type;
-                let by_type = req.body.by_type;
+                let queryT = req.body.query_type;
+                let by = req.body.by_type;
                 let uid = req.body.uid;
-                console.log(`Query: ${query} | Type: ${query_type} | By Type: ${by_type} | UID: ${uid}`);
+                console.log(`[LINE 69] Query: ${query} | Type: ${queryT} | By Type: ${by} | UID: ${uid}`);
                 // url encode query
                 query = encodeURIComponent(query);
                 const amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
                 mustang.sendAndConsumeMessage(amqpURL, SPOTQUEUE, {
                     type: "spot_query",
-                    query: query,
-                    by_type: by_type,
-                    query_type: query_type
+                    "uid": uid,
+                    "queryT": queryT,
+                    "query": query,
+                    "by": by
+                }, (msg) => {
+                    const response = JSON.parse(msg.content.toString());
+                    if (response.returnCode === 0) {
+                        console.log(`Generation success!`);
+
+                        res.status(200).render('success', { oAuthed: oAuthed });
+                    } else {
+                        res.status(401).send('UGh fuck this ');
+                    }
                 });
-                return "hi"; // Keep hi here for a few until we come back and add the query to the db
                 break;
             case "showsuggested":
                 break;
-
             default:
                 break;
         }
-        res.send(page);
+        // res.send(page);
     });
 
 

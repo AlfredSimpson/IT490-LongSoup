@@ -38,6 +38,15 @@ const spotTokenURL = process.env.SPOTIFY_TOKEN_URL;
 const spotAPIURL = process.env.SPOTIFY_API_BASE_URL;
 
 
+
+const SPOTHOST = process.env.SPOT_HOST;
+const SPOTPORT = process.env.SPOT_PORT;
+const SPOTUSER = process.env.SPOT_USER;
+const SPOTPASS = process.env.SPOT_PASS;
+const SPOTVHOST = process.env.SPOT_VHOST;
+const SPOTEXCHANGE = process.env.SPOT_EXCHANGE;
+const SPOTQUEUE = process.env.SPOT_QUEUE;
+
 app.use(express.json());
 app.use(statusMessageHandler);
 app.use(express.urlencoded({ extended: true }));
@@ -84,7 +93,7 @@ app.use("/account", function (req, res, next) {
 }, accountsRouter);
 
 // Routing done in accounts.js
-app.use("/api", api); // Routing done in api.js
+// app.use("/api", api); // Routing done in api.js
 
 
 /**
@@ -311,6 +320,41 @@ app.get("/:page", (req, res) => {
                     timber.logAndSend(msg);
                 }
             };
+            break;
+    }
+});
+
+app.post('/api/:param', (req, res) => {
+    let type = req.params.param;
+    var uid = cache.get('uid');
+    // handle where it goes
+    switch (type) {
+        case "query":
+            console.log(`Sending a request to the query function in server.js`);
+            let query = req.body.query;
+            let queryT = req.body.query_type;
+            let by = req.body.by_type;
+            var uid = cache.get('uid');
+            query = encodeURIComponent(query);
+            const amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
+            mustang.sendAndConsumeMessage(amqpURL, SPOTQUEUE, {
+                type: "spot_query",
+                "uid": uid,
+                "queryT": queryT,
+                "query": query,
+                "by": by
+            }, (msg) => {
+                const response = JSON.parse(msg.content.toString());
+                if (response.returnCode === 0) {
+                    console.log(`Generation success!`);
+                    res.status(200).send(response);
+                }
+            }
+            );
+            break;
+        case 'oops':
+            break;
+        default:
             break;
     }
 });
