@@ -49,8 +49,14 @@ def spotQuery(query_type, by_type, query, uid=None, limit=10):
     # We start by querying the db by uid to see if the user has an access token
     # If they do, we use that access token to query the Spotify API
     # If they don't, we use the client credentials flow to query the Spotify API
+    try:
+        results = db.users.find_one({"uid": uid})
+        print(f"\nResults: {results}\n")
 
-    results = db.users.find_one({"uid": uid})
+    except Exception as e:
+        print("\nNo user found in db\n")
+        results = None
+        return {"returnCode": 1, "message": "This did not go as planned"}
 
     print(f"\nResults: {results}\n")
     # if results:
