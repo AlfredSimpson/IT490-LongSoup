@@ -40,7 +40,7 @@ myclient = pymongo.MongoClient(
 db = myclient[maindb]
 
 
-def spotQuery(query_type, by_type, query, uid=None, limit=10):
+def spotQuery(uid, query_type, by_type, query, limit=10):
     # First, check our database to see if we have the query stored already
     # If we do, return the query
     # If we don't, query the Spotify API and store the result in the database
@@ -59,26 +59,31 @@ def spotQuery(query_type, by_type, query, uid=None, limit=10):
         return {"returnCode": 1, "message": "This did not go as planned"}
 
     print(f"\nResults: {results}\n")
-    # if results:
-    #     if "access_token" in results:
-    #         access_token = results["access_token"]
-    #         print(f"\nFound access token in db: {access_token}\n")
-    #     else:
-    #         print("\nNo access token found in db\n")
-    #         access_token = None
-    # else:
-    #     print("\nNo user found in db\n")
-    #     access_token = None
+    if results:
+        if "access_token" in results:
+            access_token = results["access_token"]
+            print(f"\nFound access token in db: {access_token}\n")
+        else:
+            print("\nNo access token found in db\n")
+            access_token = None
+            return {
+                "returnCode": 1,
+                "message": "This did not go as planned - No access token!",
+            }
+    else:
+        print("\nNo user found in db\n")
+        access_token = None
     if by_type == "anything":
         by_type = ""
 
-    query = by_type + "%3A" + query
+    query = query_type + "%3A" + query
     print(f"\nQuery: {query}\n")
 
     access_token = results["access_token"]
     headers = {"Authorization": f"Bearer {access_token}"}
     response = requests.get(
-        SPOTIFY_API_BASE_URL + "/search?q=" + query, headers=headers
+        SPOTIFY_API_BASE_URL + "/search?q=" + query + "&type=" + query_type,
+        headers=headers,
     )
     formatted_response = response.json()
     print(f"\nFormatted response: {formatted_response}\n")
