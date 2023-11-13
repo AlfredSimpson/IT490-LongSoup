@@ -87,8 +87,8 @@ def spotQuery(uid, query_type, by_type, query, limit=10):
     )
     formatted_response = response.json()
     print(f"\nFormatted response: {formatted_response}\n")
-
-    pass
+    # We need to clean the data and then return it - issue here is that each type might return different things...
+    return {"returnCode": 0, "message": formatted_response}
 
 
 def return_error():

@@ -120,12 +120,12 @@ router
                     by: by
                 }, (msg) => {
                     const response = JSON.parse(msg.content.toString());
-                    if (response.returnCode === 0) {
+                    if (response.returnCode == 0) {
                         console.log(`Generation success!`);
 
                         res.status(200).render('success', { oAuthed: oAuthed });
                     } else {
-                        res.status(401).send('UGh fuck this ');
+                        res.status(401).send('Ugh yo this is not working.');
                     }
                 });
                 break;
