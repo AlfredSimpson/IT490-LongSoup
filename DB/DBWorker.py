@@ -1,6 +1,7 @@
 import pika
 import os, sys, json, random
 import datetime
+import bcrypt
 
 # import LongMongoDB
 
@@ -314,9 +315,10 @@ def do_logout(usercookieid, session_id):
 
 
 def do_login(useremail, password, session_id, usercookieid):
-    """# do_login
+    """
+    # do_login
     Takes useremail and password as arguments and attempts to login the user.
-    It stores thes session_id and usercookieid
+    It stores the session_id and usercookieid
 
     Args:
         useremail (string): The useremail to check
@@ -325,9 +327,9 @@ def do_login(useremail, password, session_id, usercookieid):
         usercookieid (string): The usercookieid to store
 
     Returns:
-        _type_: _description_
+        dict: A dictionary containing the login result
     """
-    print("\n Checking Types")
+    print("\nChecking Types")
     print(
         type(maindbuser),
         "= dbuser",
@@ -343,44 +345,49 @@ def do_login(useremail, password, session_id, usercookieid):
     # Connect to the database
     collection = db.users
     user = collection.find_one({"email": useremail})
-    if user and user["password"] == password:
-        # update/set the session id & user cookie id
-        # LMDB.set_usercookieid(useremail, usercookieid)
-        first_result = db.users.find_one({"email": useremail})
-        uid = first_result["uid"]
-        db.users.update_one(
-            {"uid": uid}, {"$set": {"usercookieid": usercookieid}}, upsert=False
-        )
-        # LMDB.set_session(session_id, useremail)
-        db.users.update_one(
-            {"uid": uid}, {"$set": {"sessionid": session_id}}, upsert=False
-        )
-        # get the user's name and spot_name to pass back to the front end
-        # user_fname = LMDB.get_name(usercookieid)
-        user_uid = uid
-        user_fname = db.userinfo.find_one({"uid": uid})["first_name"]
-        user_spot_name = db.userinfo.find_one({"uid": uid})["spot_name"]
+    if user:
+        dbpassword = user["password"]
+        #dbsalt = user["salt"].encode('utf-8')
 
-        # Get some tunes
-        genre = random.choice(["punk", "rock", "pop", "country", "rap", "hip-hop"])
-        valence = random.uniform(0, 1)
-        energy = random.uniform(0, 1)
-        popularity = random.randint(0, 100)
-        music = get_recs(genre, valence, energy, popularity, True)
-        return {
-            "returnCode": 0,
-            "message": "Login successful",
-            "sessionValid": "True",
-            "music": music["musicdata"],
-            "userinfo": {
-                "name": user_fname,
-                "spot_name": user_spot_name,
-                "uid": user_uid,
-            },
-            "data": {
-                "loggedin": "True",
-            },
-        }
+        if bcrypt.checkpw(password.encode('utf-8'), dbpassword.encode('utf-8')):
+            # Update/set the session id & user cookie id
+            # LMDB.set_usercookieid(useremail, usercookieid)
+            first_result = db.users.find_one({"email": useremail})
+            uid = first_result["uid"]
+            db.users.update_one(
+                {"uid": uid}, {"$set": {"usercookieid": usercookieid}}, upsert=False
+            )
+            # LMDB.set_session(session_id, useremail)
+            db.users.update_one(
+                {"uid": uid}, {"$set": {"sessionid": session_id}}, upsert=False
+            )
+            # Get the user's name and spot_name to pass back to the front end
+            # user_fname = LMDB.get_name(usercookieid)
+            user_uid = uid
+            user_fname = db.userinfo.find_one({"uid": uid})["first_name"]
+            user_spot_name = db.userinfo.find_one({"uid": uid})["spot_name"]
+
+            # Get some tunes
+            genre = random.choice(["punk", "rock", "pop", "country", "rap", "hip-hop"])
+            valence = random.uniform(0, 1)
+            energy = random.uniform(0, 1)
+            popularity = random.randint(0, 100)
+            music = get_recs(genre, valence, energy, popularity, True)
+            
+            return {
+                "returnCode": 0,
+                "message": "Login successful",
+                "sessionValid": "True",
+                "music": music["musicdata"],
+                "userinfo": {
+                    "name": user_fname,
+                    "spot_name": user_spot_name,
+                    "uid": user_uid,
+                },
+                "data": {
+                    "loggedin": "True",
+                },
+            }
     else:
         print("\n[LOGIN ERROR] User Not Found\n")
         return {
@@ -425,13 +432,16 @@ def do_register(
             "\n[REGISTRATION]\tUser email not found in users table. Attempting to register user!\n"
         )
         try:
+            salt = bcrypt.gensalt()
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
             print(f'\nAttempting to add user "{useremail}" to users\n')
             uid = get_next_uid()
             users.insert_one(
                 {
                     "uid": uid,
                     "email": useremail,
-                    "password": password,
+                    "password": hashed_password,
+                    "salt": salt.decode('utf-8'),
                     "sessionid": session_id,
                     "cookieid": usercookieid,
                 }
