@@ -9,8 +9,16 @@
 # Node
 
 node_modules/
-
+.cert
+.key
 .pem
 
 # Nobody wants to see our logs
 .log
+WebServer/_webserver.log
+_webserver_rmq.log
+_Web.log
+Unknown-Origins.log
+WebServer/_webserver.log
+WebServer/_webserver.log
+*.log

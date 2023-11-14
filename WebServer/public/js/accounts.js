@@ -1,33 +1,33 @@
 function fetchRock() {
-    return axios.get('/api/get-rock') // Replace with your API endpoint
+    return axios.get('/api/get-rock')
         .then(response => response.data)
         .catch(error => {
             throw error;
         });
 }
 function fetchRap() {
-    return axios.get('/api/get-rap') // Replace with your API endpoint
+    return axios.get('/api/get-rap')
         .then(response => response.data)
         .catch(error => {
             throw error;
         });
 }
 function fetchPunk() {
-    return axios.get('/api/get-punk') // Replace with your API endpoint
+    return axios.get('/api/get-punk')
         .then(response => response.data)
         .catch(error => {
             throw error;
         });
 }
 function fetchPop() {
-    return axios.get('/api/get-pop') // Replace with your API endpoint
+    return axios.get('/api/get-pop')
         .then(response => response.data)
         .catch(error => {
             throw error;
         });
 }
 function fetchSuggested() {
-    return axios.get('/api/get-suggested') // Replace with your API endpoint
+    return axios.get('/api/get-suggested')
         .then(response => response.data)
         .catch(error => {
             throw error;

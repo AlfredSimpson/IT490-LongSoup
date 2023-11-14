@@ -1,61 +1,108 @@
-require('dotenv').config();
+// This is my attempt to create a better web server than the one I made in the past. It will be more modular and easier to use. Further, I'm building my own view engine.
+
 const express = require('express');
-const axios = require('axios');
+const axios = require('axios'); // Helps with AJAX requests
+const bcrypt = require('bcrypt'); // Helps us encrypt passwords
+const path = require('path'); // Helps us with file paths
+const fs = require('fs'); // Helps us with file system tasks
+const querystring = require('querystring'); // Helps us with query strings
+
+// Import .env files
+require('dotenv').config();
+
+// Custom imports
+const timber = require('./lumberjack.js');
+const mustang = require('./mustang.js');
+const cgs = require('./cgs.js'); // Custom Modules -> statusMessageHandler
+const alsviewer = require('./alsviewer.js'); // Custom Modules -> alsviewer
+
+
+// Instantiate the app
 const app = express();
 
-const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
-const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const REDIRECT_URI = process.env.SPOTIFY_TEST_URI;
-const PORT = 3900;
+// Set views and view engine so we can use EJS. Views are the pages, view engine is the template engine
+app.engine('.alv', alsviewer);
+app.set('views', path.join(__dirname, '../views')); // this gets us out of the dir we're in and into the views, for separation
+app.set('view engine', '.alv');
 
-// Route to handle login
-app.get('/spotlog', (req, res) => {
-    var scopes = 'user-read-currently-playing playlist-read-private';
-    var state = '';
-    for (var i = 0; i < 17; i++) {
-        state += Math.floor(Math.random() * 10);
+
+// Variables/Constants needed for the server
+
+const Port = process.env.PORT || 9001;
+const publicPath = path.join(__dirname, '../public');
+
+// AMQP constants
+
+
+
+// Custom Middleware functions
+
+const trafficLogger = (req, res, next) => {
+    timber.logAndSend(`Incoming request:  ${req.method}`);
+    const send = res.send;
+    res.send = function (string) {
+        const body = string instanceof Buffer ? string.toString() : string;
+        // console.log('req.session', req.session);
+        console.log(`res.status`, res.statusCode);
+        if (res.statusCode != 200) {
+            timber.logAndSend(`Outgoing response: ${res.statusCode}`);
+            send.call(this, string);
+        }
     };
-    res.redirect('https://accounts.spotify.com/authorize' +
-        '?response_type=code' +
-        '&client_id=' + CLIENT_ID +
-        (scopes ? '&scope=' + encodeURIComponent(scopes) : '') +
-        '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) + '&state=' + state);
+    next();
+};
+
+
+
+// Middleware
+
+app.use(express.static(publicPath));
+app.use('/css', express.static(path.join(publicPath, 'css')));
+app.use('/js', express.static(path.join(publicPath, 'js')));
+app.use('/img', express.static(path.join(publicPath, 'img')));
+app.use('/account', express.static(path.join(publicPath, 'account')));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cgs.statusMessageHandler);
+// Set the paths
+
+
+
+
+
+
+// Routing below here
+
+// Gets
+
+app.get('/', (req, res) => {
+    res.status(200).render('index');
 });
 
-// Route to handle the callback from Spotify's OAuth
-app.get('/callback', async (req, res) => {
-    const code = req.query.code || null;
-
-    try {
-        const response = await axios({
-            method: 'post',
-            url: 'https://accounts.spotify.com/api/token',
-            data: new URLSearchParams({
-                grant_type: 'authorization_code',
-                code: code,
-                redirect_uri: REDIRECT_URI
-            }).toString(),
-            headers: {
-                'content-type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' + (new Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'))
-            }
-        });
-
-        if (response.data.access_token) {
-
-            console.log(`response.data.access_token: ${response.data.access_token}`);
-            console.log(`response.data.refresh_token: ${response.data.refresh_token}`);
-            console.log(`response.data.expires_in: ${response.data.expires_in}`);
-            res.send('Login Successful');
-        } else {
-            res.send('Access Token Missing');
-        }
-    } catch (error) {
-        res.status(500).send('Authentication Failed');
+app.get('/:page', (req, res) => {
+    const page = req.params.page;
+    // res.status(200).send(`You are on page ${page}`);
+    // res.status(200).render(page, { page });
+    switch (page) {
+        case 'index':
+            res.status(200).render(page);
+            break;
+        case 'test':
+            res.status(200).render(page, {
+                title: "Test Page",
+                message: "<h1>Oh hey hi hello!</h1>"
+            });
+            break;
+        default:
+            break;
     }
 });
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Listening on port ${PORT}`);
+// Posts
+
+
+
+app.listen(Port, () => {
+    console.log(`Server listening on port ${Port}`);
 });

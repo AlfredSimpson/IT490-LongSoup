@@ -4,14 +4,14 @@
 <html>
 
 <head>
-    <title>Test</title>
+    #title#
     <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
 </head>
 
 <body>
     <div class="container">
-        <h1>Test</h1>
-        <p>Test</p>
+        <div> #message#</div>
+        <h1> What's up doc?</h1>
     </div>
 </body>
 

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <title>Account | CGS</title>
+    <%- include('partials/head'); %>
+</head>
+
+<body>
+    <%- include('partials/loggedheader'); %>
+        <div style="background: var(--bs-emphasis-color);">
+            <div class="container">
+                <section class="py-4 py-xl-5">
+                    <div class="container">
+                        <div class="bg-dark border rounded border-0 border-dark overflow-hidden">
+                            <div class="row g-0">
+                                <div class="col-md-6">
+                                    <div class="text-white p-4 p-md-5">
+                                        <h1 class="fw-bold text-gold">Hey, welcome home!</h1>
+                                        <h2 class="fw-bold text-white mb-3">Looking for something specific?</h2>
+                                        <p class="mb-4">Give a search for anything below - we can take tracks, artists,
+                                            genres, or albums.</p>
+                                        <div class="my-3">
+                                            <!-- A text search bar pre filled with 'rolling stones' 'blues' 'jawbreaker'. There is a button after that which, when clicked, should activate a script to send it to the server. -->
+                                            <form action="/api/query" method="POST">
+                                                <!-- dropdown options giving tracks, artists, genres, albums as options -->
+                                                <select id="query_type" name="query_type">
+                                                    <option value="track">Track</option>
+                                                    <option value="artist">Artist</option>
+                                                    <option value="genre">Genre</option>
+                                                    <option value="album">Album</option>
+                                                </select>
+                                                <div class="input-group">
+                                                    <input class="form-control" type="text" name="query"
+                                                        placeholder="blues, rock, jawbreaker - what are you looking for?"
+                                                        style="color: black;" />
+                                                    <button class="btn btn-primary" type="submit">Search</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <!-- <div class="col-md-6 order-first order-md-last" style="min-height: 250px;">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Track</th>
+                                                    <th>Artist</th>
+                                                    <th>URL</th>
+                                                    <th>Like it?</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Cell 1</td>
+                                                    <td>Cell 2</td>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                    <td>Cell 3</td>
+                                                    <td>Cell 4</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div> -->
+                                </div>
+                            </div>
+                        </div>
+                </section>
+                <div class="row py-4">
+                    <div class="col-md-4 py-2">
+                        <div class="card container-fluid">
+                            <div class="card-body justify-content-center">
+                                <h4 class="card-title">Are we getting recent data?</h4>
+                                <h6 class="text-muted card-subtitle mb-2"></h6>
+                                <p class="card-text mx-auto">
+                                    <% if (oAuthed) { %>
+                                        <h1>
+                                            <div class="alert alert-success" role="alert">
+                                                <%= "We are oAuthed" %>
+                                            </div>
+                                        </h1>
+                                        <% } else{ %>
+                                            <div class="alert alert-warning mx-auto" role="alert">
+
+                                                <%= "We are not oAuthed! Go back to spotify and give us your data!" %>
+                                            </div>
+                                            <br>
+                                            <button type="button" class="btn btn-danger mx-auto"><a
+                                                    href="<%= '/spotlog' %>" class="text-dark mx-auto">Click here to
+                                                    authorize</a></button>
+                                            <% } %>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 py-2">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Want something new but not too sure what?</h4>
+                                <h6 class="text-muted card-subtitle mb-2"></h6>
+                                <p class="card-text">
+                                <form method="post" action="/account?recs">
+                                    <label for="genres" class="form-label">What genre are you looking for?</label>
+                                    <select id="genres" name="genres">
+                                        <option value="alt-rock">alt-rock</option>
+                                        <option value="alternative">alternative</option>
+                                        <option value="country">country</option>
+                                        <option value="punk">Punk</option>
+                                        <option value="hip-hop">hip-hop</option>
+                                        <option value="trip-hop">trip-hop</option>
+                                        <option value="indie">indie</option>
+                                        <option value="metal">metal</option>
+                                        <option value="emo">emo</option>
+                                        <option value="blues">blues</option>
+                                        <option value="philippines-opm">philippines opm</option>
+                                    </select>
+                                    <br>
+                                    <label for="vibe" class="form-label special-range">1-10 right now, what's the vibe
+                                        like?</label>
+                                    <input type="range" name="vibe" class="form-range" id="vibe" min="0" max="1.0"
+                                        step="0.01">
+                                    <br>
+                                    <label for="pop" class="form-label special-range">On a scale of 1-10, do you want
+                                        what's
+                                        on
+                                        the
+                                        radio(10) or something more secret(less than 10)?</label>
+                                    <input type="range" class="form-range" name="pop" id="pop" min="0" max="100"
+                                        step="1">
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </form>
+                                <ul>
+                                    <ul>
+                                        <% console.log(tracks) %>
+                                            <% for(var i=0; i<tracks.length; i++) {%>
+                                                <li>
+
+                                                    <%= tracks[i] %> , <%= artists[i] %>, <a
+                                                                href="<%= links[i] %>">Listen
+                                                                Now!</a>"
+                                                </li>
+                                                <% }; %>
+                                    </ul>
+                                </ul>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 py-2">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">And another one</h4>
+                                <h6 class="text-muted card-subtitle mb-2">DJ KHALED</h6>
+                                <p class="card-text">Another one.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <%- include('partials/footer'); %>
+</body>
+
+</html>

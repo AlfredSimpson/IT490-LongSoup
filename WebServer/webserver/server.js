@@ -393,6 +393,7 @@ app.post('/account:param', (req, res) => {
     // const tempQueue = process.env.BROKER_QUEUE;
     const amqpUrl = `amqp://longsoup:puosgnol@${tempHost}:${process.env.BROKER_PORT}/${encodeURIComponent(tempHost)}`;
     typeOf = req.params.param;
+    console.log(typeOf);
     console.log('\n[Posting to /account:param] with typeOf: ', typeOf, '\n');
 });
 
@@ -556,7 +557,9 @@ function generateSampleData() {
     return data;
 }
 
-
+function querySpotify() {
+    pass;
+}
 
 
 app.post('/api/:function', (req, res) => {
@@ -599,6 +602,14 @@ app.post('/api/:function', (req, res) => {
             });
             break;
 
+        case 'query':
+            console.log('attempting to query the api');
+            console.log(`\n[POST /api/:function] Received passed to case ${req.params.function}\n`);
+            query_type = req.body.query_type;
+            query = req.body.query;
+
+            console.log(`\n[POST /api/:function] Query: ${query}, Type: ${query_type}\n`);
+            break;
         default:
             console.log(`\n[POST /api/:function] Unknown request: ${req.params.function}\n`);
             break;

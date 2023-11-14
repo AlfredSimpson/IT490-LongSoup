@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node webserver/server.js",
     "dev": "nodemon webserver/server.js",
-    "ugh": "nodemon webserver/servertesting.js"
+    "experiment": "nodemon webserver/servertesting.js",
+    "opt_testing": "nodemon webserver/serveroptimized.js"
   },
   "author": "",
   "license": "ISC",
@@ -24,6 +25,8 @@
     "express": "^4.18.2",
     "express-session": "^1.17.3",
     "greenlock-express": "^4.0.3",
+    "jsonwebtoken": "^9.0.2",
+    "memory-cache": "^0.2.0",
     "memorystore": "^1.6.7",
     "node": "^21.1.0",
     "node-fetch": "^3.3.2",
