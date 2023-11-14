@@ -499,7 +499,10 @@ def cleanTrackData(results):
     tracks = results["tracks"]["items"]
 
     # For each item in tracks, store it in a new cgs table called "rawSpotifyTracks".
-    db.rawSpotifyTracks.insert_many(tracks)
+    try:
+        db.rawSpotifyTracks.insert_many(tracks)
+    except Exception as e:
+        print("error", e)
 
     print(f"Tracks displaying as follows: {tracks}")
     data = {"query_results": []}
@@ -523,6 +526,11 @@ def cleanAlbumData(data):
     """
     # Take the data, and pull the album name, artist, and spotify url.
     albums = data["albums"]["items"]
+    try:
+        db.rawSpotifyAlbums.insert_many(albums)
+    except Exception as e:
+        print("error", e)
+
     data = {"query_results": []}
     for i in albums:
         name = i["name"]
@@ -544,6 +552,10 @@ def cleanArtistData(data):
     """
     # Take the data, and pull the artist name, and spotify url.
     artists = data["artists"]["items"]
+    try:
+        db.rawSpotifyArtists.insert_many(artists)
+    except Exception as e:
+        print("error", e)
     data = {"query_results": []}
     for i in artists:
         name = i["name"]
