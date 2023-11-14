@@ -593,17 +593,16 @@ def spotQuery(uid, query_type, query, by_type, limit=10):
         access_token = None
     if by_type == "anything":
         by_type = ""
-
-    query = by_type + "%3A" + query
+    # If "" we will need to pass a different query style... right now it's "":query
+    query_1 = by_type + "%3A" + query
     # Find me an artist by this query param.
-    print(f"\nQuery: {query}\n")
 
     access_token = results["access_token"]
     headers = {"Authorization": f"Bearer {access_token}"}
     response = requests.get(
         SPOTIFY_API_BASE_URL
         + "/search?q="
-        + query
+        + query_1
         + "&type="
         + query
         + "&limit="
