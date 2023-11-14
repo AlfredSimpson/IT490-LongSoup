@@ -501,7 +501,7 @@ def cleanTrackData(results):
     data = {"query_results": []}
     for i in tracks:
         name = i["name"]
-        artist = i["artists"]["name"]
+        artist = i["artists"][0]["name"]
         url = i["external_urls"]["spotify"]
         data["query_results"].append({"name": name, "artist": artist, "url": url})
     return data
