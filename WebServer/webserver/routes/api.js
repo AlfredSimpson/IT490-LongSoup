@@ -72,20 +72,6 @@ router.get('/', (req, res, next) => {
     next();
 });
 
-// function doThis(queryT, query, by, uid) {
-//     const amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
-//     mustang.sendAndConsumeMessage(amqpURL, SPOTQUEUE, { "type": "spot_query", "uid": uid, "queryT": queryT, "query": query, "by": by }, (msg) => {
-//         const response = JSON.parse(msg.content.toString());
-//         if (response.returnCode == 0) {
-//             console.log(`Generation success!`);
-//             return response;
-//         }
-//         else {
-//             // res.status(401).send('Ugh yo this is not working.');
-//             return response;
-//         }
-//     });
-// }
 
 router
     .route("/:param")
@@ -120,13 +106,13 @@ router
         switch (type) {
             case "query":
                 // Get the Params to send to the query function
-                let uid = cache.get('uid');
-                let query = req.body.query;
-                let queryT = req.body.query_type;
-                let by = req.body.by_type;
+                var uid = cache.get('uid');
+                var query = req.body.query;
+                var queryT = req.body.query_type;
+                var by = req.body.by_type;
                 // url encode query to prevent errors in sending
                 query = encodeURIComponent(query);
-                const amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
+                var amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
                 mustang.sendAndConsumeMessage(amqpURL, SPOTQUEUE, {
                     type: "spot_query",
                     uid: uid,
@@ -147,6 +133,23 @@ router
                 break;
             case "showsuggested":
                 break;
+            case "like-dislike":
+                var uid = cache.get('uid');
+                console.log(`[API] \t Received like-dislike request by ${uid}`);
+                var rowId = req.body.rowId;
+                var action = req.body.action;
+                switch (action) {
+                    case 'like':
+                        console.log(`[API] \t Received like-dislike request by ${uid} for ${rowId} to like it`);
+                        break;
+                    case 'dislike':
+                        console.log(`[API] \t Received like-dislike request by ${uid} for ${rowId} to dislike it`);
+                        break;
+                    default:
+                        timber.logAndSend("[LIKE/DISLIKE] Invalid action received", "_LikeDislike_");
+                        res.status(200).send('Acknowledged');
+                        break;
+                }
             default:
                 break;
         }

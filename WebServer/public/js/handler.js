@@ -15,12 +15,11 @@ document.getElementById("queryButton").addEventListener("click", function (e) {
     axios.post('/api/query', payload)
         .then(response => {
             // Isolate the query_results from the response
-            var return_type = response.data.return_type;
-            console.log(`Return Type showing as: ${return_type}`);
+            var return_type = response.data.returnType;
             var query_results = response.data.message.query_results;
             console.log(query_results);
             // document.getElementById("query_results").innerHTML = query_results;
-            populateData(returnType, query_results);
+            populateData(return_type, query_results);
         })
         .catch(error => {
             console.error(error);
@@ -36,18 +35,33 @@ function createTableRow(data, rowIndex) {
 
     row.id = `row-${data.id}`; // Optional: Add a unique ID to each row
 
-    console.log(`data is showing as ${data}`);
-    // display the about of keys in the data object
-    console.log(`data keys are showing as ${Object.keys(data)}`);
-    // Create and add table columns
-
     // For each key in data, create a column with the key's value.
     Object.keys(data).forEach(key => {
-        // console.log(`key is showing as ${key}`);
-        const column = document.createElement('td');
-        column.textContent = data[key];
-        row.appendChild(column);
+        // If key is url, create a link that says Listen Now. If the key is id, skip it. Using a switch statement:
+
+        switch (key) {
+            case 'url':
+                var column = document.createElement('td');
+                var link = document.createElement('a');
+                link.classList.add("bg-info");
+                link.classList.add("link-dark");
+                link.href = data[key];
+                link.textContent = 'Listen Now';
+                link.target = "_blank";
+                column.appendChild(link);
+                row.appendChild(column);
+                break;
+            case 'id':
+                console.log(`Skipping ${key}`);
+                break;
+            default:
+                var column = document.createElement('td');
+                column.textContent = data[key];
+                row.appendChild(column);
+                break;
+        }
     });
+
 
     // Create like and dislike buttons
     const likeButton = document.createElement('button');
@@ -79,7 +93,7 @@ function createTableRow(data, rowIndex) {
     return row;
 }
 
-function populateData(query_results) {
+function populateData(return_type, query_results) {
     console.log('Attempting to populate the data');
     query_results_container = document.getElementById("query_results_container");
 
@@ -97,11 +111,11 @@ function populateData(query_results) {
 
     var tableheaders = Object.keys(query_results[0]);
     console.log(`tableheaders is showing as ${tableheaders}`);
-    trackquery = ["Track Name", "Artist Name", "URLs", "Like/Dislike"] // If they're looking for
-    artistquery = ["Artist Name", "Track Name", "URLs", "Like/Dislike"]
-    albumquery = ["Album Name", "Artist Name", "URLs", "Like/Dislike"]
+    trackquery = ["Track", "Artist", "URLs", "Like/Dislike"] // If they're looking for
+    artistquery = ["Artist", "Genres", "URLs", "Like/Dislike"]
+    albumquery = ["Album", "Artist", "URLs", "Like/Dislike"]
 
-    switch (returnType) {
+    switch (return_type) {
         case "track":
             trackquery.forEach((columnData) => {
                 const column = document.createElement("th");
@@ -141,11 +155,14 @@ function populateData(query_results) {
 
 }
 
-// // Function to handle like/dislike button clicks
+/**
+ * Function to handle like/dislike button clicks
+ * TODO: update the server side to handle the logic.
+ */
 function handleLikeDislike(rowId, action) {
     // Send the rowId and action to the server for processing
     console.log(`[Handler] \t Sending ${action} for row ${rowId}`);
-    axios.get('/api/like-dislike', { rowId, action }) // Replace with your API endpoint
+    axios.post('/api/like-dislike', { rowId, action }) // Replace with your API endpoint
         .then(response => {
             // Handle the response from the server (e.g., update UI)
             console.log(response.data);

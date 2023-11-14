@@ -349,27 +349,6 @@ app.get('/api/:param', (req, res) => {
             query = encodeURIComponent(query);
             console.log(`Sending a request to the query function in server.js`);
             console.log(`queryT: ${queryT}, query: ${query}, by: ${by}`);
-            // console.log(`Sending a request to the query function in server.js`);
-            // let query = req.body.query;
-            // let queryT = req.body.query_type;
-            // let by = req.body.by_type;
-            // var uid = cache.get('uid');
-            // query = encodeURIComponent(query);
-            // const amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
-            // mustang.sendAndConsumeMessage(amqpURL, SPOTQUEUE, {
-            //     type: "spot_query",
-            //     "uid": uid,
-            //     "queryT": queryT,
-            //     "query": query,
-            //     "by": by
-            // }, (msg) => {
-            //     const response = JSON.parse(msg.content.toString());
-            //     if (response.returnCode === 0) {
-            //         console.log(`Generation success!`);
-            //         res.status(200).send(response);
-            //     }
-            // }
-            // );
             break;
         case 'oops':
             break;

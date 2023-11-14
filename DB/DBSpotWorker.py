@@ -497,6 +497,10 @@ def cleanTrackData(results):
     """
     # Take the data, and pull the track name, artist, and spotify url.
     tracks = results["tracks"]["items"]
+
+    # For each item in tracks, store it in a new cgs table called "rawSpotifyTracks".
+    db.rawSpotifyTracks.insert_many(tracks)
+
     print(f"Tracks displaying as follows: {tracks}")
     data = {"query_results": []}
     for i in tracks:
@@ -624,6 +628,9 @@ def spotQuery(uid, query_type, query, by_type, limit=10):
         headers=headers,
     )
     response = response.json()
+    # For each response in response, let's store it in our database as "spotifyUncleaned"
+    # We'll also need to store the query type, and the query itself.
+
     print(response)
     # We need to clean the data and then return it - issue here is that each type might return different things...
 
