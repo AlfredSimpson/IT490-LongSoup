@@ -16,21 +16,21 @@
                     <div class="bg-dark border rounded border-0 border-dark overflow-hidden row g-0 px-2 mx-2">
                         <!-- <div class="row g-0"> -->
                         <div class="col-md-6">
-                            <div class="text-white p-1 p-md-5">
+                            <div class="text-white p-1 p-md-3">
                                 <h1 class="fw-bold text-gold">Hey, welcome home!</h1>
                                 <h2 class="fw-bold text-white mb-3">Looking for something specific?</h2>
                                 <p class="mb-2">Tell us what you're looking for - but we'll also tell you what's good!
                                 </p>
                             </div>
-                            <div class="container px-1 py-2 p-md-5">
+                            <div class="container px-1 py-2 p-md-3">
                                 <form action="/api/query" method="GET" id="query_the_API">
                                     <div class="py-1">
-                                        <label for="query_type">I want to find a: </label>
+                                        <label for="query_type">I want to find: </label>
                                         <select name="query_type" id="query_type" title="query_type"
                                             class="px-1 query_data">
-                                            <option value="track">Track</option>
-                                            <option value="artist">Artist</option>
-                                            <option value="album">Album</option>
+                                            <option value="track">Tracks</option>
+                                            <option value="artist">Artists</option>
+                                            <option value="album">Albums</option>
                                         </select>
                                         <label for="by_type" class="px-1">By:</label>
                                         <select name="by_type" id="by_type" title="by_type" class="px-1 query_data">
@@ -50,8 +50,14 @@
 
                             </div>
                         </div>
-                        <div class="col-md-4 query_results_container" id="query_results_container">
+                        <!-- <div class="container-fluid"> -->
+                        <div class="col-md-5 query_results_container" id="query_results_container">
+                            <table class="table table-striped table-bordered border-danger border rounded-sm"
+                                id="query_results_table">
+
+                            </table>
                         </div>
+                        <!-- </div> -->
                     </div>
                 </section>
             </div>

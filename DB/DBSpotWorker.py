@@ -503,7 +503,10 @@ def cleanTrackData(results):
         name = i["name"]
         artist = i["artists"][0]["name"]
         url = i["external_urls"]["spotify"]
-        data["query_results"].append({"name": name, "artist": artist, "url": url})
+        id_num = i["id"]
+        data["query_results"].append(
+            {"name": name, "artist": artist, "url": url, "id": id_num}
+        )
     return data
 
 
@@ -521,7 +524,10 @@ def cleanAlbumData(data):
         name = i["name"]
         artist = i["artists"][0]["name"]
         url = i["external_urls"]["spotify"]
-        data["query_results"].append({"name": name, "artist": artist, "url": url})
+        id_num = i["id"]
+        data["query_results"].append(
+            {"name": name, "artist": artist, "url": url, "id": id_num}
+        )
     return data
 
 
@@ -541,7 +547,15 @@ def cleanArtistData(data):
             "genres"
         ]  # Not actually sure if this will work. Limiting it to just one genre for now.
         url = i["external_urls"]["spotify"]
-        data["query_results"].append({"name": name, "url": url})
+        id_num = i["id"]
+        data["query_results"].append(
+            {
+                "name": name,
+                "genres": genres,
+                "url": url,
+                "id": id_num,
+            }
+        )
     return data
 
 
@@ -615,15 +629,20 @@ def spotQuery(uid, query_type, query, by_type, limit=10):
 
     # With the data gathered, we can call one of the cleaning functions based on the query_type.
     if query_type == "track":
+        returnType = "track"
         response = cleanTrackData(response)
     elif query_type == "album":
+        returnType = "album"
         response = cleanAlbumData(response)
     elif query_type == "artist":
+        returnType = "artist"
         response = cleanArtistData(response)
     else:
+        #! We should do error handling here... but for now, we'll just return the response.
+        returnType = "unknown"
         response = response  # Do nothing else.
 
-    return {"returnCode": 0, "message": response}
+    return {"returnCode": 0, "message": response, "returnType": returnType}
 
 
 def return_error():
