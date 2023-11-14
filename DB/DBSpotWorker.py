@@ -604,7 +604,7 @@ def spotQuery(uid, query_type, query, by_type, limit=10):
         + "/search?q="
         + query_1
         + "&type="
-        + query
+        + query_type
         + "&limit="
         + str(limit),
         headers=headers,
