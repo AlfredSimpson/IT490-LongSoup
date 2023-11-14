@@ -336,33 +336,40 @@ app.get("/:page", (req, res) => {
     }
 });
 
-app.post('/api/:param', (req, res) => {
+app.get('/api/:param', (req, res) => {
     let type = req.params.param;
     var uid = cache.get('uid');
     // handle where it goes
     switch (type) {
         case "query":
-            console.log(`Sending a request to the query function in server.js`);
-            let query = req.body.query;
-            let queryT = req.body.query_type;
-            let by = req.body.by_type;
+            const queryT = req.query.queryT;
+            const query = req.query.query;
+            const by = req.query.by_type;
             var uid = cache.get('uid');
             query = encodeURIComponent(query);
-            const amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
-            mustang.sendAndConsumeMessage(amqpURL, SPOTQUEUE, {
-                type: "spot_query",
-                "uid": uid,
-                "queryT": queryT,
-                "query": query,
-                "by": by
-            }, (msg) => {
-                const response = JSON.parse(msg.content.toString());
-                if (response.returnCode === 0) {
-                    console.log(`Generation success!`);
-                    res.status(200).send(response);
-                }
-            }
-            );
+            console.log(`Sending a request to the query function in server.js`);
+            console.log(`queryT: ${queryT}, query: ${query}, by: ${by}`);
+            // console.log(`Sending a request to the query function in server.js`);
+            // let query = req.body.query;
+            // let queryT = req.body.query_type;
+            // let by = req.body.by_type;
+            // var uid = cache.get('uid');
+            // query = encodeURIComponent(query);
+            // const amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
+            // mustang.sendAndConsumeMessage(amqpURL, SPOTQUEUE, {
+            //     type: "spot_query",
+            //     "uid": uid,
+            //     "queryT": queryT,
+            //     "query": query,
+            //     "by": by
+            // }, (msg) => {
+            //     const response = JSON.parse(msg.content.toString());
+            //     if (response.returnCode === 0) {
+            //         console.log(`Generation success!`);
+            //         res.status(200).send(response);
+            //     }
+            // }
+            // );
             break;
         case 'oops':
             break;
@@ -402,10 +409,6 @@ app.post('/account', (req, res) => {
                     artists.push(musicdata[i].artist);
                     links.push(musicdata[i].url);
                 }
-                // req.session.tracks = tracks;
-                // req.session.artists = artists;
-                // req.session.links = links;
-                // let oAuthed = req.session.oAuthed;
                 let oAuthed = cache.get('oAuthed');
                 let uid = cache.get('uid');
                 cache.put('tracks', tracks, 3600000);

@@ -72,10 +72,24 @@ router.get('/', (req, res, next) => {
     next();
 });
 
+// function doThis(queryT, query, by, uid) {
+//     const amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
+//     mustang.sendAndConsumeMessage(amqpURL, SPOTQUEUE, { "type": "spot_query", "uid": uid, "queryT": queryT, "query": query, "by": by }, (msg) => {
+//         const response = JSON.parse(msg.content.toString());
+//         if (response.returnCode == 0) {
+//             console.log(`Generation success!`);
+//             return response;
+//         }
+//         else {
+//             // res.status(401).send('Ugh yo this is not working.');
+//             return response;
+//         }
+//     });
+// }
 
 router
     .route("/:param")
-    .get(cacheAgain, (req, res) => {
+    .get((req, res) => {
         var attributes = {}
         attributes['uid'] = cache.get('uid');
         attributes['loggedIn'] = cache.get('loggedIn');
@@ -84,12 +98,16 @@ router
         attributes['links'] = cache.get('links');
         attributes['artists'] = cache.get('artists');
         attributes['tracks'] = cache.get('tracks');
-        console.log(`\n\nattributes: ${uid}, ${loggedIn}, ${oAuthed}, ${data}, ${links}, ${artists}, ${tracks}\n\n`);
+        cacheAgain(attributes);
+        // console.log(`\n\nattributes: ${uid}, ${loggedIn}, ${oAuthed}, ${data}, ${links}, ${artists}, ${tracks}\n\n`);
 
         let page = req.params.param;
         // handle where it goes
         switch (page) {
             case "browse":
+                break;
+            case "query":
+                console.log(`This should not have sent from the get section...`);
                 break;
             default:
                 break;

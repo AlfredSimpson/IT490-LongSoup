@@ -23,16 +23,17 @@
                                 </p>
                             </div>
                             <div class="container px-1 py-2 p-md-5">
-                                <form action="/api/query" method="POST">
+                                <form action="/api/query" method="GET" id="query_the_API">
                                     <div class="py-1">
                                         <label for="query_type">I want to find a: </label>
-                                        <select name="query_type" id="query_type" title="query_type" class="px-1">
+                                        <select name="query_type" id="query_type" title="query_type"
+                                            class="px-1 query_data">
                                             <option value="track">Track</option>
                                             <option value="artist">Artist</option>
                                             <option value="album">Album</option>
                                         </select>
                                         <label for="by_type" class="px-1">By:</label>
-                                        <select name="by_type" id="by_type" title="by_type" class="px-1">
+                                        <select name="by_type" id="by_type" title="by_type" class="px-1 query_data">
                                             <option value="track">Track</option>
                                             <option value="artist">Artist</option>
                                             <option value="genre">Genre</option>
@@ -42,16 +43,14 @@
                                     </div>
                                     <!-- <label for="query" class="form-label"></label> -->
                                     <input class="form-control" type="text" name="query" id="query"
-                                        placeholder="blues, rock, jawbreaker - what are you looking for?"
+                                        placeholder="pop, back in black, rolling stones - what are you looking for?"
                                         style="color: black;" />
-                                    <button class="btn btn-primary" id="queryButton">Search</button>
+                                    <button class="btn btn-primary queryButtonCl" id="queryButton">Search</button>
                                 </form>
 
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <table class="table-dark table-striped" id="query_results">
-                            </table>
+                        <div class="col-md-4 query_results_container" id="query_results_container">
                         </div>
                     </div>
                 </section>
