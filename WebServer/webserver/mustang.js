@@ -75,7 +75,7 @@ module.exports = {
                     console.log(`\n[MUSTANG exports] Sending message to queue ${queueName}\n`);
                     console.log(`\n\n\n End of the line for mustang \n\n\n`);
                     for (let [key, value] of Object.entries(requestPayload)) {
-                        console.log(`\n[MUSTANG]\t ${key}:\t ${value}`);
+                        console.log(`\n[MUSTANG]\t ${key}: ${value}`);
                     }
                     // Send the message to the queue
                     channel.sendToQueue(

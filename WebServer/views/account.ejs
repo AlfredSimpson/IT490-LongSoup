@@ -5,6 +5,7 @@
     <title>Account | CGS</title>
     <%- include('partials/head'); %>
 </head>
+<!-- This is the one that gets loaded - outside of views... -->
 
 <body>
     <%- include('partials/loggedheader'); %>
@@ -28,7 +29,6 @@
                                         <select name="query_type" id="query_type" title="query_type" class="px-1">
                                             <option value="track">Track</option>
                                             <option value="artist">Artist</option>
-                                            <option value="genre">Genre</option>
                                             <option value="album">Album</option>
                                         </select>
                                         <label for="by_type" class="px-1">By:</label>
@@ -50,7 +50,7 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <table class="table-dark table-striped" id="query_table">
+                            <table class="table-dark table-striped" id="query_results">
                             </table>
                         </div>
                     </div>

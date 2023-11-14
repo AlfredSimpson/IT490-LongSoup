@@ -98,18 +98,15 @@ router
     })
     .post((req, res) => {
         let type = req.params.param;
-        // let uid = req.body.uid;
         // handle where it goes
         switch (type) {
             case "query":
                 // Get the Params to send to the query function
-                console.log(`Sending a request to the query function in api.js`);
                 let uid = cache.get('uid');
                 let query = req.body.query;
                 let queryT = req.body.query_type;
                 let by = req.body.by_type;
-                console.log(`[post api.js 100-120] Query: ${query} | Type: ${queryT} | By Type: ${by} | UID: ${uid}`);
-                // url encode query
+                // url encode query to prevent errors in sending
                 query = encodeURIComponent(query);
                 const amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
                 mustang.sendAndConsumeMessage(amqpURL, SPOTQUEUE, {
@@ -122,9 +119,10 @@ router
                     const response = JSON.parse(msg.content.toString());
                     if (response.returnCode == 0) {
                         console.log(`Generation success!`);
-
-                        res.status(200).render('success', { oAuthed: oAuthed });
-                    } else {
+                        // Send it back to the front client handler.
+                        res.status(200).json(response);
+                    }
+                    else {
                         res.status(401).send('Ugh yo this is not working.');
                     }
                 });
