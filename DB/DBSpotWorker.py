@@ -537,8 +537,8 @@ def cleanArtistData(data):
     data = {"query_results": []}
     for i in artists:
         name = i["name"]
-        genres = i["genres"][
-            0
+        genres = i[
+            "genres"
         ]  # Not actually sure if this will work. Limiting it to just one genre for now.
         url = i["external_urls"]["spotify"]
         data["query_results"].append({"name": name, "url": url})
