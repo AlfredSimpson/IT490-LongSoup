@@ -430,6 +430,7 @@ app.post('/account', (req, res) => {
 });
 
 
+
 /**
  * =====================================================
  * USER REGISTRATION BEGINS HERE
@@ -503,6 +504,64 @@ app.post('/login', (req, res) => {
         }
     });
 });
+
+app.post('/register', (req, res) => {
+    const useremail = req.body.useremail;
+    const password = req.body.password;
+    const first_name = req.body.first_name;
+    const last_name = req.body.last_name;
+    const spot_name = req.body.spot_name;
+    let session_id = createSessionCookie(req, res);
+    let usercookieid = createUserCookie(req, res);
+    const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(broker_vHost)}`;
+
+    getCookie(req); // Might not work anymore!
+
+    mustang.sendAndConsumeMessage(amqpUrl, broker_Queue, {
+        type: "register",
+        "useremail": useremail,
+        "password": password,
+        "session_id": session_id,
+        "usercookieid": usercookieid,
+        "first_name": first_name,
+        "last_name": last_name,
+        "spot_name": spot_name
+    }, (msg) => {
+        const response = JSON.parse(msg.content.toString());
+        if (response.returnCode == 0) {
+            timber.logAndSend('[REGISTRATION] User registered successfully.', "_REGISTRATION_");
+            data = response.data;
+            musicdata = response.music;
+            userinfo = response.userinfo;
+            let tracks = [];
+            let artists = [];
+            let links = [];
+            for (var i = 0; i < musicdata.length; i++) {
+                tracks.push(musicdata[i].track);
+                artists.push(musicdata[i].artist);
+                links.push(musicdata[i].url);
+            }
+            cache.put('uid', userinfo.uid, 3600000);
+            cache.put('name', userinfo.name, 3600000);
+            let loggedIn = true;
+            let uid = cache.get('uid');
+            cache.put('loggedIn', loggedIn, 3600000);
+            cache.put('tracks', tracks, 3600000);
+            cache.put('artists', artists, 3600000);
+            cache.put('links', links, 3600000);
+            cache.put('data', data, 3600000);
+            let oAuthed = cache.get('oAuthed');
+            console.log(`We are passing oAuthed: ${oAuthed}, uid: ${uid}, loggedIn: ${loggedIn}, data: ${data}, tracks: ${tracks}, artists: ${artists}, links: ${links}`)
+            res.status(200).render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid });
+        } else {
+            data = { "errorStatus": true, "errorOutput": "You have failed to register." };
+            res.status(401).render('register', { data });
+        }
+    }
+    );
+});
+
+
 
 app.listen(9001, () => {
     console.log('Listening on port 9001');

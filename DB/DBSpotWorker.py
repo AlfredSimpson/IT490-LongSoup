@@ -594,7 +594,8 @@ def spotQuery(uid, query_type, query, by_type, limit=10):
     if by_type == "anything":
         by_type = ""
 
-    query = query_type + "%3A" + query
+    query = by_type + "%3A" + query
+    # Find me an artist by this query param.
     print(f"\nQuery: {query}\n")
 
     access_token = results["access_token"]
@@ -604,7 +605,7 @@ def spotQuery(uid, query_type, query, by_type, limit=10):
         + "/search?q="
         + query
         + "&type="
-        + query_type
+        + query
         + "&limit="
         + str(limit),
         headers=headers,
