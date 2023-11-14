@@ -497,13 +497,13 @@ def cleanTrackData(results):
     """
     # Take the data, and pull the track name, artist, and spotify url.
     tracks = results["tracks"]["items"]
+    print(f"Tracks displaying as follows: {tracks}")
     data = {"query_results": []}
     for i in tracks:
         name = i["name"]
-        artist = i["artists"][0]["name"]
+        artist = i["artists"]["name"]
         url = i["external_urls"]["spotify"]
         data["query_results"].append({"name": name, "artist": artist, "url": url})
-
     return data
 
 
@@ -610,7 +610,7 @@ def spotQuery(uid, query_type, query, by_type, limit=10):
         headers=headers,
     )
     response = response.json()
-
+    print(response)
     # We need to clean the data and then return it - issue here is that each type might return different things...
 
     # With the data gathered, we can call one of the cleaning functions based on the query_type.
