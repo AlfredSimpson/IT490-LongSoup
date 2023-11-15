@@ -12,7 +12,7 @@ import spotipy
 import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import load_dotenv
-from dotenv import load_dotenv
+
 
 load_dotenv()
 
@@ -328,17 +328,6 @@ def do_login(useremail, password, session_id, usercookieid):
     Returns:
         dict: A dictionary containing the login result
     """
-    print("\nChecking Types")
-    print(
-        type(maindbuser),
-        "= dbuser",
-        type(maindbpass),
-        "= dbpass",
-        type(maindbhost),
-        "= dbhost",
-        type(maindb),
-        "= db",
-    )
     # LMDB = LongMongoDB.LongMongoDB(maindbuser, maindbpass, maindbhost, maindb)
 
     # Connect to the database
@@ -540,9 +529,9 @@ def request_processor(ch, method, properties, body):
         logging.error("Error decoding incoming JSON")
         response = {"ERROR": "Invalid JSON Format Received"}
         return return_error(ch, method, properties, body, response)
-    print(f"\nincoming request: {request}\n")
+    print(f"\nIncoming request: {request}\n")
     if "type" not in request:
-        print(f"\n{request}\n")
+        print(f"\n The Request coming is looks like this: {request}\n")
         logging.error(f"Error in type. Request received without type: {request}")
         response = "ERROR: No type specified by message"
     else:
@@ -622,52 +611,6 @@ def request_processor(ch, method, properties, body):
                     "returnCode": 0,
                     "message": "Server received request and processed - no action taken. Unknown type",
                 }
-
-        # request_type = request["type"]
-        # if request_type == "login":
-        #     # Handles login attempts
-        #     response = do_login(
-        #         request["useremail"],
-        #         request["password"],
-        #         request["session_id"],
-        #         request["usercookieid"],
-        #     )
-        # elif request_type == "validate_session":
-        #     # Handles session validation requests
-        #     print("Received session validation request")
-        #     # TODO: do_validate()!
-        #     # response = do_validate(request["usercookieid"], request["sessionId"])
-        # elif request_type == "register":
-        #     # Handles registration requests
-        #     print("Received registration request")
-        #     response = do_register(
-        #         request["useremail"],
-        #         request["password"],
-        #         request["session_id"],
-        #         request["usercookieid"],
-        #         request["spot_name"],
-        #         request["first_name"],
-        #         request["last_name"],
-        #     )
-        # elif request_type == "logout":
-        #     # Handles logout requests
-        #     print(
-        #         "Received logout request. We should log them out now. But we aren't...?"
-        #     )
-        #     response = do_logout(
-        #         request["usercookieid"],
-        #         request["session_id"],
-        #     )
-        # elif request_type == "simplerecs":
-        #     # Handles simple recs from their profile page
-        #     print("\nReceived simple recs request\n")
-        #     response = get_recs(
-        #         request["genre"],
-        #         request["popularity"],
-        #         request["valence"],
-        #     )
-        # elif request_type == "byArtist":
-        #     response = query_artist(request["artist"], request["typeOf"])
 
     # Send the response back to the client
     print(f"\nWe should have a response here if we're publishing...{response}")

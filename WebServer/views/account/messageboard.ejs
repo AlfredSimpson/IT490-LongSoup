@@ -2,53 +2,23 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CommonGrounds</title>
-    <!-- Bootstrap 5 CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
-    <link rel="shortcut icon" href="#">
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="js/messageboard.js"></script>
+
+    <title>Message Boards | CommonGrounds</title>
+    <%- include('../partials/head'); %>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="js/messageboard.js"></script>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">CommonGrounds</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/account">Account</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/account/browse">Browse</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/account/stats">Stats</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/account/messageboard">MessageBoard</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    <nav class="nav-pills justify-content-center nav-justified" id="genreTalkButtons">
-        <button class="btn btn-primary genreTalkButton" type="button" id="alltalk">All talk</button>
-        <button class="btn btn-primary genreTalkButton" type="button" id="rocktalk">Rock</button>
-        <button class="btn btn-primary genreTalkButton" type="button" id="punktalk">Punk</button>
-        <button class="btn btn-primary genreTalkButton" type="button" id="poptalk">Pop</button>
-        <button class="btn btn-primary genreTalkButton" type="button" id="raptalk">Rap</button>
-    </nav>
-    <!-- <div class="container my-5">
+    <%- include('../partials/loggedheader'); %>
+        <nav class="nav-pills justify-content-center nav-justified" id="genreTalkButtons">
+            <button class="btn btn-primary genreTalkButton" type="button" id="alltalk">All talk</button>
+            <button class="btn btn-primary genreTalkButton" type="button" id="rocktalk">Rock</button>
+            <button class="btn btn-primary genreTalkButton" type="button" id="punktalk">Punk</button>
+            <button class="btn btn-primary genreTalkButton" type="button" id="poptalk">Pop</button>
+            <button class="btn btn-primary genreTalkButton" type="button" id="raptalk">Rap</button>
+        </nav>
+        <!-- <div class="container my-5">
         <div class="row">
             <div class="col-md-12">
                 <div id="tableContainer"></div>
@@ -59,45 +29,40 @@
             </div>
         </div>
     </div> -->
-    <div class="container my-5">
-        <div class="row">
-            <div class="col-md-12">
-                <div id="tableContainer"></div>
-                <div class="form-group">
-                    <input type="text" id="messageContentInput" class="form-control" placeholder="Enter your message">
-                    <select id="genreSelect" class="form-control">
-                        <option value="alltalk">All Talk</option>
-                        <option value="rocktalk">Rock</option>
-                        <option value="punktalk">Punk</option>
-                        <option value="poptalk">Pop</option>
-                        <option value="raptalk">Rap</option>
-                    </select>
-                    <button id="sendMessageButton" class="btn btn-primary">Send</button>
+        <div class="container my-5">
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="tableContainer"></div>
+                    <div class="form-group">
+                        <input type="text" id="messageContentInput" class="form-control"
+                            placeholder="Enter your message">
+                        <select id="genreSelect" class="form-control">
+                            <option value="alltalk">All Talk</option>
+                            <option value="rocktalk">Rock</option>
+                            <option value="punktalk">Punk</option>
+                            <option value="poptalk">Pop</option>
+                            <option value="raptalk">Rap</option>
+                        </select>
+                        <button id="sendMessageButton" class="btn btn-primary">Send</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="container my-5">
-        <div class="row">
-            <div class="col-md-6">
-                <h1>The Message Boards</h1>
-                <p class="lead">Got something to say?</p>
-            </div>
-            <div class="col-md-6">
-                <img src="https://via.placeholder.com/500x500" alt="CommonGrounds Image" class="img-fluid">
+        <div class="container my-5">
+            <div class="row">
+                <div class="col-md-6">
+                    <h1>The Message Boards</h1>
+                    <p class="lead">Got something to say?</p>
+                </div>
+                <div class="col-md-6">
+                    <img src="https://via.placeholder.com/500x500" alt="CommonGrounds Image" class="img-fluid">
+                </div>
             </div>
         </div>
-    </div>
 
-    <footer class="bg-light py-3">
-        <div class="container">
-            <p class="text-center">&copy; 2023 CommonGrounds</p>
-        </div>
-    </footer>
-
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+        <%- include('../partials/footer'); %>
+            <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script> -->
 </body>
 
 </html>

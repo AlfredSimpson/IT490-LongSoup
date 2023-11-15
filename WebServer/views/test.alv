@@ -1,0 +1,18 @@
+<!-- BoilerPlate ejs html code using bootstrap css -->
+<!-- This is the view that will be rendered when the user goes to localhost:3000/test -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    #title#
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <div> #message#</div>
+        <h1> What's up doc?</h1>
+    </div>
+</body>
+
+</html>
