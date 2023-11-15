@@ -543,6 +543,33 @@ def cleanAlbumData(data):
     return data
 
 
+def storeGenres(artist, genres, id):
+    """storeGenres takes in the genres from a query, checks to see if they're already in the database, and if they're not, stores them in the database."""
+    # First step: check spotifyGenreCollection for the genre
+
+    for genre in genres:
+        existing_genre = db.spotifyGenreCollection.find_one({"genre": genre})
+
+        if existing_genre:
+            artist_exists = False
+            for artist_info in existing_genre["artists"]:
+                if artist_info["name"] == artist:
+                    artist_exists = True
+                    break
+            if not artist_exists:
+                db.spotifyGenreCollection.update_one(
+                    {"genre": genre},
+                    {"$push": {"artists_in_genre": {"name": artist, "id": id}}},
+                )
+        else:
+            new_genre_document = {
+                "genre": genre,
+                "artists_in_genre": [{"name": artist, "id": id}],
+            }
+            db.spotifyGenres.insert_one(new_genre_document)
+    return True
+
+
 def cleanArtistData(data):
     """Take in a JSON object from the Spotify API and clean it up for storage in the database, as well as for sending back to the client.
     It should return only the artist name, spotify url.
@@ -564,6 +591,7 @@ def cleanArtistData(data):
         ]  # Not actually sure if this will work. Limiting it to just one genre for now.
         url = i["external_urls"]["spotify"]
         id_num = i["id"]
+        storeGenres(name, genres, id_num)
         data["query_results"].append(
             {
                 "name": name,

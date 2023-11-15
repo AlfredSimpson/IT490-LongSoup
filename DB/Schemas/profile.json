@@ -20,14 +20,14 @@
     "type": "user",
     "uri": "spotify:user:alfredhsimpson",
     "followers": {
-        "href": None,
+        "href": "None",
         "total": 8
     },
     "country": "US",
     "product": "premium",
     "explicit_content": {
-        "filter_enabled": False,
-        "filter_locked": False
+        "filter_enabled": "False",
+        "filter_locked": "False"
     },
     "email": "alfredhsimpson@gmail.com"
 }
