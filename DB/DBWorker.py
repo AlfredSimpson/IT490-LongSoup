@@ -22,6 +22,13 @@ maindbpass = os.getenv("MONGO_PASS")
 maindbhost = os.getenv("MONGO_HOST")  # This is localhost so... we can omit this later.
 
 
+BROKER_HOST = os.getenv("BROKER_HOST")
+BROKER_VHOST = os.getenv("BROKER_VHOST")
+BROKER_QUEUE = os.getenv("BROKER_QUEUE")
+BROKER_EXCHANGE = os.getenv("BROKER_EXCHANGE")
+BROKER_USER = os.getenv("BROKER_USERNAME")
+BROKER_PASS = os.getenv("BROKER_PASSWORD")
+
 # TODO change the db to the maindb, add the user and pass to the connection
 myclient = pymongo.MongoClient(
     "mongodb://%s:%s@localhost:27017/cgs" % (maindbuser, maindbpass)
@@ -610,13 +617,14 @@ def request_processor(ch, method, properties, body):
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
-vHost = "tempHost"
-queue2 = "tempQueue"
-exchange2 = "tempExchange"
-creds = pika.PlainCredentials(username="longsoup", password="puosgnol")
+vHost = BROKER_VHOST
+queue2 = BROKER_QUEUE
+exchange2 = BROKER_EXCHANGE
+
+creds = pika.PlainCredentials(username=BROKER_USER, password=BROKER_PASS)
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
-        host="192.168.68.65", port=5672, credentials=creds, virtual_host=vHost
+        host=BROKER_HOST, port=5672, credentials=creds, virtual_host=vHost
     )
 )
 channel = connection.channel()

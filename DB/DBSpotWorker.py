@@ -775,7 +775,7 @@ exchange2 = spotExchange
 creds = pika.PlainCredentials(username="longsoup", password="puosgnol")
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
-        host="192.168.68.65", port=5672, credentials=creds, virtual_host=vHost
+        host=spotHost, port=5672, credentials=creds, virtual_host=vHost
     )
 )
 channel = connection.channel()
