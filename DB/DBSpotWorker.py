@@ -545,28 +545,30 @@ def cleanAlbumData(data):
 
 def storeGenres(artist, genres, id):
     """storeGenres takes in the genres from a query, checks to see if they're already in the database, and if they're not, stores them in the database."""
-    # First step: check spotifyGenreCollection for the genre
-
+    # Loop through each genre in the list
     for genre in genres:
-        existing_genre = db.spotifyGenreCollection.find_one({"genre": genre})
+        # Check if the genre already exists in the database
+        existing_genre = db.spotifyGenres.find_one({"genre": genre})
 
         if existing_genre:
-            artist_exists = False
-            for artist_info in existing_genre["artists"]:
-                if artist_info["name"] == artist:
-                    artist_exists = True
-                    break
-            if not artist_exists:
-                db.spotifyGenreCollection.update_one(
+            # Check if the artist is already in the genre
+            if any(a["name"] == artist for a in existing_genre["artists_in_genre"]):
+                # Artist already exists, do nothing
+                continue
+            else:
+                # Artist doesn't exist in the genre, add them
+                db.spotifyGenres.update_one(
                     {"genre": genre},
-                    {"$push": {"artists_in_genre": {"name": artist, "id": id}}},
+                    {"$addToSet": {"artists_in_genre": {"name": artist, "id": id}}},
                 )
         else:
+            # Genre doesn't exist, create a new document
             new_genre_document = {
                 "genre": genre,
                 "artists_in_genre": [{"name": artist, "id": id}],
             }
             db.spotifyGenres.insert_one(new_genre_document)
+
     return True
 
 
