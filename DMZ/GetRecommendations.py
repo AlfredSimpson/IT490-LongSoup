@@ -15,8 +15,8 @@ def get_recommendations(seed_tracks, limit=10):
 
 # Provide a list of seed tracks (track IDs)
 seed_tracks = [
-    'spotify:track:1UB2JkLW9ReU4P08VXKyIX',
-    'spotify:track:3AJwUDP919kvQ9QcozQPxg',
+    'spotify:track:1bHnRc60O1N0l3PbHjaKyK',
+    'spotify:track:2VOomzT6VavJOGBeySqaMc',
 ]
 
 # Get song recommendations and print their names and artists
