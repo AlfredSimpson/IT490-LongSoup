@@ -313,7 +313,6 @@ def do_logout(usercookieid, session_id):
     # print(f"User {usercookieid} logged out")
     return {"\nreturnCode": 0, "message": "Logout successful\n"}
 
-
 def do_login(useremail, password, session_id, usercookieid):
     """
     # do_login
@@ -347,9 +346,10 @@ def do_login(useremail, password, session_id, usercookieid):
     user = collection.find_one({"email": useremail})
     if user:
         dbpassword = user["password"]
+        enteredPass = password.encode('utf-8')
         #dbsalt = user["salt"].encode('utf-8')
 
-        if bcrypt.checkpw(password.encode('utf-8'), dbpassword.encode('utf-8')):
+        if bcrypt.checkpw(enteredPass, dbpassword.encode('utf-8')):
             # Update/set the session id & user cookie id
             # LMDB.set_usercookieid(useremail, usercookieid)
             first_result = db.users.find_one({"email": useremail})
@@ -373,7 +373,7 @@ def do_login(useremail, password, session_id, usercookieid):
             energy = random.uniform(0, 1)
             popularity = random.randint(0, 100)
             music = get_recs(genre, valence, energy, popularity, True)
-            
+
             return {
                 "returnCode": 0,
                 "message": "Login successful",
@@ -400,7 +400,6 @@ def do_login(useremail, password, session_id, usercookieid):
                 "errorOutput": "Either the password or email provided does not match. Please try again.",
             },
         }
-
 
 def do_register(
     useremail, password, session_id, usercookieid, first_name, last_name, spot_name
@@ -433,14 +432,16 @@ def do_register(
         )
         try:
             salt = bcrypt.gensalt()
-            hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+            encodedpassword = password.encode('utf-8')
+            hashed_password = bcrypt.hashpw(encodedpassword, salt)
+            print(hashed_password)
             print(f'\nAttempting to add user "{useremail}" to users\n')
             uid = get_next_uid()
             users.insert_one(
                 {
                     "uid": uid,
                     "email": useremail,
-                    "password": hashed_password,
+                    "password": hashed_password.decode('utf-8'),
                     "salt": salt.decode('utf-8'),
                     "sessionid": session_id,
                     "cookieid": usercookieid,
@@ -486,6 +487,8 @@ def do_register(
                     "errorOutput": "Registration unsuccessful - Please try again with a different email.",
                 },
             }
+
+
 
 
 #############
