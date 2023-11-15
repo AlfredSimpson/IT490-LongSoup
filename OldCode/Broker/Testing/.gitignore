@@ -1,9 +1,0 @@
-# Ignore all venv and env folders and files
-venv
-env
-.venv/*
-*env/*
-*venv/*
-.venv
-.pyc
-```
