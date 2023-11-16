@@ -1,4 +1,108 @@
 {
     "tasteid": "",
-    "uid": ""
+    "uid": "",
+    "weights": {
+        "messages": {
+            "top": {
+                "id": "",
+                "weight": 0,
+                "last_updated": ""
+            },
+            "weight": 0,
+            "last_updated": ""
+        },
+        "artists": {
+            "top": {
+                "weight": 0,
+                "last_updated": "",
+                "related": {
+                    "tracks": [
+                        {}
+                    ],
+                    "albums": [
+                        {}
+                    ],
+                    "genres": [
+                        {}
+                    ]
+                }
+            }
+        },
+        "genres": {
+            "top": {
+                "weight": 0,
+                "last_updated": "",
+                "related": [
+                    {
+                        "name": "",
+                        "id": "",
+                        "weight": 0
+                    }
+                ]
+            },
+            "weight": 0,
+            "last_updated": ""
+        },
+        "tracks": {
+            "top": {
+                "weight": 0,
+                "last_updated": "",
+                "related": [
+                    {
+                        "name": "",
+                        "id": "",
+                        "weight": 0
+                    }
+                ]
+            }
+        }
+    },
+    "liked": {
+        "artists": [
+            {
+                "artist_name": "",
+                "id": "",
+                "weight": 0
+            }
+        ],
+        "genres": [
+            {
+                "genre_name": "",
+                "id": "",
+                "weight": 0
+            }
+        ],
+        "tracks": [
+            {
+                "track_name": "",
+                "id": "",
+                "artist_name": "",
+                "weight": 0
+            }
+        ]
+    },
+    "disliked": {
+        "artists": [
+            {
+                "artist_name": "",
+                "id": "",
+                "weight": 0
+            }
+        ],
+        "genres": [
+            {
+                "genre_name": "",
+                "id": "",
+                "weight": 0
+            }
+        ],
+        "tracks": [
+            {
+                "track_name": "",
+                "id": "",
+                "artist_name": "",
+                "weight": 0
+            }
+        ]
+    }
 }
