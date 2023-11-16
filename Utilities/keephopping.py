@@ -57,7 +57,7 @@ def writeLog(msg, file, criticality):
         criticality (str): Low/Critical, etc.
     """
     log_date = time.strftime("%Y-%m-%d %H:%M:%S")
-    log_entry = {"criticality": criticality, "date": log_date, "log": msg}
+    log_entry = f"{criticality} - {log_date} - {msg}"
 
     with open(file, "a") as log_file:
         log_file.write(log_entry)
