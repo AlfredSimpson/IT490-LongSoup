@@ -73,7 +73,7 @@ file_paths = {
 def verify(process):
     try:
         subprocess.check_output(["pgrep", "-f", "-i", process])
-        print(f"\nVerification check successful: {process} is running.\n")
+        # print(f"\nVerification check successful: {process} is running.\n")
         return True
     except:
         msg = f"Failed to find {process} as a running process.\nInitiating restart measures.\n"
