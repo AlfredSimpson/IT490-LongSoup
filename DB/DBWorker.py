@@ -246,6 +246,90 @@ def storeToken(access_token, refresh_token, expires_in, token_type, usercookieid
 
 
 #############
+# Methods related to messages & taste
+#############
+
+
+def loadMessages(genre):
+    """
+    loadMessages takes in genre as an argument and returns a list of messages.
+
+    Args:
+        genre (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    pass
+
+
+def postMessage(message, genre, uid, timestamp):
+    """
+    postMessage takes in message, genre, and uid as arguments and posts the message to the database.
+
+    Args:
+        message (_type_): _description_
+        genre (_type_): _description_
+        uid (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # !Get the user's spotify username
+    # TODO! Get the user's spotify username
+
+    try:
+        doc = db.messages.find_one({"genre": genre})
+
+        if doc:
+            db.messages.update_one(
+                {"genre": genre},
+                {
+                    "$push": {
+                        "messages": {
+                            "message": message,
+                            "uid": uid,
+                            "timestamp": timestamp,
+                        }
+                    }
+                },
+            )
+            # We should also update taste...
+            return {
+                "returnCode": 0,
+                "message": "Successfully posted message",
+                "data": {"errorStatus": False, "message": message, "uid": uid},
+            }
+        else:
+            db.messages.insert_one(
+                {"genre": genre, "messages": [{"message": message, "uid": uid}]}
+            )
+            return {
+                "returnCode": 0,
+                "message": "Successfully posted message",
+                "data": {"errorStatus": False, "message": message, "uid": uid},
+            }
+
+    except Exception as e:
+        print(f"\nError finding genre: {e}\n")
+        return {
+            "returnCode": 1,
+            "message": "Error finding genre",
+            "data": {"errorStatus": True, "errorOutput": "Error finding genre"},
+        }
+
+
+def addLike(uid, spotify_id):
+    # This should add to a user's taste in something
+    pass
+
+
+def addDislike(uid, spotify_id):
+    # This should subtract from a user's taste in something
+    pass
+
+
+#############
 # Methods related to user management
 #############
 
@@ -320,6 +404,7 @@ def do_logout(usercookieid, session_id):
     # print(f"User {usercookieid} logged out")
     return {"\nreturnCode": 0, "message": "Logout successful\n"}
 
+
 def do_login(useremail, password, session_id, usercookieid):
     """
     # do_login
@@ -342,10 +427,10 @@ def do_login(useremail, password, session_id, usercookieid):
     user = collection.find_one({"email": useremail})
     if user:
         dbpassword = user["password"]
-        enteredPass = password.encode('utf-8')
-        #dbsalt = user["salt"].encode('utf-8')
+        enteredPass = password.encode("utf-8")
+        # dbsalt = user["salt"].encode('utf-8')
 
-        if bcrypt.checkpw(enteredPass, dbpassword.encode('utf-8')):
+        if bcrypt.checkpw(enteredPass, dbpassword.encode("utf-8")):
             # Update/set the session id & user cookie id
             # LMDB.set_usercookieid(useremail, usercookieid)
             first_result = db.users.find_one({"email": useremail})
@@ -397,6 +482,7 @@ def do_login(useremail, password, session_id, usercookieid):
             },
         }
 
+
 def do_register(
     useremail, password, session_id, usercookieid, first_name, last_name, spot_name
 ):
@@ -428,7 +514,7 @@ def do_register(
         )
         try:
             salt = bcrypt.gensalt()
-            encodedpassword = password.encode('utf-8')
+            encodedpassword = password.encode("utf-8")
             hashed_password = bcrypt.hashpw(encodedpassword, salt)
             print(hashed_password)
             print(f'\nAttempting to add user "{useremail}" to users\n')
@@ -437,8 +523,8 @@ def do_register(
                 {
                     "uid": uid,
                     "email": useremail,
-                    "password": hashed_password.decode('utf-8'),
-                    "salt": salt.decode('utf-8'),
+                    "password": hashed_password.decode("utf-8"),
+                    "salt": salt.decode("utf-8"),
                     "sessionid": session_id,
                     "cookieid": usercookieid,
                 }
@@ -483,8 +569,6 @@ def do_register(
                     "errorOutput": "Registration unsuccessful - Please try again with a different email.",
                 },
             }
-
-
 
 
 #############
