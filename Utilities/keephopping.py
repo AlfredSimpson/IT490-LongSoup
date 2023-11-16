@@ -60,7 +60,7 @@ def writeLog(msg, file, criticality):
     log_entry = {"criticality": criticality, "date": log_date, "log": msg}
 
     with open(file, "a") as log_file:
-        log_file.write(log_entry + "\n")
+        log_file.write(log_entry)
 
 
 file_paths = {
