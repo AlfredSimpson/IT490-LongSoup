@@ -23,13 +23,16 @@ file_paths = {
 }
 
 
-# Function to check if a process is running
+# Function to check if a process is psrunning
 def is_process_running(process_name):
-    for proc in psutil.process_iter(attrs=["name"]):
-        if process_name.lower() == proc.info["name"].lower():
-            return True
-        # logging.info("Process %s is not running", process_name)
-    return False
+    try:
+        subprocess.check_output(["pgrep", "-f", "-i", process_name])
+        return True
+    except:
+        print(
+            f"Failed to find {process_name} as a running process.\n\nInitiating restart measures.\n"
+        )
+        return False
 
 
 def main():
@@ -81,102 +84,6 @@ if __name__ == "__main__":
     print(f"Starting keephopping.py")
     print(f"\nCritical Logging to {logFile}")
     print(f"\nDebug Logging to {loggingFile}")
+    print(f"\n\tNote: No Data will be shown if all is running as planned.\n")
     print(f"\nPress Ctrl+C to exit")
     main()
-
-
-# while True:
-#     # Check for DBWorker.py to be running
-#     if not is_process_running("DBWorker.py"):
-#         print("DBWorker.py is not running. Checking RabbitMQ...")
-#         rabbitmq_running = is_process_running("rabbitmq-server")
-#         try:
-#             # If RabbitMQ is running, attempt to restart it. Wait 20-25 seconds for it to restart. If it fails, break the loop and exit. If it doesn't, restart the file.
-#             if rabbitmq_running:
-#                 print(
-#                     "RabbitMQ is running, but DBWorker.py is not. Restarting RabbitMQ"
-#                 )
-#                 subprocess.Popen(["systemctl", "restart", "rabbitmq-server"])
-
-#                 # check to see if rabbitMQ is able to be restarted. Give it 20 seconds, checking every 5 seconds
-#                 waitCount = 4
-#                 while (is_process_running("rabbitmq-server") == False) or (
-#                     waitCount <= 4
-#                 ):
-#                     waitCount += 1
-#                     keep_waiting(5)
-#                 if is_process_running("rabbitmq-server") == False:
-#                     logging.critical("RabbitMQ is not running. Exiting...")
-#                     message = "RabbitMQ failed to restart! Exiting loop"
-#                     logDate = time.strftime("%Y-%m-%d %H:%M:%S")
-#                     newlog = f"**Critical**\t[RMQ] - {logDate} - {message}-{e}\n"
-#                     with open(logFile, "a") as logFile:
-#                         logFile.write(newlog)
-#                     break
-#                 else:
-#                     print("RabbitMQ is running. Restarting DBWorker.py")
-#                     subprocess.Popen(
-#                         [
-#                             "python3",
-#                             "/home/alfred/Desktop/IT490-LongSoup/DB/DBWorker.py",
-#                         ]
-#                     )
-#                     message = (
-#                         "DBWorker.py experienced an error. Keephopping.py restarted it."
-#                     )
-#                     logDate = time.strftime("%Y-%m-%d %H:%M:%S")
-#                     newlog = f"[RMQ] - {logDate} - {message}-{e}\n"
-#                     with open(logFile, "a") as logFile:
-#                         logFile.write(newlog)
-#         except Exception as e:
-#             pass
-
-
-# while True:
-#     # Check if DBWorker.py is running
-#     if not is_process_running("DBWorker.py"):
-#         print("DBWorker.py is not running. Checking RabbitMQ...")
-#         rabbitmq_running = is_process_running("rabbitmq-server")
-#         try:
-#             if rabbitmq_running:
-#                 subprocess.Popen(
-#                     ["python3", "/home/alfred/Desktop/IT490-LongSoup/DB/DBWorker.py"]
-#                 )
-#                 message = "DBWorker.py experienced an error. Keephopping.py restarted it."
-#                 logDate = time.strftime("%Y-%m-%d %H:%M:%S")
-#                 newlog = f"[RMQ] - {logDate} - {message}-{e}\n"
-#                 with open(logFile, "a") as logFile:
-#                     logFile.write(newlog)
-#         except Exception as e:
-#             message = "Error restarting DBWorker.py"
-#             logDate = time.strftime("%Y-%m-%d %H:%M:%S")
-#             newlog = f"****[CRITICAL]****\t[RMQ] - {logDate} - {message}-{e}\n"
-#             with open(logFile, "a") as logFile:
-#                 logFile.write(newlog)
-
-#         time.sleep(2)
-
-#     # Check if DBSpotWorker.py is running
-#     if not is_process_running("DBSpotWorker.py"):
-#         print("DBSpotWorker.py is not running. Restarting...")
-#         try:
-#             subprocess.Popen(
-#                 ["python3", "/home/alfred/Desktop/IT490-LongSoup/DB/DBSpotWorker.py"]
-#             )
-#             message = (
-#                 "DBSpotWorker.py experienced an error. Keephopping.py restarted it."
-#             )
-#             logDate = time.strftime("%Y-%m-%d %H:%M:%S")
-#             newlog = f"[RMQ] - {logDate} - {message}-{e}\n"
-#             with open(logFile, "a") as logFile:
-#                 logFile.write(newlog)
-#         except Exception as e:
-#             message = "Error restarting DBSpotWorker.py"
-#             logDate = time.strftime("%Y-%m-%d %H:%M:%S")
-#             newlog = f"****[CRITICAL]****\t[RMQ] - {logDate} - {message}-{e}\n"
-#             with open(logFile, "a") as logFile:
-#                 logFile.write(newlog)
-#         time.sleep(2)
-
-#     # Sleep for a minute before the next check
-#     time.sleep(60)

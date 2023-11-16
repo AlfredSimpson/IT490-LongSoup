@@ -8,3 +8,9 @@
 {"type":"log","source":"_SPOTIFY_","date":"2023-11-15T12:41:41.553EST","log_message":"User requested some jams, got some.\n"}
 {"type":"log","source":"_REGISTRATION_","date":"2023-11-15T12:55:23.737EST","log_message":"[REGISTRATION] User registered successfully.\n"}
 {"type":"log","source":"Webserver","date":"2023-11-15T12:57:25.482EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-15T16:35:02.979EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"_SPOTIFY_","date":"2023-11-15T16:35:08.386EST","log_message":"User requested some jams, got some.\n"}
+{"type":"log","source":"_SPOTIFY_","date":"2023-11-15T17:32:07.839EST","log_message":"User requested some jams, got some.\n"}
+{"type":"log","source":"_SPOTIFY_","date":"2023-11-15T19:06:24.542EST","log_message":"User requested some jams, got some.\n"}
+{"type":"log","source":"Webserver","date":"2023-11-15T19:08:36.741EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"_SPOTIFY_","date":"2023-11-15T19:08:40.977EST","log_message":"User requested some jams, got some.\n"}
