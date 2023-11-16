@@ -46,21 +46,50 @@ def verify(process):
         return False
 
 
+def bootUp():
+    # Ensure that rabbitMQ is running
+    rabbitmq_running = is_process_running("rabbit")
+    # If rabbitmq is not running, start it
+    if not rabbitmq_running:
+        # Start RabbitMQ, wait up to 30 seconds
+        print(f"RabbitMQ is not running. Starting RabbitMQ")
+        subprocess.Popen(["systemctl", "start", "rabbitmq-server"])
+        time.sleep(30)
+        # Wait 30 seconds for RabbitMQ to start, if rabbitmq still isn't up, something might be wrong.
+        if not verify("rabbit"):
+            logging.critical("RabbitMQ failed to start. Exiting...")
+            # Attempt to restart rabbit on our way out
+            subprocess.Popen(["systemctl", "restart", "rabbitmq-server"])
+            exit(1)
+        else:
+            # If RabbitMQ is running, recursively call bootUp. it will verify rabbit again, which should pass. From there, for all files in the dictionary, it will boot them.
+            bootUp()
+    # If RabbitMQ was already running, we can continue...
+    else:
+        print(f"RabbitMQ is running. Booting up all files...\n")
+        for filename, file_path in file_paths.items():
+            subprocess.Popen(["python3", file_path])
+            keep_waiting(10)
+            if verify(filename):
+                print(f"{filename} is running. Continuing...\n")
+            else:
+                logging.critical(f"{filename} failed to start. Exiting...\n\n\n")
+                exit(1)
+
+
 def main():
+    bootUp()
     while True:
         # Iterate over the files and their paths in the dictionary
         for filename, file_path in file_paths.items():
             if not is_process_running(filename):
-                print(f"[ALERT]\t{filename} is not running. Checking RabbitMQ...\n")
-                # print(f"Attempting to restart as normal, waiting 5 seconds and rechecking...\n")
-                # subprocess.Popen(["python3", file_path])
-                # keep_waiting(1)
-                # if verify(filename):
-                #    print(f"{filename} is running. Continuing...\n")
-                #    break
-                # else:
-                #  Continue as normal but comment out for now....
-
+                print(
+                    f"\n[ALERT]\t{filename} is not running. First we will attempt to reboot the files - then we will reboot RabbitMQ...\n"
+                )
+                subprocess.Popen(["python3", file_path])
+                keep_waiting(5)
+                if verify(filename):
+                    print(f"{filename} is running. Continuing...\n")
                 rabbitmq_running = is_process_running("rabbit")
                 try:
                     if rabbitmq_running:
@@ -74,7 +103,7 @@ def main():
                         while (not is_process_running("rabbit")) and (wait_count <= 5):
                             wait_count += 1
                             time.sleep(5)
-
+                        # If rabbitmq is still not running, exit the loop - This is a critical failure.
                         if not is_process_running("rabbit"):
                             logging.critical(
                                 "RabbitMQ is not running. Exiting...\n\n\n"
@@ -86,9 +115,11 @@ def main():
                                 logFile.write(new_log)
                             break
                         else:
-                            print(f"RabbitMQ is running. Restarting {filename}\n")
+                            print(
+                                f"RabbitMQ is running. Restarting all files dependent on RabbitMQ\n"
+                            )
                             subprocess.Popen(["python3", file_path])
-                            keep_waiting(1)
+                            keep_waiting(3)
                             message = f"{filename} experienced an error. Keephopping.py restarted it."
                             log_date = time.strftime("%Y-%m-%d %H:%M:%S")
                             new_log = f"[RMQ] - {log_date} - {message}\n"
@@ -104,6 +135,8 @@ if __name__ == "__main__":
     print(f"Starting keephopping.py")
     print(f"\nCritical Logging to {logFile}")
     print(f"\nDebug Logging to {loggingFile}")
-    print(f"\n\tNote: No Data will be shown if all is running as planned.\n")
+    print(
+        f"\n\tNote: We will attempt to first boot all files.\nAfter that, if all is running smoothly, we will see no output.\n"
+    )
     print(f"\nPress Ctrl+C to exit")
     main()
