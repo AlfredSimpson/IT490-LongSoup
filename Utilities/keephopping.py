@@ -35,13 +35,33 @@ def is_process_running(process_name):
         return False
 
 
+def verify(process):
+    try:
+        subprocess.check_output(["pgrep", "-f", "-i", process])
+        return True
+    except:
+        print(
+            f"Failed to find {process} as a running process.\n\nInitiating restart measures.\n"
+        )
+        return False
+
+
 def main():
     while True:
         # Iterate over the files and their paths in the dictionary
         for filename, file_path in file_paths.items():
             if not is_process_running(filename):
-                print(f"{filename} is not running. Checking RabbitMQ...")
-                rabbitmq_running = is_process_running("rabbitmq-server")
+                print(f"[ALERT]\t{filename} is not running. Checking RabbitMQ...\n")
+                # print(f"Attempting to restart as normal, waiting 5 seconds and rechecking...\n")
+                # subprocess.Popen(["python3", file_path])
+                # keep_waiting(1)
+                # if verify(filename):
+                #    print(f"{filename} is running. Continuing...\n")
+                #    break
+                # else:
+                #  Continue as normal but comment out for now....
+
+                rabbitmq_running = is_process_running("rabbit")
                 try:
                     if rabbitmq_running:
                         print(
@@ -51,14 +71,14 @@ def main():
 
                         # Check if RabbitMQ is able to be restarted, wait up to 25 seconds
                         wait_count = 0
-                        while (not is_process_running("rabbitmq-server")) and (
-                            wait_count <= 5
-                        ):
+                        while (not is_process_running("rabbit")) and (wait_count <= 5):
                             wait_count += 1
                             time.sleep(5)
 
-                        if not is_process_running("rabbitmq-server"):
-                            logging.critical("RabbitMQ is not running. Exiting...")
+                        if not is_process_running("rabbit"):
+                            logging.critical(
+                                "RabbitMQ is not running. Exiting...\n\n\n"
+                            )
                             message = "RabbitMQ failed to restart! Exiting loop"
                             log_date = time.strftime("%Y-%m-%d %H:%M:%S")
                             new_log = f"**Critical**\t[RMQ] - {log_date} - {message}\n"
@@ -66,8 +86,9 @@ def main():
                                 logFile.write(new_log)
                             break
                         else:
-                            print(f"RabbitMQ is running. Restarting {filename}")
+                            print(f"RabbitMQ is running. Restarting {filename}\n")
                             subprocess.Popen(["python3", file_path])
+                            keep_waiting(1)
                             message = f"{filename} experienced an error. Keephopping.py restarted it."
                             log_date = time.strftime("%Y-%m-%d %H:%M:%S")
                             new_log = f"[RMQ] - {log_date} - {message}\n"
@@ -75,9 +96,8 @@ def main():
                                 logFile.write(new_log)
                 except Exception as e:
                     pass
-
-        # Sleep for a minute before the next check
-        time.sleep(30)
+        # Sleep for 45 seconds before the next check
+        time.sleep(45)
 
 
 if __name__ == "__main__":
