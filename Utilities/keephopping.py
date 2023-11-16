@@ -5,7 +5,7 @@ import logging
 import json
 
 
-logFile_path = "/home/alfred/Desktop/keephopping.json"
+logFile_path = "/home/alfred/Desktop/keephopping.log"
 loggingFile = "/home/alfred/Desktop/keephopping_and_logging.log"
 logging.basicConfig(filename=loggingFile, level=logging.DEBUG)
 
