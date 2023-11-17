@@ -1,0 +1,58 @@
+{
+    "current_packages": [
+        {
+            "name": "",
+            "current_version": "0.0.0",
+            "information": [
+                {
+                    "version": "0.0.0",
+                    "server": "",
+                    "date": "",
+                    "path": "",
+                    "description": "",
+                    "rank": "",
+                    "passed_qa": "",
+                    "previous_versions": [
+                        {
+                            "version": "0.0.0",
+                            "server": "",
+                            "date": "",
+                            "path": "",
+                            "description": "",
+                            "rank": "secondary",
+                            "passed_qa": "true"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "last_working_packages": [
+        {
+            "name": "",
+            "version": "",
+            "information": [
+                {
+                    "version": "0.0.0",
+                    "server": "",
+                    "date": "",
+                    "path": "",
+                    "description": "",
+                    "rank": "secondary",
+                    "passed_qa": "true",
+                    "previous_version": [
+                        {
+                            "version": "0.0.0",
+                            "server": "",
+                            "date": "",
+                            "path": "",
+                            "description": "",
+                            "status": "tertiary",
+                            "passed_qa": "true"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

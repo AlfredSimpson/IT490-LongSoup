@@ -15,3 +15,9 @@ Our helpers should do the following:
 6. If there are no errors, send a success message back to the deployment server.
 7. If the deployment server receives a success message from the QA Cluster, send it to the Prod Cluster.
 
+## dev_worker.py
+
+This handles requests to and from the development cluster.
+
+
+## qa_worker.py
