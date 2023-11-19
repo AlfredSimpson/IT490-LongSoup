@@ -2,25 +2,37 @@ import pika
 import json
 from dotenv import load_dotenv
 import requests
+import os
 from procedural_data_script import job_and_send_result  # Import the function from the other script
 
 load_dotenv()
+#DMZ connection
+DMZ_HOST = os.getenv("DMZ_HOST")
+DMZ_VHOST = os.getenv("DMZ_VHOST")
+DMZ_QUEUE = os.getenv("DMZ_QUEUE")
+DMZ_EXCHANGE = os.getenv("dmzExchange")
+DMZ_USER = os.getenv("DMZ_USER")
+DMZ_PASS = os.getenv("DMZ_PASS")
+DMZ_PORT = os.getenv("DMZ_PORT")
 
 # RabbitMQ configuration
-rabbitmq_host = 'your_rabbitmq_host'
-rabbitmq_port = int('your_rabbitmq_port')
-connection = pika.BlockingConnection(pika.ConnectionParameters(host=rabbitmq_host, port=rabbitmq_port))
+#rabbitmq_host = 'your_rabbitmq_host'
+#rabbitmq_port = int('your_rabbitmq_port')
+
+creds = pika.PlainCredentials(username=DMZ_USER, password=DMZ_PASS)
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(host=DMZ_HOST, port=DMZ_PORT, credentials = creds, virtual_host = DMZ_VHOST))
 channel = connection.channel()
 
 # Declare the queue
-channel.queue_declare(queue='data_queue')
+channel.queue_declare(queue=DMZ_QUEUE)
 
 def callback(ch, method, properties, body):
     # Trigger the 'job_and_send_result()' function when a message is received
     job_and_send_result()
 
 # Set up the consumer
-channel.basic_consume(queue='data_queue', on_message_callback=callback, auto_ack=True)
+channel.basic_consume(queue=DMZ_QUEUE, on_message_callback=callback, auto_ack=True)
 
 print('Waiting for messages. To exit press CTRL+C')
 channel.start_consuming()

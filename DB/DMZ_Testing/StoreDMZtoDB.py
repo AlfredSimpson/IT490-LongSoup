@@ -8,6 +8,15 @@ import os
 
 load_dotenv()
 
+#DMZ connection
+DMZ_HOST = os.getenv("DMZ_HOST")
+DMZ_VHOST = os.getenv("DMZ_VHOST")
+DMZ_QUEUE = os.getenv("DMZ_QUEUE")
+DMZ_EXCHANGE = os.getenv("dmzExchange")
+DMZ_USER = os.getenv("DMZ_USER")
+DMZ_PASS = os.getenv("DMZ_PASS")
+DMZ_PORT = os.getenv("DMZ_PORT")
+
 # Connect to MongoDB
 maindb = os.getenv("MONGO_DB")
 maindbuser = os.getenv("MONGO_USER")
@@ -20,13 +29,13 @@ myclient = pymongo.MongoClient(
 db = myclient[maindb]
 
 # RabbitMQ configuration
-rabbitmq_host = 'your_rabbitmq_host'
-rabbitmq_port = int('your_rabbitmq_port')
-connection = pika.BlockingConnection(pika.ConnectionParameters(host=rabbitmq_host, port=rabbitmq_port))
+creds = pika.PlainCredentials(username=DMZ_USER, password=DMZ_PASS)
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(host=DMZ_HOST, port=DMZ_PORT, credentials = creds, virtual_host = DMZ_VHOST))
 channel = connection.channel()
 
 # Declare the queue
-channel.queue_declare(queue='data_queue')
+channel.queue_declare(queue=DMZ_QUEUE)
 
 def callback(ch, method, properties, body):
     # Parse the JSON data
@@ -40,7 +49,7 @@ def callback(ch, method, properties, body):
         print(f"Error saving data to MongoDB: {e}")
 
 # Set up the consumer
-channel.basic_consume(queue='data_queue', on_message_callback=callback, auto_ack=True)
+channel.basic_consume(queue=DMZ_QUEUE, on_message_callback=callback, auto_ack=True)
 
 print('Waiting for messages. To exit press CTRL+C')
 channel.start_consuming()

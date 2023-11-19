@@ -4,15 +4,29 @@ import schedule
 import time as tm
 from dotenv import load_dotenv
 import pika
+import os
 
 load_dotenv()
 
+#DMZ connection
+#DMZ connection
+#DMZ connection
+DMZ_HOST = os.getenv("DMZ_HOST")
+DMZ_VHOST = os.getenv("DMZ_VHOST")
+DMZ_QUEUE = os.getenv("DMZ_QUEUE")
+DMZ_EXCHANGE = os.getenv("dmzExchange")
+DMZ_USER = os.getenv("DMZ_USER")
+DMZ_PASS = os.getenv("DMZ_PASS")
+DMZ_PORT = os.getenv("DMZ_PORT")
+
 # Establish a connection to RabbitMQ
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+creds = pika.PlainCredentials(username=DMZ_USER, password=DMZ_PASS)
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(host=DMZ_HOST, port=DMZ_PORT, credentials = creds, virtual_host = DMZ_VHOST))
 channel = connection.channel()
 
 # Declare a queue named 'data_queue'
-channel.queue_declare(queue='data_queue')
+channel.queue_declare(queue=DMZ_QUEUE)
 
 # Function to read the last saved artist ID from a file
 def read_last_artist_id():
@@ -64,7 +78,7 @@ def job_and_send_result():
     save_artist_id(specific_artist_id)
 
     # Send it over RabbitMQ
-    channel.basic_publish(exchange='', routing_key='data_queue', body=json.dumps(artist_data))
+    channel.basic_publish(exchange=DMZ_EXCHANGE, routing_key=DMZ_QUEUE, body=json.dumps(artist_data))
 
 # Schedule the job
 # schedule.every(30).seconds.do(job_and_send_result)
