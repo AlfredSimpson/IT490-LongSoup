@@ -80,3 +80,18 @@ Each of these should be packaged and sent to the server. We will package these f
 
 ## DMZ
 
+
+
+## Setting up Deployment
+
+- [x] Install RabbitMQ
+  - [ ] Establish users, queues, hosts, exchanges, and all necessary settings
+  - [ ] Establish a way to send messages to the queues
+  - [ ] Establish a way to receive messages from the queues
+  - [ ] Establish a way to execute commands based on the messages received using rpc
+  - [ ] 
+- [x] Install MongoDB
+  - [x] Set up the database
+  - [x] Set up the user and password
+  - [ ] Create the necessary collections
+- [x] Install Utilities for QoL improvements.
