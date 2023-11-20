@@ -1,6 +1,7 @@
 import os
 import shutil
 import pymongo
+from bson.son import SON
 
 from datetime import datetime
 
@@ -9,10 +10,10 @@ col = {
     "current_packages": [
         {
             "name": "",
-            "current_version": "0.0.0",
+            "current_version": 0,
             "information": [
                 {
-                    "version": "0.0.0",
+                    "version": 0,
                     "server": "",
                     "date": "",
                     "path": "",
@@ -21,7 +22,7 @@ col = {
                     "passed_qa": "",
                     "previous_versions": [
                         {
-                            "version": "0.0.0",
+                            "version": 0,
                             "server": "",
                             "date": "",
                             "path": "",
@@ -40,7 +41,7 @@ col = {
             "version": "",
             "information": [
                 {
-                    "version": "0.0.0",
+                    "version": 0,
                     "server": "",
                     "date": "",
                     "path": "",
@@ -49,7 +50,7 @@ col = {
                     "passed_qa": "true",
                     "previous_version": [
                         {
-                            "version": "0.0.0",
+                            "version": 0,
                             "server": "",
                             "date": "",
                             "path": "",
@@ -65,6 +66,10 @@ col = {
 }
 
 
+def revert_package(db):
+    pass
+
+
 def create_new_package(db):
     # Start by getting the package name, path, and description from the user. We'll also want to get the server name.
     package_name = input("Enter the package name: ")
@@ -76,7 +81,7 @@ def create_new_package(db):
         print("Package path does not exist!")
         create_new_package(db)
     # Now we can create the package in the database.
-    # Since this is a new package, the current version will be 1.0.0.
+    # Since this is a new package, the current version will be 1
     # We'll also want to get the current date and time.
     current_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
     # Now we can create the package in the database by updating the current_packages list to include the new package. As there are no previous versions of this package, we should fill in the previous_versions list with the current version.
@@ -121,7 +126,7 @@ def create_new_package(db):
         print(e)
     shutil.copytree(package_path, f"/tmp/_packages_/{package_name}")
     # Now we can call tar_and_move_package.
-    if tar_and_move_package(db, package_name, "1.0.0"):
+    if tar_and_move_package(db, package_name, 1):
         # If we could tar and move the package, let's delete the copy in /tmp/_packages_.
         shutil.rmtree(f"/tmp/_packages_/{package_name}")
     return True
@@ -141,10 +146,12 @@ def tar_and_move_package(db, package_name, new_version):
 
 
 def update_existing_package(db):
-    """This function will update an existing package in the database. Our database is structured like we see defined in col
+    """# update_existing_package
+    This function will update an existing package in the database.
+    Our database is structured like we see defined in col
 
     Args:
-        db (_type_): _description_
+        db (_type_): our db connection
     """
     # We will need to first pass into current_packages, then get the name of each package.
     # We can do this by using the following code:
@@ -181,11 +188,17 @@ def update_existing_package(db):
                 )
                 # Now we can ask the user if they want to update the package. Obviously yeah.
                 option = input("Update package? (y/n): ")
+                #! This is where we take action to update the package.
                 if option.lower() == "y":
-                    # First, we'll want to get the new version number, which is increasing the previous by 1.
-                    new_version = package["current_version"].split(".")
-                    new_version[2] = str(int(new_version[2]) + 1)
-                    new_version = ".".join(new_version)
+                    # First, we'll want to get the new version number. To do that we just take the old version number and add 1 to it. If we ever want to get fancy with it we can add more nuanced versioning, but this is a project that has already consumed many hours of our life with extremely little guidance from the professor, so we're going to keep it simple.
+
+                    # We can do this by using the following code:
+                    new_version = package["current_version"] + 1
+
+                    # Next, check if the /tmp/_packages_ directory exists, if it doesn't create it.
+                    if not os.path.exists("/tmp/_packages_"):
+                        os.system("sudo mkdir /tmp/_packages_")
+
                     # Next, we should try to make a directory using sudo. This directory is /tmp/_packages_.
                     os.system("sudo mkdir /tmp/_packages_")
                     # Now we can copy the package to the /tmp/_packages_ directory.
@@ -198,9 +211,21 @@ def update_existing_package(db):
                         # If we could tar and mov ethe package, let's delete the copy in /tmp/_packages_.
                         shutil.rmtree(f"/tmp/_packages_/{package_name}")
                     # Now we can update the database.
-                    # We don't want to isnert a new document into current_packages, but update the documenta ssociated with the name of the package to reflect the new version. The old version and information should be moved to the previous_versions list and the last_working_packages list should be updated to reflect the new version. If the last_working_packages list does not exist, we should create it.
-                    # This should make sure to increase the current package version to the new version, and move the old version to the previous_versions list inside of current_packages.
-                    # We can do this by using the following code:
+                    # We are going to want to update the embedded document in current_packages so that the new version is stored in current_packages and the information embedded document, while the former version is stored in the previous_versions embedded document found within current_packages.information.
+                    # Previous versions should retain ALL previous versions as an item in the array. We'll also want to update the last_working_packages list to reflect the new version of the package.
+                    # To ensure data is not duplicated, and to ensure we're not creating a new document, let's first copy the information in current_packages (excluding the previous_versions list in current_packages.information) to the previous_versions list in current_packages.information.
+                    # Let's first get the current information in current_packages, excluding the previous_versions list.
+                    current_information = package["information"][0]
+                    # Now let's insert this information into the previous_versions list.
+                    db.packages.update_one(
+                        {"current_packages.name": package_name},
+                        {
+                            "$push": {
+                                "current_packages.$.information.$.previous_versions": current_information
+                            }
+                        },
+                    )
+                    # Now we want to update the current_packages list for this specific package to reflect the new version and it's information. Since we updated the previous_versions list, we can just update the current_packages list to reflect the new version and information and retain the previous_versions list.
                     db.packages.update_one(
                         {"current_packages.name": package_name},
                         {
@@ -241,56 +266,102 @@ def update_existing_package(db):
                             }
                         },
                     )
+
+                    # We don't want to insert a new document into current_packages, but update the documenta ssociated with the name of the package to reflect the new version. The old version and information should be moved to the previous_versions list and the last_working_packages list should be updated to reflect the new version. If the last_working_packages list does not exist, we should create it.
+                    # This should make sure to increase the current package version to the new version, and move the old version to the previous_versions list inside of current_packages.
+                    # We can do this by using the following code:
+                    #! This is where we're updating the database specifically -- https://www.mongodb.com/docs/manual/reference/method/db.collection.update/#:~:text=To%20update%20an%20embedded%20document,notation%20to%20specify%20the%20field.
+                    #! To update embedded documents, we are told to use dot notation with the set operator - which we're using... but it's not quite right yet.
+                    # db.packages.update_one(
+                    #     {"current_packages.name": package_name},
+                    #     {
+                    #         "$set": {
+                    #             "current_packages.$.current_version": new_version,
+                    #             "current_packages.$.information": [
+                    #                 {
+                    #                     "version": new_version,
+                    #                     "server": package["information"][0]["server"],
+                    #                     "date": package["information"][0]["date"],
+                    #                     "path": package["information"][0]["path"],
+                    #                     "description": package["information"][0][
+                    #                         "description"
+                    #                     ],
+                    #                     "rank": "primary",
+                    #                     "passed_qa": "true",
+                    #                     "previous_versions": [
+                    #                         {
+                    #                             "version": package["current_version"],
+                    #                             "server": package["information"][0][
+                    #                                 "server"
+                    #                             ],
+                    #                             "date": package["information"][0][
+                    #                                 "date"
+                    #                             ],
+                    #                             "path": package["information"][0][
+                    #                                 "path"
+                    #                             ],
+                    #                             "description": package["information"][
+                    #                                 0
+                    #                             ]["description"],
+                    #                             "rank": "secondary",
+                    #                             "passed_qa": "true",
+                    #                         }
+                    #                     ],
+                    #                 }
+                    #             ],
+                    #         }
+                    #     },
+                    # )
                     # Now we can update the last_working_packages list.
                     # We want to make sure this doesn't duplicate existing data, but moves the existing data to the previous_versions list inside of last_working_packages.
                     # We can do this by using the following code:
-                    db.packages.update_one(
-                        {},
-                        {
-                            "$push": {
-                                "last_working_packages": {
-                                    "name": package_name,
-                                    "version": package["current_version"],
-                                    "information": [
-                                        {
-                                            "version": package["current_version"],
-                                            "server": package["information"][0][
-                                                "server"
-                                            ],
-                                            "date": package["information"][0]["date"],
-                                            "path": package["information"][0]["path"],
-                                            "description": package["information"][0][
-                                                "description"
-                                            ],
-                                            "rank": "secondary",
-                                            "passed_qa": "true",
-                                            "previous_versions": [
-                                                {
-                                                    "version": package[
-                                                        "current_version"
-                                                    ],
-                                                    "server": package["information"][0][
-                                                        "server"
-                                                    ],
-                                                    "date": package["information"][0][
-                                                        "date"
-                                                    ],
-                                                    "path": package["information"][0][
-                                                        "path"
-                                                    ],
-                                                    "description": package[
-                                                        "information"
-                                                    ][0]["description"],
-                                                    "rank": "tertiary",
-                                                    "passed_qa": "true",
-                                                }
-                                            ],
-                                        }
-                                    ],
-                                }
-                            }
-                        },
-                    )
+                    # db.packages.update_one(
+                    #     {},
+                    #     {
+                    #         "$push": {
+                    #             "last_working_packages": {
+                    #                 "name": package_name,
+                    #                 "version": package["current_version"],
+                    #                 "information": [
+                    #                     {
+                    #                         "version": package["current_version"],
+                    #                         "server": package["information"][0][
+                    #                             "server"
+                    #                         ],
+                    #                         "date": package["information"][0]["date"],
+                    #                         "path": package["information"][0]["path"],
+                    #                         "description": package["information"][0][
+                    #                             "description"
+                    #                         ],
+                    #                         "rank": "secondary",
+                    #                         "passed_qa": "true",
+                    #                         "previous_versions": [
+                    #                             {
+                    #                                 "version": package[
+                    #                                     "current_version"
+                    #                                 ],
+                    #                                 "server": package["information"][0][
+                    #                                     "server"
+                    #                                 ],
+                    #                                 "date": package["information"][0][
+                    #                                     "date"
+                    #                                 ],
+                    #                                 "path": package["information"][0][
+                    #                                     "path"
+                    #                                 ],
+                    #                                 "description": package[
+                    #                                     "information"
+                    #                                 ][0]["description"],
+                    #                                 "rank": "tertiary",
+                    #                                 "passed_qa": "true",
+                    #                             }
+                    #                         ],
+                    #                     }
+                    #                 ],
+                    #             }
+                    #         }
+                    #     },
+                    # )
 
 
 def main():
