@@ -1,383 +1,576 @@
+# This is my attempt at simplifying the process for the deployment process. Previously we used embedded documents, this time I'm going to separate them into three collections: current_packages, previous_packages, and backup_packages.
 import os
 import shutil
 import pymongo
-from bson.son import SON
+import pika
+import paramiko
+import json
+import time
+import sys
+import re
+import subprocess
+import logging
+import threading
+
 
 from datetime import datetime
+from dotenv import load_dotenv
 
+db_name = "test_gather"
+current = "current_packages"
+previous = "previous_packages"
+backups = "backup_packages"
 
-col = {
-    "current_packages": [
-        {
-            "name": "",
-            "current_version": 0,
-            "information": [
-                {
-                    "version": 0,
-                    "server": "",
-                    "date": "",
-                    "path": "",
-                    "description": "",
-                    "rank": "",
-                    "passed_qa": "",
-                    "previous_versions": [
-                        {
-                            "version": 0,
-                            "server": "",
-                            "date": "",
-                            "path": "",
-                            "description": "",
-                            "rank": "secondary",
-                            "passed_qa": "true",
-                        }
-                    ],
-                }
-            ],
-        }
-    ],
-    "last_working_packages": [
-        {
-            "name": "",
-            "version": "",
-            "information": [
-                {
-                    "version": 0,
-                    "server": "",
-                    "date": "",
-                    "path": "",
-                    "description": "",
-                    "rank": "secondary",
-                    "passed_qa": "true",
-                    "previous_version": [
-                        {
-                            "version": 0,
-                            "server": "",
-                            "date": "",
-                            "path": "",
-                            "description": "",
-                            "status": "tertiary",
-                            "passed_qa": "true",
-                        }
-                    ],
-                }
-            ],
-        }
-    ],
+IN_SERVERS = ["front", "back", "dmz"]
+
+DEV_DB = "192.168.68.64"
+DEV_FRONT = "192.168.68.64"
+DEV_DMZ = "broidk"
+DEPLOY_SERVER = "192.168.68.73"
+
+"""
+name is the name of the package
+version is the version of the package
+date is the date the package was created
+description is a brief description of what the package does
+server is the server that the package is being deployed to (front, back, dmz)
+source_path is the path to the directory where the package is stored so we can get it
+route_key is the route key that we'll use to send the package to the correct server and control where it is inserted to
+qa_status is the status of the package (pass, fail, testing). Testing means it's will be sent to QA for testing. After QA is done, it will be updated to pass or fail.
+
+current_packages is the core collection. This is where we store our current packages in use.
+
+current_packages = {
+    "name": "",
+    "version": 0,
+    "date": "",
+    "description": "",
+    "server": "",
+    "source_path": "",
+    "route_key": "",
+    "qa_status": "",
 }
 
+previous_packages is where we store the previous versions of the packages. This is an array of documents, where each document is a previous version of the package - including the pass/fail status messages later incorporated.
 
-def revert_package(db):
+previous_packages = [
+    {
+        "name": "",
+        "version": 0,
+        "date": "",
+        "description": "",
+        "server": "",
+        "source_path": "",
+        "route_key": "",
+        "qa_status": "",
+    }
+]
+
+Finally, backup packages (not yet live) will be where we store the package information related to the most recent 2 successful packages. This is so that we can revert to a previous version if necessary. The difference here is that source_path will actually refer to the path where the package is stored on the server, not the local path - as we'll need to retain backups. We also state primary and secondary packages, as we'll need to know which one to revert to. Primary is the most recent successful package, and secondary will be if, for some reason, this primary fails. As of 11/19/2023 this is not incorporated completely. 
+
+backup_packages = {
+    "name": "",
+    "primary": {
+        "name": "",
+        "version": 0,
+        "date": "",
+        "description": "",
+        "server": "",
+        "source_path": "",
+        "route_key": "",
+        "qa_status": "",
+    },
+    "secondary": {
+        "name": "",
+        "version": 0,
+        "date": "",
+        "description": "",
+        "server": "",
+        "source_path": "",
+        "route_key": "",
+        "qa_status": "",
+    },
+}
+"""
+def hunter(pathway, package_name, srcServer, destServer):
+    # Using paramiko, connect to srcServer and check to see if the package exists. If it does, scp it back home to a specific directory.
+    # We'll leave the file on the source server for now.
+    # We'll start by creating a connection to the source server.
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(srcServer, username="alfred", password="njit#IT#490")
+    # Now we'll check to see if the package exists on the source server.
+    stdin, stdout, stderr = ssh.exec_command(f"ls {pathway}")
+    # We'll read the output of the command and split it into a list.
+    output = stdout.read().decode("utf-8").split()
+    # Now we'll check to see if the package exists in the output.
+    print(f'Checking for {package_name} in {output}')
+    if package_name in output:
+        print(f'Found {package_name} in {output}')
+        # If it does, we'll scp it to the destination server.
+        # We'll start by creating a connection to the destination server.
+        ssh2 = paramiko.SSHClient()
+        ssh2.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh2.connect(destServer, username="longsoup", password="njit#490")
+        # We'll need to tar the package before we can scp it.
+        # We'll start by tarring the package.
+        stdin, stdout, stderr = ssh.exec_command(
+            f"tar -czvf {package_name}.tar.gz {pathway}/{package_name}"
+        )
+        # Now we'll need to scp the package to the destination server.
+        stdin, stdout, stderr = ssh2.exec_command(
+            f"scp {srcServer}:{pathway}/{package_name}.tar.gz /home/longsoup/Desktop/Deployment"
+        )
+
+        # Now we'll scp the package to the destination server.
+        stdin, stdout, stderr = ssh2.exec_command(
+            f"scp {srcServer}:{pathway}/{package_name} /home/longsoup/Desktop/Deployment"
+        )
+        # We'll read the output of the command and split it into a list.
+        output = stdout.read().decode("utf-8").split()
+        # Now we'll check to see if the package exists in the output.
+        if package_name in output:
+            # If it does, we'll return True.
+            return True
+        else:
+            # If it doesn't, we'll return False.
+            return False
+
+
+def make_package(name, version, date, description, server, source, route, qastatus):
+    """This is used to make a tidy little package object that we can use to insert wherever packages exist in our database  here, which is everywhere.
+    Args:
+        name (_type_): _description_
+        version (_type_): _description_
+        date (_type_): _description_
+        description (_type_): _description_
+        server (_type_): _description_
+        source (_type_): _description_
+        route (_type_): _description_
+        qastatus (_type_): _description_
+    """
+    package = {
+        "name": name,
+        "version": version,
+        "date": date,
+        "description": description,
+        "server": server,
+        "source_path": source,
+        "route_key": route,
+        "qa_status": qastatus,
+    }
+    return package
+
+
+def tar_and_move_package(db, package_name, version_num)):
+    """
+    This function will tar the package and move it to the correct location.
+    """
+    # Source is where the path is, destination is where we're moving it to.
+    SRC = "/tmp/_packages_"
+    DEST = "/home/longsoup/Desktop/Deployment"
+    package_name = package_name + "_" + version_num
+
+    os.system(f"sudo tar -czvf {DEST}/{package_name}.tar.gz -C {SRC} {package_name}")
+    # Now that we moved the file, we can remove it from tmp. This isn't necessary since tmp does delete files, but I'm doing it anyway.
+    shutil.rmtree(os.path.join(SRC, package_name))
+
+
+def move_it(package_name, source_path):
+    """Moves an entire directory using the copytree function from shutil. This is used to move the package to the correct location in /tmp/_packages_ so that we can tar it and move it to the correct location.
+
+    Args:
+        package_name (str): name of the package
+        source_path (str): Where is the package?
+
+    Returns:
+        bool: did you do it or not?
+    """
+    # SRC here is where the package directory is.
+    SRC = source_path
+    DEST = "/tmp/_packages_"
+    try:
+        # Check if the SRC directory still exists
+        if os.path.exists(SRC):
+            # Check if the DEST directory exists, make it if not.
+            if not os.path.exists(DEST):
+                os.mkdir(DEST)
+            # shutil.copytree will move the directory to the destination.
+            shutil.copytree(SRC, os.path.join(DEST, package_name))
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(f"The source file doesn't exist. {e}")
+        return False
+
+
+def revert_package(db, package_name):
+    """
+    This function will revert the package to the previous version.
+    """
+    # First, we need to check our database to see the current version of the package.
+    cur = db[current]
+    prev = db[previous]
+    backups = db[backups]
+    # We'll start by checking to see if the package exists in the current_packages collection.
+    
+    #! This is untested, but it ***SHOULD*** work. 
+    if package_exists(db, package_name):
+        # If it does, we'll get the current version number and the date.
+        current_version = cur.find_one({"name": package_name})["version"]
+        current_date = cur.find_one({"name": package_name})["date"]
+        # Now we'll get the previous version number and date.
+        previous_version = prev.find_one({"name": package_name})["packages"][-1][
+            "version"
+        ]
+        previous_date = prev.find_one({"name": package_name})["packages"][-1]["date"]
+        # Now we'll get the backup version number and date.
+        backup_version = backups.find_one({"name": package_name})["primary"]["version"]
+        backup_date = backups.find_one({"name": package_name})["primary"]["date"]
+        # Now we'll check to see if the current version is the same as the backup version. If it is, then we'll revert to the previous version. If it isn't, then we'll revert to the backup version.
+        if current_version == backup_version:
+            # If they're the same, we'll revert to the previous version.
+            # We'll start by getting the package information from the previous_packages collection.
+            package = prev.find_one({"name": package_name})["packages"][-1]
+            # Now we'll update the current_packages collection with the information from the previous_packages collection.
+            cur.update_one(
+                {"name": package_name},
+                {
+                    "$set": {
+                        "version": previous_version,
+                        "date": previous_date,
+                        "description": package["description"],
+                        "server": package["server"],
+                        "source_path": package["source_path"],
+                        "route_key": package["route_key"],
+                        "qa_status": package["qa_status"],
+                    }
+                },
+            )
+            # Now we'll update the previous_packages collection by removing the last package in the array.
+            prev.update_one({"name": package_name}, {"$pop": {"packages": 1}})
+            # Now we'll update the backup_packages collection by updating the primary package with the information from the current_packages collection.
+            backups.update_one(
+                {"name": package_name},
+                {
+                    "$set": {
+                        "primary": {
+                            "name": package_name,
+                            "version": current_version,
+                            "date": current_date,
+                            "description": package["description"],
+                            "server": package["server"],
+                            "source_path": package["source"],
+                            "route_key": package["route_key"],
+                            "qa_status": package["qa_status"],
+                        }
+                    }
+                },
+            )
+            # Now we'll update the backup_packages collection by updating the secondary package with the information from the previous_packages collection.
+            backups.update_one(
+                {"name": package_name},
+                {
+                    "$set": {
+                        "secondary": {
+                            "name": package_name,
+                            "version": previous_version,
+                            "date": previous_date,
+                            "description": package["description"],
+                            "server": package["server"],
+                            "source_path": package["source"],
+                            "route_key": package["route_key"],
+                            "qa_status": package["qa_status"],
+                        }
+                    }
+                },
+            )
+            #! This is untested!!
+
+
+def add_backup(db, package_name):
+    """
+    This function will add the package to the backup collection.
+    """
     pass
 
 
-def create_new_package(db):
-    # Start by getting the package name, path, and description from the user. We'll also want to get the server name.
-    package_name = input("Enter the package name: ")
-    package_path = input("Enter the absolute package path: ")
-    package_description = input("Enter the package description: ")
-    package_server = input("Enter the server name: ")
-    # Note, we should probably check if the package path exists. If it doesn't, we should return an error and ask them to try again.
-    if not os.path.exists(package_path):
-        print("Package path does not exist!")
-        create_new_package(db)
-    # Now we can create the package in the database.
-    # Since this is a new package, the current version will be 1
-    # We'll also want to get the current date and time.
-    current_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
-    # Now we can create the package in the database by updating the current_packages list to include the new package. As there are no previous versions of this package, we should fill in the previous_versions list with the current version.
-    db.packages.update_one(
-        {},
+
+def update_package(db):
+    cur = db[current]
+    package_names = {}
+    count = 0
+    for package in cur.find():
+        package_names[count] = package["name"]
+        count += 1
+    print(f'\n{"-"*10} Package Names {"-"*10}')
+    for key, value in package_names.items():
+        print(f"{key} : {value}\n")
+    p_name = ""
+    while p_name not in package_names.values():
+        try:
+            p_name = package_names[int(input("Select a package to update by digit:\n"))]
+        except Exception as e:
+            print(f"uhhh... {e}? Not seeing that here... Try again.\n")
+            p_name = ""
+    for key, value in db[current].find_one({"name": p_name}).items():
+        print(f"{key}: \t{value}")
+    confirm = input("\nUpdate this package? (y/n)\n")
+    if confirm.lower() == "n":
+        print("Okay, starting over.")
+        update_package(db)
+    # If we get here, then we're going to update the package. We'll start by getting the values we need to update along the way. new information will be prefixed by new_, and the old information will be prefixed by old_.
+    # start with the old information. Most of this should stay the same, but we'll need to update the version number and the date.
+
+    old_version = db[current].find_one({"name": p_name})["version"]
+    old_date = db[current].find_one({"name": p_name})["date"]
+    old_description = db[current].find_one({"name": p_name})["description"]
+    old_server = db[current].find_one({"name": p_name})["server"]
+    old_source_path = db[current].find_one({"name": p_name})["source_path"]
+    old_route_key = db[current].find_one({"name": p_name})["route_key"]
+    old_qa_status = db[current].find_one({"name": p_name})["qa_status"]
+    old_package = make_package(
+        p_name,
+        old_version,
+        old_date,
+        old_description,
+        old_server,
+        old_source_path,
+        old_route_key,
+        old_qa_status,
+    )
+    # Now we just generate the new info - the date and the new version number.
+    new_version = old_version + 1
+    new_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+    # Now we'll update our collections. The "current_packages" collection will be updated with the new information and the "previous_packages" collection will be updated with the old information. The "backup_packages" collection will be updated AFTER the package makes it through QA. So, not here.
+    # We'll start with the current_packages collection.
+    cur.update_one(
+        {"name": p_name},
         {
-            "$push": {
-                "current_packages": {
-                    "name": package_name,
-                    "current_version": 1.0,
-                    "information": [
-                        {
-                            "version": 1,
-                            "server": package_server,
-                            "date": current_date,
-                            "path": package_path,
-                            "description": package_description,
-                            "rank": "primary",
-                            "passed_qa": "true",
-                            "previous_versions": [
-                                {
-                                    "version": 1,
-                                    "server": package_server,
-                                    "date": current_date,
-                                    "path": package_path,
-                                    "description": package_description,
-                                    "rank": "secondary",
-                                    "passed_qa": "true",
-                                }
-                            ],
-                        }
-                    ],
-                }
+            "$set": {
+                "version": new_version,
+                "date": new_date,
+                "description": old_description,
+                "server": old_server,
+                "source_path": old_source_path,
+                "route_key": old_route_key,
+                "qa_status": "Testing",
             }
         },
     )
-    # Once we've updated the database, we can tar the package and move it to the deployment directory.
-    # We'll want to create a directory in /tmp/_packages_/{package_name} and copy the package to that directory.
-    try:
-        os.system("sudo mkdir /tmp/_packages_")
-    except Exception as e:
-        print(e)
-    shutil.copytree(package_path, f"/tmp/_packages_/{package_name}")
-    # Now we can call tar_and_move_package.
-    if tar_and_move_package(db, package_name, 1):
-        # If we could tar and move the package, let's delete the copy in /tmp/_packages_.
-        shutil.rmtree(f"/tmp/_packages_/{package_name}")
+    # Next we'll update previous_packages by inserting the older information as a new document associated with the name of the package. We want all packages of the same name to be grouped together, which is why previous_packages is an array of documents.
+    prev = db[previous]
+    prev.update_one({"name": p_name}, {"$push": {"packages": old_package}})
+    # We aren't updating backup_packages here because we need to wait for QA to finish testing the package.
     return True
 
 
-def tar_and_move_package(db, package_name, new_version):
-    # We can now tar the package.
-    SRC_DIR = "/tmp/_packages_"
-    DEST_DIR = "/home/longsoup/Desktop/Deployment"
-    # We'll want to tar the entire directory found in /tmp/_packages_/{package_name}, but not /tmp/_packages_. Only the package_name directory.
-    os.system(
-        f"sudo tar -czvf {DEST_DIR}/{package_name}-{new_version}.tar.gz -C {SRC_DIR} {package_name}"
-    )
-    # Clean up the /tmp/_packages_ directory - removing the entire {package_name} directory but leaving _packages_ intact.
-    shutil.rmtree(f"/tmp/_packages_/{package_name}")
-    return True
-
-
-def update_existing_package(db):
-    """# update_existing_package
-    This function will update an existing package in the database.
-    Our database is structured like we see defined in col
+def create_package(db):
+    """#create_package
+    This function will create a new package in our database.
+    It has moderate error handling, but it's not perfect.
 
     Args:
-        db (_type_): our db connection
+        db (obj): the database object we're using to connect to the database.
+
+    Returns:
+        boolean: True or False for creating a package.
     """
-    # We will need to first pass into current_packages, then get the name of each package.
-    # We can do this by using the following code:
-    db.packages.find_one({})["current_packages"]
-    # This will return a list of all current packages in the database.
-    # We can then iterate through each package and get the name of each package.
-    # We'll also want to store all package names in a list so we can check if the package exists.
-    package_names = []
-    for package in db.packages.find_one({})["current_packages"]:
-        package_names.append(package["name"])
-        print(package["name"])
-    # Now we can check if the package exists in the database.
-    package_name = input("Enter the package name: ")
-    if package_name not in package_names:
-        print("Package does not exist!")
-        return
-    # But if the package name does exist, we should print out the package information and the current version.
+    try:
+        need_valid = True
+        while need_valid:
+            package_name = input("Provide a name for the package: ")
+            need_valid = package_exists(db, package_name)
+            if need_valid:
+                print(
+                    "\nNeed a valid name there, Chief. You're trying to make a package that already exists.\n"
+                )
+        print(f"Okay, the package_name is : {package_name}")
+        invalid_path = True
+        while invalid_path:
+            package_path = input(
+                "Enter the path to the directory where the package is stored: "
+            )
+            invalid_path = not verify_path(package_path)
+            if invalid_path:
+                print(
+                    "Check to make sure you're giving the right path to the directory. This doesn't seem to match anything."
+                )
+        current_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+        description = input("Enter a brief description of what this does:\n")
+        server = 0
+        while server not in [1, 2, 3, 4]:
+            try:
+                server = int(
+                    input(
+                        "\nChoose a server to send this to:\n1 for Front,\n2 for back,\n3 for dmz\n"
+                    )
+                )
+                print(f"Server is {server}")
+            except Exception as e:
+                print(f"whoops... {e}")
+                server = 0
+        match server:
+            case 1:
+                server = ("Front",)
+            case 2:
+                server = ("Back",)
+            case 3:
+                server = ("DMZ",)
+            case 4:
+                server = ("Deployment",)
+            case _:
+                print("You goofed. Start over and suffer")
+                create_package(db)
+        package = {
+            "name": package_name,
+            "version": 1,
+            "date": current_date,
+            "description": description,
+            "server": server,
+            "qa_status": "Testing",
+        }
+    except Exception as e:
+        print(f"whoops... {e}")
+        return False
+    return True
+
+
+def verify_path(pathway):
+    """
+    This function will verify that the path exists and is valid.
+    """
+    if os.path.exists(pathway):
+        return True
     else:
-        for package in db.packages.find_one({})["current_packages"]:
-            if package["name"] == package_name:
-                # We can probably get rid of this later, but keep it for now for the presentation and debugging purposes...
-                print(f"Package Name: {package['name']}")
-                print(f"Current Version: {package['current_version']}")
-                print(f"Current Path: {package['information'][0]['path']}")
-                print(
-                    f"Current Description: {package['information'][0]['description']}"
-                )
-                print(f"Current Host Server: {package['information'][0]['server']}")
-                print(f"Current Date: {package['information'][0]['date']}")
-                print(f"Current Rank: {package['information'][0]['rank']}")
-                print(f"Current Passed QA: {package['information'][0]['passed_qa']}")
-                print(
-                    f"Current Previous Versions: {package['information'][0]['previous_versions']}"
-                )
-                # Now we can ask the user if they want to update the package. Obviously yeah.
-                option = input("Update package? (y/n): ")
-                #! This is where we take action to update the package.
-                if option.lower() == "y":
-                    # First, we'll want to get the new version number. To do that we just take the old version number and add 1 to it. If we ever want to get fancy with it we can add more nuanced versioning, but this is a project that has already consumed many hours of our life with extremely little guidance from the professor, so we're going to keep it simple.
+        return False
 
-                    # We can do this by using the following code:
-                    new_version = package["current_version"] + 1
 
-                    # Next, check if the /tmp/_packages_ directory exists, if it doesn't create it.
-                    if not os.path.exists("/tmp/_packages_"):
-                        os.system("sudo mkdir /tmp/_packages_")
+def package_exists(db, package_name):
+    """
+    This function will check to see if the package exists in the database within the current_packages collection.
+    """
+    cur = db[current]
+    if cur.find_one({"name": package_name}):
+        return True
+    else:
+        return False
 
-                    # Next, we should try to make a directory using sudo. This directory is /tmp/_packages_.
-                    os.system("sudo mkdir /tmp/_packages_")
-                    # Now we can copy the package to the /tmp/_packages_ directory.
-                    shutil.copytree(
-                        package["information"][0]["path"],
-                        f"/tmp/_packages_/{package_name}",
-                    )
-                    # Now we'll call tar_and_move_package.
-                    if tar_and_move_package(db, package_name, new_version):
-                        # If we could tar and mov ethe package, let's delete the copy in /tmp/_packages_.
-                        shutil.rmtree(f"/tmp/_packages_/{package_name}")
-                    # Now we can update the database.
-                    # We are going to want to update the embedded document in current_packages so that the new version is stored in current_packages and the information embedded document, while the former version is stored in the previous_versions embedded document found within current_packages.information.
-                    # Previous versions should retain ALL previous versions as an item in the array. We'll also want to update the last_working_packages list to reflect the new version of the package.
-                    # To ensure data is not duplicated, and to ensure we're not creating a new document, let's first copy the information in current_packages (excluding the previous_versions list in current_packages.information) to the previous_versions list in current_packages.information.
-                    # Let's first get the current information in current_packages, excluding the previous_versions list.
-                    current_information = package["information"][0]
-                    # Now let's insert this information into the previous_versions list.
-                    db.packages.update_one(
-                        {"current_packages.name": package_name},
-                        {
-                            "$push": {
-                                "current_packages.$.information.$.previous_versions": current_information
-                            }
-                        },
-                    )
-                    # Now we want to update the current_packages list for this specific package to reflect the new version and it's information. Since we updated the previous_versions list, we can just update the current_packages list to reflect the new version and information and retain the previous_versions list.
-                    db.packages.update_one(
-                        {"current_packages.name": package_name},
-                        {
-                            "$set": {
-                                "current_packages.$.current_version": new_version,
-                                "current_packages.$.information": [
-                                    {
-                                        "version": new_version,
-                                        "server": package["information"][0]["server"],
-                                        "date": package["information"][0]["date"],
-                                        "path": package["information"][0]["path"],
-                                        "description": package["information"][0][
-                                            "description"
-                                        ],
-                                        "rank": "primary",
-                                        "passed_qa": "true",
-                                        "previous_versions": [
-                                            {
-                                                "version": package["current_version"],
-                                                "server": package["information"][0][
-                                                    "server"
-                                                ],
-                                                "date": package["information"][0][
-                                                    "date"
-                                                ],
-                                                "path": package["information"][0][
-                                                    "path"
-                                                ],
-                                                "description": package["information"][
-                                                    0
-                                                ]["description"],
-                                                "rank": "secondary",
-                                                "passed_qa": "true",
-                                            }
-                                        ],
-                                    }
-                                ],
-                            }
-                        },
-                    )
+def determine_route_key(server):
+    """We'll ask the user for information to determine where it goes. The route key will first depend on the server it's going to, then individual factors.
+    Right now this is a placeholder - but we could use this to determine a more nuanced position of objects being packaged to deliver them. So, for example, Front has 3 main directories with different purposes, and with other subdirectories. Determine_route_key, and the route key in general, could be used to determine where to insert this.
 
-                    # We don't want to insert a new document into current_packages, but update the documenta ssociated with the name of the package to reflect the new version. The old version and information should be moved to the previous_versions list and the last_working_packages list should be updated to reflect the new version. If the last_working_packages list does not exist, we should create it.
-                    # This should make sure to increase the current package version to the new version, and move the old version to the previous_versions list inside of current_packages.
-                    # We can do this by using the following code:
-                    #! This is where we're updating the database specifically -- https://www.mongodb.com/docs/manual/reference/method/db.collection.update/#:~:text=To%20update%20an%20embedded%20document,notation%20to%20specify%20the%20field.
-                    #! To update embedded documents, we are told to use dot notation with the set operator - which we're using... but it's not quite right yet.
-                    # db.packages.update_one(
-                    #     {"current_packages.name": package_name},
-                    #     {
-                    #         "$set": {
-                    #             "current_packages.$.current_version": new_version,
-                    #             "current_packages.$.information": [
-                    #                 {
-                    #                     "version": new_version,
-                    #                     "server": package["information"][0]["server"],
-                    #                     "date": package["information"][0]["date"],
-                    #                     "path": package["information"][0]["path"],
-                    #                     "description": package["information"][0][
-                    #                         "description"
-                    #                     ],
-                    #                     "rank": "primary",
-                    #                     "passed_qa": "true",
-                    #                     "previous_versions": [
-                    #                         {
-                    #                             "version": package["current_version"],
-                    #                             "server": package["information"][0][
-                    #                                 "server"
-                    #                             ],
-                    #                             "date": package["information"][0][
-                    #                                 "date"
-                    #                             ],
-                    #                             "path": package["information"][0][
-                    #                                 "path"
-                    #                             ],
-                    #                             "description": package["information"][
-                    #                                 0
-                    #                             ]["description"],
-                    #                             "rank": "secondary",
-                    #                             "passed_qa": "true",
-                    #                         }
-                    #                     ],
-                    #                 }
-                    #             ],
-                    #         }
-                    #     },
-                    # )
-                    # Now we can update the last_working_packages list.
-                    # We want to make sure this doesn't duplicate existing data, but moves the existing data to the previous_versions list inside of last_working_packages.
-                    # We can do this by using the following code:
-                    # db.packages.update_one(
-                    #     {},
-                    #     {
-                    #         "$push": {
-                    #             "last_working_packages": {
-                    #                 "name": package_name,
-                    #                 "version": package["current_version"],
-                    #                 "information": [
-                    #                     {
-                    #                         "version": package["current_version"],
-                    #                         "server": package["information"][0][
-                    #                             "server"
-                    #                         ],
-                    #                         "date": package["information"][0]["date"],
-                    #                         "path": package["information"][0]["path"],
-                    #                         "description": package["information"][0][
-                    #                             "description"
-                    #                         ],
-                    #                         "rank": "secondary",
-                    #                         "passed_qa": "true",
-                    #                         "previous_versions": [
-                    #                             {
-                    #                                 "version": package[
-                    #                                     "current_version"
-                    #                                 ],
-                    #                                 "server": package["information"][0][
-                    #                                     "server"
-                    #                                 ],
-                    #                                 "date": package["information"][0][
-                    #                                     "date"
-                    #                                 ],
-                    #                                 "path": package["information"][0][
-                    #                                     "path"
-                    #                                 ],
-                    #                                 "description": package[
-                    #                                     "information"
-                    #                                 ][0]["description"],
-                    #                                 "rank": "tertiary",
-                    #                                 "passed_qa": "true",
-                    #                             }
-                    #                         ],
-                    #                     }
-                    #                 ],
-                    #             }
-                    #         }
-                    #     },
-                    # )
+    THIS IS NOT REQUIRED (YET) FOR THE PROJECT. THIS IS A PLACEHOLDER FOR FUTURE USE.
+    #! JUST A FRIENDLY NOTE TO SELF lol
+    """
+    if server == "front":
+        print("Front server selected. Additional information needed.")
+        return
+    elif server == "back":
+        route_key = "back"
+    elif server == "dmz":
+        route_key = "dmz"
+    else:
+        route_key = "front"
+    return route_key
+
+
+############################################
+##       This was used for testing        ##
+############################################
+
+
+def clear_tables(db):
+    db[current].drop()
+    db[backups].drop()
+    db[previous].drop()
+    print("All tables dropped, refilling with test data...")
+
+
+def makeFakeData(db):
+    current_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+    ipsum = {
+        "name": "test",
+        "version": 1,
+        "date": current_date,
+        "description": "This is a test package.",
+        "server": "front",
+        "absolute_path": "/home/longsoup/Desktop/testing",
+        "qa_status": "pass",
+    }
+    lorum = {
+        "name": "testing2",
+        "version": 1,
+        "date": current_date,
+        "description": "This is a test package.",
+        "server": "front",
+        "absolute_path": "/home/longsoup/Desktop/Utilities",
+        "qa_status": "pass",
+    }
+    if not package_exists(db, "test"):
+        db[current].insert_one(ipsum)
+        # First, create add the name of the package to the previous_packages collection.
+        # Then, we'll add the package to the current_packages collection associated with that name in an array associated as "packages"
+        db[previous].insert_one({"name": "test", "packages": []})
+        db[previous].update_one({"name": "test"}, {"$push": {"packages": ipsum}})
+        db[backups].insert_one(ipsum)
+    else:
+        print("Test Package already existed in db")
+    if not package_exists(db, "testing2"):
+        db[current].insert_one(lorum)
+        db[previous].insert_one({"name": "test", "packages": []})
+        db[previous].update_one({"name": "test"}, {"$push": {"packages": ipsum}})
+        db[backups].insert_one(lorum)
+    else:
+        print("Testing2 package already existed in db")
 
 
 def main():
-    mongo_client = pymongo.MongoClient(
-        "mongodb://longsoup:fakepassword@localhost:27017/"
-    )
-    db = mongo_client["thedatbase"]
-
+    mongo_client = pymongo.MongoClient("mongodb://longsoup:njit#490@localhost:27017/")
+    db = mongo_client[db_name]
+    #### This is testing data. ####
+    # clear_tables(db)
+    # makeFakeData(db)
+    # options = input(
+    #     "Choose:\n1 to fill tables with fake data,\n2 to clear the tables,\n3 to test paths,\n4 to add to db,\n5 to update the existing packages,\n6 to rollback,\n7 to exit\n"
+    # )
+    # match options:
+    #     case "1":
+    #         print("Testing data validity...")
+    #         print(f"Current Packages: {db[current].find()}")
+    #         print(f"Previous Packages: {db[previous].find()}")
+    #         print(f"Backup Packages: {db[backups].find()}")
+    #     case "2":
+    #         print("Testing paths...")
+    #         print(f"Test path: {verify_path('/home/longsoup/Desktop/testing')}")
+    #         print(f"Test path: {verify_path('/home/longsoup/Desktop/Utilities')}")
+    #         new_path = input("Enter a new path to test: ")
+    #         print(f"Test path: {verify_path(new_path)}")
+    #     case "3":
+    #         print("Entering new data...")
+    #         create_package(db)
+    #     case "4":
+    #         print("Updating existing data...")
+    #         update_package(db)
+    #     case "5":
+    #         print("Reverting data...")
+    #         revert_package(db)
+    #     case "6":
+    #         print("Exiting...")
+    #         exit()
+    #     case _:
+    #         print("Invalid option!")
+    #         exit()
+    #### THIS IS REAL CODE, uncomment to start using ####
     option = input(
         "Are you updating an existing package or creating a new package? (update/new): "
     )
-
     if option.lower() == "update":
-        update_existing_package(db)
+        print(f"Checking for packages...")
+        update_package(db)
     elif option.lower() == "new":
-        create_new_package(db)
+        create_package(db)
     else:
         print("Invalid option!")
         return
