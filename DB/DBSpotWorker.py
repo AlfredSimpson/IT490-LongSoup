@@ -543,6 +543,35 @@ def cleanAlbumData(data):
     return data
 
 
+def storeGenres(artist, genres, id):
+    """storeGenres takes in the genres from a query, checks to see if they're already in the database, and if they're not, stores them in the database."""
+    # Loop through each genre in the list
+    for genre in genres:
+        # Check if the genre already exists in the database
+        existing_genre = db.spotifyGenres.find_one({"genre": genre})
+
+        if existing_genre:
+            # Check if the artist is already in the genre
+            if any(a["name"] == artist for a in existing_genre["artists_in_genre"]):
+                # Artist already exists, do nothing
+                continue
+            else:
+                # Artist doesn't exist in the genre, add them
+                db.spotifyGenres.update_one(
+                    {"genre": genre},
+                    {"$addToSet": {"artists_in_genre": {"name": artist, "id": id}}},
+                )
+        else:
+            # Genre doesn't exist, create a new document
+            new_genre_document = {
+                "genre": genre,
+                "artists_in_genre": [{"name": artist, "id": id}],
+            }
+            db.spotifyGenres.insert_one(new_genre_document)
+
+    return True
+
+
 def cleanArtistData(data):
     """Take in a JSON object from the Spotify API and clean it up for storage in the database, as well as for sending back to the client.
     It should return only the artist name, spotify url.
@@ -564,6 +593,7 @@ def cleanArtistData(data):
         ]  # Not actually sure if this will work. Limiting it to just one genre for now.
         url = i["external_urls"]["spotify"]
         id_num = i["id"]
+        storeGenres(name, genres, id_num)
         data["query_results"].append(
             {
                 "name": name,
@@ -745,7 +775,7 @@ exchange2 = spotExchange
 creds = pika.PlainCredentials(username="longsoup", password="puosgnol")
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
-        host="192.168.68.65", port=5672, credentials=creds, virtual_host=vHost
+        host=spotHost, port=5672, credentials=creds, virtual_host=vHost
     )
 )
 channel = connection.channel()

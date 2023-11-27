@@ -1,6 +1,7 @@
 import pika
 import os, sys, json, random
 import datetime
+import bcrypt
 
 # import LongMongoDB
 
@@ -21,6 +22,13 @@ maindbuser = os.getenv("MONGO_USER")
 maindbpass = os.getenv("MONGO_PASS")
 maindbhost = os.getenv("MONGO_HOST")  # This is localhost so... we can omit this later.
 
+
+BROKER_HOST = os.getenv("BROKER_HOST")
+BROKER_VHOST = os.getenv("BROKER_VHOST")
+BROKER_QUEUE = os.getenv("BROKER_QUEUE")
+BROKER_EXCHANGE = os.getenv("BROKER_EXCHANGE")
+BROKER_USER = os.getenv("BROKER_USERNAME")
+BROKER_PASS = os.getenv("BROKER_PASSWORD")
 
 # TODO change the db to the maindb, add the user and pass to the connection
 myclient = pymongo.MongoClient(
@@ -312,11 +320,11 @@ def do_logout(usercookieid, session_id):
     # print(f"User {usercookieid} logged out")
     return {"\nreturnCode": 0, "message": "Logout successful\n"}
 
-
 def do_login(useremail, password, session_id, usercookieid):
-    """# do_login
+    """
+    # do_login
     Takes useremail and password as arguments and attempts to login the user.
-    It stores thes session_id and usercookieid
+    It stores the session_id and usercookieid
 
     Args:
         useremail (string): The useremail to check
@@ -325,51 +333,57 @@ def do_login(useremail, password, session_id, usercookieid):
         usercookieid (string): The usercookieid to store
 
     Returns:
-        _type_: _description_
+        dict: A dictionary containing the login result
     """
     # LMDB = LongMongoDB.LongMongoDB(maindbuser, maindbpass, maindbhost, maindb)
 
     # Connect to the database
     collection = db.users
     user = collection.find_one({"email": useremail})
-    if user and user["password"] == password:
-        # update/set the session id & user cookie id
-        # LMDB.set_usercookieid(useremail, usercookieid)
-        first_result = db.users.find_one({"email": useremail})
-        uid = first_result["uid"]
-        db.users.update_one(
-            {"uid": uid}, {"$set": {"usercookieid": usercookieid}}, upsert=False
-        )
-        # LMDB.set_session(session_id, useremail)
-        db.users.update_one(
-            {"uid": uid}, {"$set": {"sessionid": session_id}}, upsert=False
-        )
-        # get the user's name and spot_name to pass back to the front end
-        # user_fname = LMDB.get_name(usercookieid)
-        user_uid = uid
-        user_fname = db.userinfo.find_one({"uid": uid})["first_name"]
-        user_spot_name = db.userinfo.find_one({"uid": uid})["spot_name"]
+    if user:
+        dbpassword = user["password"]
+        enteredPass = password.encode('utf-8')
+        #dbsalt = user["salt"].encode('utf-8')
 
-        # Get some tunes
-        genre = random.choice(["punk", "rock", "pop", "country", "rap", "hip-hop"])
-        valence = random.uniform(0, 1)
-        energy = random.uniform(0, 1)
-        popularity = random.randint(0, 100)
-        music = get_recs(genre, valence, energy, popularity, True)
-        return {
-            "returnCode": 0,
-            "message": "Login successful",
-            "sessionValid": "True",
-            "music": music["musicdata"],
-            "userinfo": {
-                "name": user_fname,
-                "spot_name": user_spot_name,
-                "uid": user_uid,
-            },
-            "data": {
-                "loggedin": "True",
-            },
-        }
+        if bcrypt.checkpw(enteredPass, dbpassword.encode('utf-8')):
+            # Update/set the session id & user cookie id
+            # LMDB.set_usercookieid(useremail, usercookieid)
+            first_result = db.users.find_one({"email": useremail})
+            uid = first_result["uid"]
+            db.users.update_one(
+                {"uid": uid}, {"$set": {"usercookieid": usercookieid}}, upsert=False
+            )
+            # LMDB.set_session(session_id, useremail)
+            db.users.update_one(
+                {"uid": uid}, {"$set": {"sessionid": session_id}}, upsert=False
+            )
+            # Get the user's name and spot_name to pass back to the front end
+            # user_fname = LMDB.get_name(usercookieid)
+            user_uid = uid
+            user_fname = db.userinfo.find_one({"uid": uid})["first_name"]
+            user_spot_name = db.userinfo.find_one({"uid": uid})["spot_name"]
+
+            # Get some tunes
+            genre = random.choice(["punk", "rock", "pop", "country", "rap", "hip-hop"])
+            valence = random.uniform(0, 1)
+            energy = random.uniform(0, 1)
+            popularity = random.randint(0, 100)
+            music = get_recs(genre, valence, energy, popularity, True)
+
+            return {
+                "returnCode": 0,
+                "message": "Login successful",
+                "sessionValid": "True",
+                "music": music["musicdata"],
+                "userinfo": {
+                    "name": user_fname,
+                    "spot_name": user_spot_name,
+                    "uid": user_uid,
+                },
+                "data": {
+                    "loggedin": "True",
+                },
+            }
     else:
         print("\n[LOGIN ERROR] User Not Found\n")
         return {
@@ -382,7 +396,6 @@ def do_login(useremail, password, session_id, usercookieid):
                 "errorOutput": "Either the password or email provided does not match. Please try again.",
             },
         }
-
 
 def do_register(
     useremail, password, session_id, usercookieid, first_name, last_name, spot_name
@@ -414,13 +427,18 @@ def do_register(
             "\n[REGISTRATION]\tUser email not found in users table. Attempting to register user!\n"
         )
         try:
+            salt = bcrypt.gensalt()
+            encodedpassword = password.encode('utf-8')
+            hashed_password = bcrypt.hashpw(encodedpassword, salt)
+            print(hashed_password)
             print(f'\nAttempting to add user "{useremail}" to users\n')
             uid = get_next_uid()
             users.insert_one(
                 {
                     "uid": uid,
                     "email": useremail,
-                    "password": password,
+                    "password": hashed_password.decode('utf-8'),
+                    "salt": salt.decode('utf-8'),
                     "sessionid": session_id,
                     "cookieid": usercookieid,
                 }
@@ -465,6 +483,8 @@ def do_register(
                     "errorOutput": "Registration unsuccessful - Please try again with a different email.",
                 },
             }
+
+
 
 
 #############
@@ -610,13 +630,14 @@ def request_processor(ch, method, properties, body):
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
-vHost = "tempHost"
-queue2 = "tempQueue"
-exchange2 = "tempExchange"
-creds = pika.PlainCredentials(username="longsoup", password="puosgnol")
+vHost = BROKER_VHOST
+queue2 = BROKER_QUEUE
+exchange2 = BROKER_EXCHANGE
+
+creds = pika.PlainCredentials(username=BROKER_USER, password=BROKER_PASS)
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
-        host="192.168.68.65", port=5672, credentials=creds, virtual_host=vHost
+        host=BROKER_HOST, port=5672, credentials=creds, virtual_host=vHost
     )
 )
 channel = connection.channel()
