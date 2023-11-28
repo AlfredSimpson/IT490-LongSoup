@@ -9,15 +9,22 @@ import os
 load_dotenv()
 
 #DMZ connection
-#DMZ connection
-#DMZ connection
+
 DMZ_HOST = os.getenv("DMZ_HOST")
 DMZ_VHOST = os.getenv("DMZ_VHOST")
 DMZ_QUEUE = os.getenv("DMZ_QUEUE")
-DMZ_EXCHANGE = os.getenv("dmzExchange")
+DMZ_EXCHANGE = os.getenv("DMZ_EXCHANGE")
 DMZ_USER = os.getenv("DMZ_USER")
 DMZ_PASS = os.getenv("DMZ_PASS")
 DMZ_PORT = os.getenv("DMZ_PORT")
+
+print(f"DMZ_HOST: {DMZ_HOST}")
+print(f"DMZ_VHOST: {DMZ_VHOST}")
+print(f"DMZ_QUEUE: {DMZ_QUEUE}")
+print(f"DMZ_EXCHANGE: {DMZ_EXCHANGE}")
+print(f"DMZ_USER: {DMZ_USER}")
+print(f"DMZ_PASS: {DMZ_PASS}")
+print(f"DMZ_PORT: {DMZ_PORT}")
 
 # Establish a connection to RabbitMQ
 creds = pika.PlainCredentials(username=DMZ_USER, password=DMZ_PASS)
@@ -26,7 +33,7 @@ connection = pika.BlockingConnection(
 channel = connection.channel()
 
 # Declare a queue named 'data_queue'
-channel.queue_declare(queue=DMZ_QUEUE)
+channel.queue_declare(queue=DMZ_QUEUE, durable=True)
 
 # Function to read the last saved artist ID from a file
 def read_last_artist_id():
@@ -48,7 +55,7 @@ def query_artist(artist_id):
         response = requests.get(url)
         response.raise_for_status()  # Check if the request was successful
         artist_data = response.json()
-        
+
         # Check if the artist exists in the response
         if 'artists' in artist_data and artist_data['artists']:
             artist_info = artist_data['artists'][0]
