@@ -33,11 +33,14 @@ connection = pika.BlockingConnection(pika.ConnectionParameters(host=DMZ_HOST, po
 channel = connection.channel()
 
 # Declare the queue
-channel.queue_declare(queue='dmzQueue', durable=True)
+channel.queue_declare(queue=DMZ_QUEUE, durable=True)
+# Binding to exchange
+channel.queue_bind(exchange=DMZ_EXCHANGE, queue=DMZ_QUEUE)
 
 def send_trigger_message():
     # Send a message to the RabbitMQ queue to trigger the 'job_and_send_result()' function on the DMZ server
-    channel.basic_publish(exchange='dmzExchange', routing_key='dmzQueue', body='Trigger Job')
+    print("sending a message...")
+    channel.basic_publish(exchange=DMZ_EXCHANGE, routing_key=DMZ_QUEUE, body='Trigger Job')
 
 # You can call send_trigger_message() whenever you want to trigger the job on the DMZ server
 send_trigger_message()

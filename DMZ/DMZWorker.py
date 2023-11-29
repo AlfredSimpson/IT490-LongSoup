@@ -34,9 +34,12 @@ channel = connection.channel()
 
 # Declare the queue
 channel.queue_declare(queue=DMZ_QUEUE, durable=True)
+# Binding to exchange
+channel.queue_bind(exchange=DMZ_EXCHANGE, queue=DMZ_QUEUE)
 
 def callback(ch, method, properties, body):
     # Trigger the 'job_and_send_result()' function when a message is received
+    print("message received, triggering script...")
     job_and_send_result()
 
 # Set up the consumer
