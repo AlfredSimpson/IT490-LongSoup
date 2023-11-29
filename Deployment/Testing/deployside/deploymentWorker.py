@@ -1,6 +1,6 @@
 import os
 
-# import shutil
+import shutil
 import pymongo
 import pika
 
@@ -23,6 +23,12 @@ load_dotenv()
 
 host_user = os.getenv("remote_host_user")
 host_pass = os.getenv("remote_host_pass")
+
+qa_host_user = os.getenv("qa_host_user")
+qa_host_pass = os.getenv("qa_host_pass")
+
+prod_host_user = os.getenv("prod_host_user")
+prod_host_pass = os.getenv("prod_host_pass")
 
 db_name = "test_gather"
 current = "current_packages"
@@ -65,6 +71,34 @@ package_schema = {
     "absolute_path": "",
     "qa_status": "",
 }
+
+
+def store_package(package_name, file_name, version):
+    """So that we can keep track of all the packages, we need to store them in a local directory. All packages are stored in /home/longsoup/STORE.
+    This function will take in the package_name and the version number and copy the package from /home/longsoup/DEPLOY to /home/longsoup/STORE.
+    It modifies the name of the package to include the version number.
+
+    #* Method Status: Passed Testing
+    #* 11/28/2023
+    #* Author: Alfred Simpson
+
+    Args:
+        package_name (string): The name of the package we are storing.
+        version (int): The version number
+
+    Returns:
+        bool: True or False if the package was copied successfully.
+    """
+    DEPLOY_PATH = "/home/longsoup/DEPLOY"
+    LOCAL_STORE = "/home/longsoup/STORE"
+    new_name = package_name + "_" + str(version) + ".tar.gz"
+    try:
+        shutil.copy2(DEPLOY_PATH + "/" + file_name, LOCAL_STORE + "/" + new_name)
+        print(f"Package {package_name} copied to {LOCAL_STORE}")
+        return True
+    except Exception as e:
+        print(f"Error copying package: {e}")
+        return False
 
 
 def retrieve_package(host_name, file_path, file_name):
@@ -304,27 +338,70 @@ def qa_to_prod(db):
     pass
 
 
-def deploy_to_qa(cluster, server, file_path, package_name, file_name, description):
-    pass
+def send_to_qa(server, package_name, version):
+    """This function will send the package to QA. It will also update the database accordingly."""
+    destination = "/home/longsoup/inbox/"
+    build = "/home/longsoup/build/"
+    LOCAL_PATH = "/home/longsoup/STORE/"
+    print(f"package_name: {package_name}")
+    current_file = (
+        package_name + "_" + str(version) + ".tar.gz"
+    )  # This is the most recent version of the package.
+    print(f"current_file: {current_file}")
+    host_name = server + "_qa"
+    try:
+        with pysftp.Connection(
+            host=host_name, username=qa_host_user, password=qa_host_pass
+        ) as sftp:
+            local_path = LOCAL_PATH + current_file
+            sftp.put(localpath=local_path, remotepath=destination + current_file)
+            sftp.execute("tar -xzf " + (destination + current_file) + " -C " + build)
+            sftp.close()
+            return True
+    except Exception as e:
+        print(f"Error sending package to QA: {e}")
+        return False
 
 
 def dev_to_deploy(cluster, server, file_path, package_name, file_name, description):
+    """dev_to_deploy is a function that will take in the cluster, server, file_path, package_name, file_name, and description.
+    It will then retrieve the package from the server and store it locally.
+    It will then check if the package exists in the database. If it does, then it will update the package.
+    If it does not, then it will create the package.
+    Once the package is created/updated, it will then ship the package to QA.
+    Upon successful shipping, it will return a message to our node apps.
+
+    Args:
+        cluster (string): What cluster is the server in?
+        server (string): Which server is the package on?
+        file_path (string): Where is the package located - provide the absolute path?
+        package_name (string): What is the name of the package? No file extensions!
+        file_name (string): What is the name of the file? Include the file extension!
+        description (string): This is a brief description of the package. It does not matter what you write.
+
+    Returns:
+        bool: T/F if the package was successfully deployed.
+    """
+
     host_name = server + "_" + cluster
     retrieved = retrieve_package(host_name, file_path, file_name)
     if retrieved:
         version = get_last_version(db, package_name)
         if version == 0:
             # make_package(package_name, version, date, description, server, file_path, 1)
-            create_package(db, package_name, version, description, server, file_path)
+            p_status = create_package(
+                db, package_name, version, description, server, file_path
+            )
             print("\nPackage created successfully in database! Shipping to QA\n")
         else:
             # make_package(package_name, version, date, description, server, file_path, 1)
-            update_package(db, package_name, version, description, server, file_path)
+            p_status = update_package(
+                db, package_name, version, description, server, file_path
+            )
             print("\nPackage updated successfully in database! Shipping to QA\n")
-        return {
-            "returnCode": 0,
-            "message": f"Package received. Shipping to QA",
-        }
+        if p_status:
+            print("\nPackage created successfully in database! Shipping to QA\n")
+            # Now we need to ship the package to QA
     else:
         return {
             "returnCode": 1,

@@ -1,7 +1,7 @@
 # This is designed to test deploymentWorker.py piece by piece.
 import os
 
-# import shutil
+import shutil
 import pymongo
 import pika
 
@@ -19,6 +19,10 @@ load_dotenv()
 
 host_user = os.getenv("remote_host_user")
 host_pass = os.getenv("remote_host_pass")
+qa_host_user = os.getenv("qa_host_user")
+qa_host_pass = os.getenv("qa_host_pass")
+prod_host_user = os.getenv("prod_host_user")
+prod_host_pass = os.getenv("prod_host_pass")
 
 db_name = "test_gather"
 # current = "current_packages"
@@ -145,18 +149,6 @@ def dev_to_deploy(cluster, server, file_path, package_name, file_name, descripti
 ###########################
 #  Deploy Side Functions  #
 ###########################
-
-
-# def get_last_version(db, package_name):
-#     """This function retrieves the last version number of the package from the database."""
-#     cur = db["current"]
-#     if cur.find_one({"name": package_name}):
-#         # If the package exists, then we need to get the last version number.
-#         last_version = cur.find_one({"name": package_name})["version"]
-#         return last_version
-#     else:
-#         # If the package does not exist, then we need to create a new package.
-#         return 0
 
 
 def make_package(name, version, date, description, server, source_path, qa_status):
@@ -407,6 +399,18 @@ def await_package():
             print(f"Error updating package: {e}")
             return False
 
+    def store_package(package_name, file_name, version):
+        DEPLOY_PATH = "/home/longsoup/DEPLOY"
+        LOCAL_STORE = "/home/longsoup/STORE"
+        new_name = package_name + "_" + str(version) + ".tar.gz"
+        try:
+            shutil.copy2(DEPLOY_PATH + "/" + file_name, LOCAL_STORE + "/" + new_name)
+            print(f"Package {package_name} copied to {LOCAL_STORE}")
+            return True
+        except Exception as e:
+            print(f"Error copying package: {e}")
+            return False
+
     def retrieve_package(host_name, file_path, file_name):
         """This function retrieves the package from the server and stores it locally."""
         # file_name has .tar.gz already, so we're good now.
@@ -417,14 +421,11 @@ def await_package():
             ) as sftp:
                 print(f"Connected to {host_name}")
                 sftp.get(file_path, LOCAL_NAME, callback=None, preserve_mtime=True)
+                sftp.close()
                 return True
         except Exception as e:
             print(f"Error retrieving package: {e}")
             return False
-
-    def qa_to_prod(db):
-        """Similar to deploy, this function will move the package from qa to prod. It will also update the database accordingly."""
-        pass
 
     def dev_to_deploy(cluster, server, file_path, package_name, file_name, description):
         """This function will move the package from dev to deployment. It will also update the database accordingly."""
@@ -450,16 +451,70 @@ def await_package():
                     db, package_name, version, description, server, file_path
                 )
             if p_status:
+                store_package(package_name, file_name, version)
                 print(
-                    "Package was successfully added to the database or updated. We are ready for Step 6"
+                    "Package was successfully added to the database or updated, and updated the file to the store."
                 )
-            #! NOTE: This could probably be condensed into one line, but my brain is fried at the moment and it's better to keep 'em separated for now.
+                # Now we need to send the package to QA
+                print(
+                    f'Sending package "{package_name}" to QA as version {version} to {server}_qa'
+                )
+                delivery = send_to_qa(server, package_name, version)
+                if delivery:
+                    print("Package was successfully sent to QA")
+                    return {
+                        "returnCode": 1,
+                        "message": "Package was successfully sent to QA",
+                    }
+                else:
+                    print("Package was not sent to QA")
+                    return {
+                        "returnCode": 0,
+                        "message": "Package was not sent to QA",
+                    }
         else:
             print("Package not retrieved successfully")
             return {
                 "returnCode": 0,
                 "message": "Package was not found. Please check the server and file path and try again.",
             }
+
+    def send_to_qa(server, package_name, version):
+        """This function will send the package to QA. It will also update the database accordingly."""
+        destination = "/home/longsoup/inbox/"
+        build = "/home/longsoup/build/"
+        LOCAL_PATH = "/home/longsoup/STORE/"
+        print(f"package_name: {package_name}")
+        current_file = (
+            package_name + "_" + str(version) + ".tar.gz"
+        )  # This is the most recent version of the package.
+        print(f"current_file: {current_file}")
+        host_name = server + "_qa"
+        try:
+            with pysftp.Connection(
+                host=host_name, username=qa_host_user, password=qa_host_pass
+            ) as sftp:
+                local_path = LOCAL_PATH + current_file
+                sftp.put(localpath=local_path, remotepath=destination + current_file)
+                sftp.execute(
+                    "tar -xzf " + (destination + current_file) + " -C " + build
+                )
+                sftp.close()
+                return True
+        except Exception as e:
+            print(f"Error sending package to QA: {e}")
+            return False
+
+    def send_to_prod():
+        """This function will send the package to production. It will also update the database accordingly."""
+        destination = "/home/longsoup/active/"
+        pass
+
+    def fail_package_in_qa():
+        pass
+
+    def pass_package_in_qa():
+        pass
 
     def return_error(ch, method, properties, body, msg):
         ch.basic_publish(
@@ -497,6 +552,10 @@ def await_package():
                         request["file_name"],
                         request["description"],
                     )
+                case "stage_2_pass":
+                    pass
+                case "stage_2_fail":
+                    pass
                 case _:
                     response = "ERROR: Invalid type specified by message"
         ch.basic_publish(
