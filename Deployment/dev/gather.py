@@ -92,6 +92,8 @@ backup_packages = {
     },
 }
 """
+
+
 def hunter(pathway, package_name, srcServer, destServer):
     # Using paramiko, connect to srcServer and check to see if the package exists. If it does, scp it back home to a specific directory.
     # We'll leave the file on the source server for now.
@@ -104,9 +106,9 @@ def hunter(pathway, package_name, srcServer, destServer):
     # We'll read the output of the command and split it into a list.
     output = stdout.read().decode("utf-8").split()
     # Now we'll check to see if the package exists in the output.
-    print(f'Checking for {package_name} in {output}')
+    print(f"Checking for {package_name} in {output}")
     if package_name in output:
-        print(f'Found {package_name} in {output}')
+        print(f"Found {package_name} in {output}")
         # If it does, we'll scp it to the destination server.
         # We'll start by creating a connection to the destination server.
         ssh2 = paramiko.SSHClient()
@@ -162,7 +164,7 @@ def make_package(name, version, date, description, server, source, route, qastat
     return package
 
 
-def tar_and_move_package(db, package_name, version_num)):
+def tar_and_move_package(db, package_name, version_num):
     """
     This function will tar the package and move it to the correct location.
     """
@@ -214,8 +216,8 @@ def revert_package(db, package_name):
     prev = db[previous]
     backups = db[backups]
     # We'll start by checking to see if the package exists in the current_packages collection.
-    
-    #! This is untested, but it ***SHOULD*** work. 
+
+    #! This is untested, but it ***SHOULD*** work.
     if package_exists(db, package_name):
         # If it does, we'll get the current version number and the date.
         current_version = cur.find_one({"name": package_name})["version"]
@@ -294,7 +296,6 @@ def add_backup(db, package_name):
     This function will add the package to the backup collection.
     """
     pass
-
 
 
 def update_package(db):
@@ -457,6 +458,7 @@ def package_exists(db, package_name):
     else:
         return False
 
+
 def determine_route_key(server):
     """We'll ask the user for information to determine where it goes. The route key will first depend on the server it's going to, then individual factors.
     Right now this is a placeholder - but we could use this to determine a more nuanced position of objects being packaged to deliver them. So, for example, Front has 3 main directories with different purposes, and with other subdirectories. Determine_route_key, and the route key in general, could be used to determine where to insert this.
@@ -530,50 +532,52 @@ def main():
     mongo_client = pymongo.MongoClient("mongodb://longsoup:njit#490@localhost:27017/")
     db = mongo_client[db_name]
     #### This is testing data. ####
-    # clear_tables(db)
-    # makeFakeData(db)
-    # options = input(
-    #     "Choose:\n1 to fill tables with fake data,\n2 to clear the tables,\n3 to test paths,\n4 to add to db,\n5 to update the existing packages,\n6 to rollback,\n7 to exit\n"
+    clear_tables(db)
+    makeFakeData(db)
+    # options = int(
+    #     input(
+    #         "Choose:\n1 to fill tables with fake data,\n2 to clear the tables,\n3 to test paths,\n4 to add to db,\n5 to update the existing packages,\n6 to rollback,\n7 to exit\n"
+    #     )
     # )
     # match options:
-    #     case "1":
+    #     case 1:
     #         print("Testing data validity...")
     #         print(f"Current Packages: {db[current].find()}")
     #         print(f"Previous Packages: {db[previous].find()}")
     #         print(f"Backup Packages: {db[backups].find()}")
-    #     case "2":
+    #     case 2:
     #         print("Testing paths...")
     #         print(f"Test path: {verify_path('/home/longsoup/Desktop/testing')}")
     #         print(f"Test path: {verify_path('/home/longsoup/Desktop/Utilities')}")
     #         new_path = input("Enter a new path to test: ")
     #         print(f"Test path: {verify_path(new_path)}")
-    #     case "3":
+    #     case 3:
     #         print("Entering new data...")
     #         create_package(db)
-    #     case "4":
+    #     case 4:
     #         print("Updating existing data...")
     #         update_package(db)
-    #     case "5":
+    #     case 5:
     #         print("Reverting data...")
     #         revert_package(db)
-    #     case "6":
+    #     case 6:
     #         print("Exiting...")
     #         exit()
     #     case _:
     #         print("Invalid option!")
     #         exit()
     #### THIS IS REAL CODE, uncomment to start using ####
-    option = input(
-        "Are you updating an existing package or creating a new package? (update/new): "
-    )
-    if option.lower() == "update":
-        print(f"Checking for packages...")
-        update_package(db)
-    elif option.lower() == "new":
-        create_package(db)
-    else:
-        print("Invalid option!")
-        return
+    # option = input(
+    #     "Are you updating an existing package or creating a new package? (update/new): "
+    # )
+    # if option.lower() == "update":
+    #     print(f"Checking for packages...")
+    #     update_package(db)
+    # elif option.lower() == "new":
+    #     create_package(db)
+    # else:
+    #     print("Invalid option!")
+    #     return
 
 
 if __name__ == "__main__":

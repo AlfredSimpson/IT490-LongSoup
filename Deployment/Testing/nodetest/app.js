@@ -60,11 +60,12 @@ function sendToDeploymentServer() {
     // var cluster = "qa";
     // var cluster = "prod";
     var dir_path = prompt('Provide the full filepath of the directory we are transporting: ');
-    var file_name = prompt('What is this package called? Use the name of the directory usually... : ');
+    var package_name = prompt('What is this package called? Use the name of the directory usually... : ');
     var server = prompt('Provide the name of the home server(front, back, dmz): ');
+    var description = prompt('Provide a short description of the package: ');
 
     const deploy_dir = "/home/outbox";
-    const deploy_file = `${deploy_dir}/${file_name}.tar.gz`;
+    const deploy_file = `${deploy_dir}/${package_name}.tar.gz`;
     // This tars the file and moves it to the outbox
     try {
         tarDirectory(deploy_file, dir_path);
@@ -73,31 +74,35 @@ function sendToDeploymentServer() {
         console.log(`[APP] error: ${error.message}`);
         return;
     }
-    file_name = `${file_name}.tar.gz`;
+    var file_name = `${package_name}.tar.gz`;
+    /**
+     * Now we send it to the deployment server. 
+     * Type is used to specify what stage of the deployment process we are in
+     * Server is used so we know where this is coming from and going to. It helps the deploymentWorker locate the file.
+     * file_path is the full path to the file we are sending.
+     * package_name is used to identify the package later.
+     * file_name is the name with .tar.gz at the end - so we can find the tarred file.
+     * description is a short description of the package.
+     * */
     mustang.sendAndConsumeMessage(deploy_url, deploy_queue,
         {
-            "type": "deploy",
+            "type": "stage_1",
             "cluster": cluster,
             "server": server,
+            "file_path": deploy_file,
+            "package_name": package_name,
             "file_name": file_name,
-            "file_path": deploy_file
+            "description": description
         }, (response) => {
-            console.log(`[APP] The response is ${response}`);
+            var response = JSON.parse(response.content.toString());
+            var returnCode = response.returnCode;
+            var returnMessage = response.message;
+            if (returnCode == 0) {
+                console.log(`[APP] ${returnMessage}`);
+            } else {
+                console.log(`[APP] ${returnMessage}`);
+            }
         })
-    /**
-     * This will gather the information we need and then send it to the deployment server. 
-     */
-    // exec(`tar -cvf ${fileName}.tar ${filePath}`, (error, stdout, stderr) => {
-    //     if (error) {
-    //         console.log(`[APP] error: ${error.message}`);
-    //         return;
-    //     }
-    //     if (stderr) {
-    //         console.log(`[APP] stderr: ${stderr}`);
-    //         return;
-    //     }
-    //     console.log(`[APP] stdout: ${stdout}`);
-    // });
 }
 
 sendToDeploymentServer();

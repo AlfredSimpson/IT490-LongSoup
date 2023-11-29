@@ -1,14 +1,17 @@
 import os
-import shutil
+
+# import shutil
 import pymongo
 import pika
-import paramiko
+
+# import paramiko
 import pysftp
 import json
 import time
 import sys
 import re
-import subprocess
+
+# import subprocess
 import logging
 import threading
 
@@ -47,37 +50,317 @@ mongo_db = os.getenv("MONGO_DB_D")
 
 LOCAL_PATH = "/home/longsoup/DEPLOY/"
 
+mongo_client = pymongo.MongoClient("mongodb://longsoup:njit#490@localhost:27017/")
+db = mongo_client["deployment"]
+current = "current_packages"
+backups = "backup_packages"
+all_packages = "all_packages"
 
-def get_version():
-    # This function will
+package_schema = {
+    "name": "",
+    "version": 0,
+    "date": "",
+    "description": "",
+    "server": "",
+    "absolute_path": "",
+    "qa_status": "",
+}
+
+
+def retrieve_package(host_name, file_path, file_name):
+    """Retrieve_packages takes in the host_name, the file_path, and the file_name.
+    It will then connect to the host_name and retrieve the file from the file_path.
+    It will then save the file to the local server in the /home/longsoup/DEPLOY/ directory.
+
+    #* Method Status: Passed Testing
+    #* 11/28/2023
+    #* Author: Alfred Simpson
+
+    Args:
+        host_name (string): The name of the host/server we are connecting to.
+        file_path (string): The absolute path of the file we are retrieving.
+        file_name (string): The name of the file we are retrieving.
+    """
+    LOCAL_NAME = "/home/longsoup/DEPLOY/" + file_name
+    try:
+        with pysftp.Connection(
+            host=host_name, username=host_user, password=host_pass
+        ) as sftp:
+            print(f"Connected to {host_name}")
+            sftp.get(file_path, LOCAL_NAME, callback=None, preserve_mtime=True)
+            return True
+    except Exception as e:
+        print(f"Error retrieving package: {e}")
+        return False
+
+
+def get_last_version(db, package_name):
+    """get_last_version will check the database to see if the package exists AND if it does, it will return the last version number.
+    If the package does not exist, then it will return 0.
+
+    #* Method Status: Passed Testing
+    #* 11/28/2023
+    #* Author: Alfred Simpson
+
+    Args:
+        db (object): The database object we are connecting to.
+        package_name (string): The name of the package we are checking for.
+
+    Returns:
+        int: 0 if the package does not exist, otherwise it will return the last version number.
+    """
+
+    cur = db[current]
+    if cur.find_one({"name": package_name}):
+        # If the package exists, then we need to get the last version number.
+        last_version = cur.find_one({"name": package_name})["version"]
+        print(
+            f'\nPackage "{package_name}" exists in the database with version {last_version}.'
+        )
+        return last_version
+    else:
+        # If the package does not exist, then we need to create a new package.
+        return 0
+
+
+def make_package(name, version, date, description, server, source_path, qa_status):
+    """# make_package is a function that will create a package object.
+    It takes in the name, version, date, description, server, source_path, and qa_status.
+    It will then return a package object.
+
+    #* Method Status: Passed Testing
+    #* 11/28/2023
+    #* Author: Alfred Simpson
+
+    Args:
+        name (string): The name of the package
+        version (int): Version Number
+        date (date): Date of the package
+        description (string): Short Description of the package
+        server (string): Which server does this package live on?
+        source_path (string): Where did this package come from?
+        qa_status (int): This is the status of the package. If it is in qa = 1, if it passes qa = 0, if it fails qa = -1.
+
+    Returns:
+        object: A package object to insert into the database.
+    """
+    package = {
+        "name": name,
+        "version": version,
+        "date": date,
+        "description": description,
+        "server": server,
+        "source_path": source_path,
+        "qa_status": qa_status,
+    }
+    return package
+
+
+def package_exists(db, package_name):
+    """This function checks if the package exists in the database.
+
+    This method works - but it is not actively used currently. I am not deleting it just in case we need it again in the future.
+    """
+    cur = db["current"]
+    if cur.find_one({"name": package_name}):
+        return True
+    else:
+        return False
+
+
+def create_package(db, package_name, version, description, server, file_path):
+    """# create_package
+    This function will create a package in the database. It takes in the db, package_name, version, description, server, and file_path.
+    It will *automatically* update the version number.
+
+    #* Method Status: Passed Testing
+    #* 11/28/2023
+    #* Author: Alfred Simpson
+
+    #! Note: This requires strict naming - any deviation (i.e. capitalization) will result in a new package being created.
+
+    Args:
+        db (object): database object
+        package_name (string): the name of the package
+        version (int): The version number of the package
+        description (string): A brief description of the package
+        server (string): Which server does this package live on?
+        file_path (string): Where did this package come from?
+
+    Returns:
+        bool: True or False based on if the package was created successfully.
+    """
+
+    date = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+    cur = db[current]
+    version = version + 1
+    try:
+        cur.insert_one(
+            {
+                "name": package_name,
+                "version": version,
+                "date": date,
+                "description": description,
+                "server": server,
+                "source_path": file_path,
+                "qa_status": 1,
+            }
+        )
+        print(f'Package "{package_name}" created successfully in database')
+        # Now insert it into all_packages
+        all_p = db["all_packages"]
+        all_p.insert_one(
+            {
+                "name": package_name,
+                "current_version": version,
+                "packages": [
+                    {
+                        "version": version,
+                        "date": date,
+                        "description": description,
+                        "server": server,
+                        "source_path": file_path,
+                    }
+                ],
+            }
+        )
+        return True
+    except Exception as e:
+        print(f"Error creating package: {e}")
+        return False
+
+
+def update_package(db, package_name, version, description, server, file_path):
+    """# update_package
+    This function will update a package in the database. It takes in the db, package_name, version, description, server, and file_path.
+    It will *automatically* update the version number.
+    #! Note: This requires strict naming - any deviation (i.e. capitalization) will result in a new package being created.
+
+    #* Method Status: Passed Testing
+    #* 11/28/2023
+    #* Author: Alfred Simpson
+
+    Args:
+        db (object): database object
+        package_name (string): the name of the package
+        version (int): The version number of the package
+        description (string): A brief description of the package
+        server (string): Which server does this package live on?
+        file_path (string): Where did this package come from?
+
+    Returns:
+        bool: True or False based on if the package was updated successfully.
+    """
+    date = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+    cur = db[current]
+    version = version + 1
+    try:
+        cur.update_one(
+            {"name": package_name},
+            {
+                "$set": {
+                    "version": version,
+                    "date": date,
+                    "description": description,
+                    "server": server,
+                    "source_path": file_path,
+                    "qa_status": 1,
+                }
+            },
+        )
+        all_p = db["all_packages"]
+        all_p.update_one(
+            {"name": package_name},
+            {
+                "$set": {
+                    "current_version": version,
+                }
+            },
+        )
+        all_p.update_one(
+            {"name": package_name},
+            {
+                "$push": {
+                    "packages": {
+                        "version": version,
+                        "date": date,
+                        "description": description,
+                        "server": server,
+                        "source_path": file_path,
+                    }
+                }
+            },
+        )
+
+        print(f'Package "{package_name}" updated successfully')
+        return True
+    except Exception as e:
+        print(f"Error updating package: {e}")
+        return False
+
+
+def qa_to_prod(db):
+    """Similar to deploy, this function will move the package from qa to prod. It will also update the database accordingly."""
     pass
 
 
-def deploy(cluster, server, file_path, file_name):
-    # This funciton begins the deployment steps. We will need to:
-    # 1. Connect to the server -- SUCCESS
-    # 2. If it is, scp the file from its server to this 192.168.68.61 server. --- SUCCESS
-    # 3. Once we have the file, we need to update our database with the new file information #! TODO
-    # 4. Then we can update the previous information with the current information #! TODO
-    # 5. Finally, we will scp from this server to it's next destination.  #! TODO
-    host_name = server + "_" + cluster
-    print(f"hostname = {host_name}")
-    with pysftp.Connection(
-        host=host_name, username=host_user, password=host_pass
-    ) as sftp:
-        print(f"\nConnected to {host_name}\n")
+def deploy_to_qa(cluster, server, file_path, package_name, file_name, description):
+    pass
 
-        # get_version() #! TODO - we'll need to keep strict naming conventions.
-        # This is a temporary workaround for testing:
-        # ! TODO - we'll want to eventually ONLY pass the file_name and then add the versionining.
-        LOCAL_NAME = LOCAL_PATH + file_name
-        # Get the file:
-        sftp.get(file_path, LOCAL_NAME, callback=None, preserve_mtime=True)
-        print(f"\nFile {file_name} downloaded to {LOCAL_PATH}\n")
+
+def dev_to_deploy(cluster, server, file_path, package_name, file_name, description):
+    host_name = server + "_" + cluster
+    retrieved = retrieve_package(host_name, file_path, file_name)
+    if retrieved:
+        version = get_last_version(db, package_name)
+        if version == 0:
+            # make_package(package_name, version, date, description, server, file_path, 1)
+            create_package(db, package_name, version, description, server, file_path)
+            print("\nPackage created successfully in database! Shipping to QA\n")
+        else:
+            # make_package(package_name, version, date, description, server, file_path, 1)
+            update_package(db, package_name, version, description, server, file_path)
+            print("\nPackage updated successfully in database! Shipping to QA\n")
         return {
             "returnCode": 0,
-            "message": f"File {file_name} downloaded to Deployment Server",
+            "message": f"Package received. Shipping to QA",
         }
+    else:
+        return {
+            "returnCode": 1,
+            "message": f"Error retrieving package from {host_name}",
+        }
+
+
+# def deploy(cluster, server, file_path, file_name):
+#     """This function begins the deployment steps from dev to qa."""
+
+#     # set the host name to the server and cluster. This will help us connect to the server.
+#     host_name = server + "_" + cluster
+#     p_name = re.search(r"(.*)\.tar\.gz", file_name).group(
+#         1
+#     )  #! This is resolved in testDeploy,
+#     retrieved = retrieve_package(host_name, file_path, LOCAL_PATH + file_name)
+#     if retrieved:
+#         # if we were able to get the file, now we need to check if the package exists in the db
+#         print("Package received. Checking if package exists in db...")
+#         if package_exists(file_name):
+#             # If the package exists, then we need to update the previous package.
+#             print("Package exists in db. Updating previous package...")
+#             # We find the last version and increase by 1
+#             version = get_last_version(db, p_name) + 1
+#             print(f"The new version is {version}")
+#             # Before we update the previous package, we need to migrate it to the backup packages.
+
+#         else:
+#             # If the package does not exist, then we need to create a new package.
+#             print("Creating the initial package in the database")
+
+#     else:
+#         return {
+#             "returnCode": 1,
+#             "message": f"Error retrieving package from {host_name}",
+#         }
 
 
 def return_error(ch, method, properties, body, msg):
@@ -108,8 +391,8 @@ def request_processor(ch, method, properties, body):
         match request["type"]:
             case "test":
                 response = "test"
-            case "deploy":
-                response = deploy(
+            case "stage_1":
+                response = dev_to_deploy(
                     request["cluster"],
                     request["server"],
                     request["file_path"],
