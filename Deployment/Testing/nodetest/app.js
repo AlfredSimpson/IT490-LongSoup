@@ -32,7 +32,7 @@ function tarDirectory(deploy_file, dir_path) {
      * @param {string} dir_path The directory we are tarring
      */
     console.log(`[TARRING] ${dir_path} to ${deploy_file}`)
-    exec(`tar -czvf ${deploy_file} -C${dir_path} .`, (error, stdout, stderr) => {
+    exec(`tar -czvf ${deploy_file} -C ${dir_path} .`, (error, stdout, stderr) => {
         if (error) {
             console.log(`[APP] error: ${error.message}`);
             return;

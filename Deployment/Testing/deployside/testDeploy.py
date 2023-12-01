@@ -399,6 +399,39 @@ def await_package():
             print(f"Error updating package: {e}")
             return False
 
+    def check_qa(server):
+        """This function looks for any packages on the server that are awaiting approval (1). If there are any, it will return a list of them. If there are none, it will return a message saying so."""
+        cur = db[current]
+        packages = cur.find({"server": server, "qa_status": 1})
+        # Create a new dictionary with the key being a number and the value being the package.
+        # This will allow us to easily select a package by number.
+        new_packages = {}
+        for i, package in enumerate(packages):
+            new_packages[i] = package["name"]
+        print(f"new_packages: {new_packages}")
+        # If the amount of keys in the dictionary is greater than 0, then we have packages awaiting approval.
+        if len(new_packages.keys()) > 0:
+            print(f'Packages found on server "{server}" awaiting approval')
+            return {
+                "returnCode": 0,
+                "message": "Packages found on server awaiting approval",
+                "packages": new_packages,
+            }
+
+        # if new_packages.count() > 0:
+        #     print(f'Packages found on server "{server}" awaiting approval')
+        #     return {
+        #         "returnCode": 0,
+        #         "message": "Packages found on server awaiting approval",
+        #         "packages": packages,
+        #     }
+        else:
+            # If the package does not exist, then we need to create a new package.
+            return {
+                "returnCode": 1,
+                "message": "No packages found on server awaiting approval",
+            }
+
     def store_package(package_name, file_name, version):
         DEPLOY_PATH = "/home/longsoup/DEPLOY"
         LOCAL_STORE = "/home/longsoup/STORE"
@@ -541,8 +574,8 @@ def await_package():
             response = "ERROR: No type specified by message"
         else:
             match request["type"]:
-                case "test":
-                    response = "test"
+                case "check_qa":
+                    response = check_qa(request["package_name"])
                 case "stage_1":
                     response = dev_to_deploy(
                         request["cluster"],

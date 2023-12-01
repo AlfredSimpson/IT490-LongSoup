@@ -3,8 +3,6 @@ import os
 import shutil
 import pymongo
 import pika
-
-# import paramiko
 import pysftp
 import json
 import time
@@ -400,8 +398,19 @@ def dev_to_deploy(cluster, server, file_path, package_name, file_name, descripti
             )
             print("\nPackage updated successfully in database! Shipping to QA\n")
         if p_status:
-            print("\nPackage created successfully in database! Shipping to QA\n")
             # Now we need to ship the package to QA
+            store_package(package_name, file_name, version)
+            shipped = send_to_qa(server, package_name, version)
+            if shipped:
+                return {
+                    "returnCode": 0,
+                    "message": f"Package {package_name} successfully shipped to QA",
+                }
+            else:
+                return {
+                    "returnCode": 1,
+                    "message": f"Error shipping package {package_name} to QA",
+                }
     else:
         return {
             "returnCode": 1,
@@ -473,7 +482,9 @@ def request_processor(ch, method, properties, body):
                     request["cluster"],
                     request["server"],
                     request["file_path"],
+                    request["package_name"],
                     request["file_name"],
+                    request["description"],
                 )
             case _:
                 response = "ERROR: Invalid type specified by message"
