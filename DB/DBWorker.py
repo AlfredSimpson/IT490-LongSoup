@@ -319,6 +319,43 @@ def postMessage(message, genre, uid, timestamp):
         }
 
 
+def handle_like(uid, spotify_id, like_type):
+    """
+    handle_like takes in usercookieid, id, and like_type as arguments and handles the like.
+
+    Args:
+        usercookieid (_type_): _description_
+        id (_type_): _description_
+        like_type (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+
+    # We first want to make sure that the user did not already like or dislike this item
+    # We can do this by querying the database for the usercookieid and seeing if the id is in the list of likes or dislikes
+    # If it is, we want to return an error
+    # If it is not, we want to add it to the list of likes or dislikes
+
+    if like_type == "like":
+        # Add to user taste
+        addLike(uid, spotify_id)
+        pass
+    elif like_type == "dislike":
+        # Subtract from user taste
+        addDislike(uid, spotify_id)
+        pass
+    else:
+        return {
+            "returnCode": 1,
+            "message": "Error handling like",
+            "data": {
+                "errorStatus": True,
+                "errorOutput": "Error handling like - like_type not specified",
+            },
+        }
+
+
 def addLike(uid, spotify_id):
     # This should add to a user's taste in something
     pass
@@ -690,12 +727,12 @@ def request_processor(ch, method, properties, body):
             case "getMusic":
                 response = ""
                 pass
-            case "likeTrack":
-                response = ""
-                pass
-            case "dislikeTrack":
-                response = ""
-                pass
+            case "handle_like":
+                response = handle_like(
+                    request["usercookieid"],
+                    request["id"],
+                    request["like-type"],
+                )
             case _:
                 # Default case - basically, all else failed.
                 response = {
