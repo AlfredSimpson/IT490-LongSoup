@@ -73,7 +73,7 @@ function start_qa() {
                     type: "stage_2",
                     cluster: cluster,
                     server: server,
-                    package: packages[choice],
+                    package_name: packages[choice],
                     status: task
                 }, (response) => {
                     var response = JSON.parse(response.content.toString());

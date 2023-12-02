@@ -138,6 +138,7 @@ router
                 console.log(`[API] \t Received like-dislike request by ${uid}`);
                 var rowId = req.body.rowId;
                 var action = req.body.action;
+                console.log(`[API] \t Received like-dislike request by ${uid} for ${rowId} to ${action} it`);
                 switch (action) {
                     case 'like':
                         console.log(`[API] \t Received like-dislike request by ${uid} for ${rowId} to like it`);

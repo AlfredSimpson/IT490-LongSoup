@@ -251,7 +251,6 @@ def create_package(db, package_name, version, description, server, file_path):
 
     date = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
     cur = db[current]
-    version = version + 1
     try:
         cur.insert_one(
             {
@@ -311,7 +310,6 @@ def update_package(db, package_name, version, description, server, file_path):
     """
     date = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
     cur = db[current]
-    version = version + 1
     try:
         cur.update_one(
             {"name": package_name},
@@ -423,16 +421,23 @@ def dev_to_deploy(cluster, server, file_path, package_name, file_name, descripti
         version = get_last_version(db, package_name)
         if version == 0:
             # make_package(package_name, version, date, description, server, file_path, 1)
+            version += 1
+
             p_status = create_package(
                 db, package_name, version, description, server, file_path
             )
-            print("\nPackage created successfully in database! Shipping to QA\n")
+            print(
+                f'Package "{package_name}" created successfully in database! Shipping to QA as version {version}\n'
+            )
         else:
             # make_package(package_name, version, date, description, server, file_path, 1)
+            version += 1
             p_status = update_package(
                 db, package_name, version, description, server, file_path
             )
-            print("\nPackage updated successfully in database! Shipping to QA\n")
+            print(
+                f'Package "{package_name}" updated successfully in database! Current version is {version}'
+            )
         if p_status:
             # Now we need to ship the package to QA
             store_package(package_name, file_name, version)
