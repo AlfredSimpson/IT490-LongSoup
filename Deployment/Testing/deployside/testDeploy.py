@@ -637,21 +637,49 @@ def await_package():
             return False
         # Add to backups
         try:
-            backups.insert_one(
-                {
-                    "name": package_name,
-                    "version": v_num,
-                    "date": cur.find_one({"name": package_name})["date"],
-                    "description": cur.find_one({"name": package_name})["description"],
-                    "server": cur.find_one({"name": package_name})["server"],
-                    "stored_path": "/home/longsoup/STORE/"
-                    + package_name
-                    + "_"
-                    + str(v_num)
-                    + ".tar.gz",
-                    "qa_status": 0,
-                }
-            )
+            exists = backups.find_one({"name": package_name})
+            if exists:
+                print(f'Package "{package_name}" already exists in backups')
+                backups.update_one(
+                    {"name": package_name},
+                    {
+                        "$set": {
+                            "version": v_num,
+                            "date": cur.find_one({"name": package_name})["date"],
+                            "description": cur.find_one({"name": package_name})[
+                                "description"
+                            ],
+                            "server": cur.find_one({"name": package_name})["server"],
+                            "stored_path": "/home/longsoup/STORE/"
+                            + package_name
+                            + "_"
+                            + str(v_num)
+                            + ".tar.gz",
+                            "qa_status": 0,
+                        }
+                    },
+                )
+                print(f'Package "{package_name}" updated in backups successfully')
+                return True
+            else:
+                print(f'Package "{package_name}" does not exist in backups')
+                backups.insert_one(
+                    {
+                        "name": package_name,
+                        "version": v_num,
+                        "date": cur.find_one({"name": package_name})["date"],
+                        "description": cur.find_one({"name": package_name})[
+                            "description"
+                        ],
+                        "server": cur.find_one({"name": package_name})["server"],
+                        "stored_path": "/home/longsoup/STORE/"
+                        + package_name
+                        + "_"
+                        + str(v_num)
+                        + ".tar.gz",
+                        "qa_status": 0,
+                    }
+                )
             print(f'Package "{package_name}" added to backups successfully')
             return True
         except Exception as e:
@@ -665,7 +693,7 @@ def await_package():
             print("Able to now move it to production...")
             if updated:
                 print(
-                    'Package passed QA. Database updated to remove QA status, added to backups."'
+                    "Package passed QA. Database updated to remove QA status, added to backups."
                 )
                 version = get_last_version(db, package_name)
                 in_prod = send_to_prod(server, package_name, version)

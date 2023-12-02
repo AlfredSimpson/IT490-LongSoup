@@ -52,19 +52,15 @@ function start_qa() {
             for (const [key, value] of Object.entries(packages)) {
                 console.log(`${key}: ${value}`);
             }
-            var choice = prompt(`Which package do you want to check (type the number of the package): `);
+            var choice = prompt(`\nWhich package do you want to check (type the number of the package): `);
             // if the user selects a number that is not in the list, we should prompt them again until they select a valid number
             while (!(choice in packages)) {
-                console.log(`[APP] ${choice} is not a valid choice`);
-                choice = prompt(`Which package do you want to check (type the number of the package): `);
+                console.log(`\n[APP] ${choice} is not a valid choice\n`);
+                choice = prompt(`\nWhich package do you want to check (type the number of the package): `);
             }
-            console.log(`[APP] You selected ${choice}, which is ${packages[choice]}`);
-            var task = prompt(`Choose a task:\n1\tApprove package, \n2\tFail package, \n3\tExit\n`);
-            // if the user selects a number that is not in the list, we should prompt them again until they select a valid number
-            while (!(task in [1, 2, 3])) {
-                console.log(`[APP] ${task} is not a valid choice`);
-                task = prompt(`Choose a task:\n1\tApprove package, \n2\tFail package, \n3\tExit\n`);
-            }
+            console.log(`\n[APP] You selected ${choice}, which is ${packages[choice]}\n`);
+            var task = prompt(`\nChoose a task:\n1\tApprove package, \n2\tFail package, \n3\tExit\n`);
+
             if (task == 1 || task == 2) {
                 // send to the deployment server
                 if (task == 1) {
@@ -92,7 +88,7 @@ function start_qa() {
             }
             else {
                 console.log('[APP] Exiting');
-                exit(0);
+                return
 
             }
         }
