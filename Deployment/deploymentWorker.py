@@ -1,5 +1,4 @@
 import os
-
 import shutil
 import pymongo
 import pika
@@ -12,7 +11,6 @@ import re
 # import subprocess
 import logging
 import threading
-
 
 from datetime import datetime
 from dotenv import load_dotenv
@@ -28,9 +26,9 @@ qa_host_pass = os.getenv("qa_host_pass")
 prod_host_user = os.getenv("prod_host_user")
 prod_host_pass = os.getenv("prod_host_pass")
 
-db_name = "test_gather"
+db_name = "deployment"
 current = "current_packages"
-previous = "previous_packages"
+all_packages = "all_packages"
 backups = "backup_packages"
 
 IN_SERVERS = ["front", "back", "dmz"]
@@ -54,7 +52,9 @@ mongo_db = os.getenv("MONGO_DB_D")
 
 LOCAL_PATH = "/home/longsoup/DEPLOY/"
 
-mongo_client = pymongo.MongoClient("mongodb://longsoup:njit#490@localhost:27017/")
+mongo_client = pymongo.MongoClient(
+    f"mongodb://{mongo_user}:{mongo_pass}@{mongo_host}:{mongo_port}/"
+)
 db = mongo_client["deployment"]
 current = "current_packages"
 backups = "backup_packages"
@@ -69,6 +69,27 @@ package_schema = {
     "absolute_path": "",
     "qa_status": "",
 }
+
+
+"""
+File: deploymentWorker.py
+This is the deployment worker. It will receive messages from the other servers in dev or qa and process them accordingly.
+It will then send a response back to those servers.
+This is meant to handle the deployment of packages to the QA server and eventually to production.
+
+Version : 1
+Date: 12/2/2023
+Author: Alfred Simpson
+
+#* Method Status: Passed Testing
+#* 12/2/2023
+
+#? Future Improvements:
+#? 1. Add logging - this will help us track what is happening and work with distributed logging, a requirement in the course this was made for.
+#? 2. Add more error handling - this will help us catch errors and respond accordingly.
+#? 3. Reduce redundancy - Some of the functions are redundant and can be combined into one function. It was initially developed this way to make it easier to test and to identify points of failure.
+
+"""
 
 
 def store_package(package_name, file_name, version):
@@ -127,7 +148,21 @@ def retrieve_package(host_name, file_path, file_name):
 
 
 def check_qa(server):
-    """This function looks for any packages on the server that are awaiting approval (1). If there are any, it will return a list of them. If there are none, it will return a message saying so."""
+    """#check_qa
+    This function looks for any packages on the server that are awaiting approval.
+    If there are any, it will return a list of them.
+    If there are none, it will return a message saying so.
+
+    #* Method Status: Passed Testing
+    #* 12/02/2023
+    #* Author: Alfred Simpson
+
+    Args:
+        server (string): Which server are we checking?
+
+    Returns:
+        dict: A dictionary with the returnCode and message.
+    """
     cur = db[current]
     packages = cur.find({"server": server, "qa_status": 1})
     # Create a new dictionary with the key being a number and the value being the package.
@@ -396,12 +431,18 @@ def send_to_qa(server, package_name, version):
 
 
 def dev_to_deploy(cluster, server, file_path, package_name, file_name, description):
-    """dev_to_deploy is a function that will take in the cluster, server, file_path, package_name, file_name, and description.
+    """#dev_to_deploy
+    This is a function that will take in the cluster, server, file_path, package_name, file_name, and description.
     It will then retrieve the package from the server and store it locally.
     It will then check if the package exists in the database. If it does, then it will update the package.
     If it does not, then it will create the package.
     Once the package is created/updated, it will then ship the package to QA.
     Upon successful shipping, it will return a message to our node apps.
+
+    #* Method Status: Passed Testing
+    #* 11/28/2023
+    #* Author: Alfred Simpson
+
 
     Args:
         cluster (string): What cluster is the server in?
@@ -464,6 +505,7 @@ def send_to_prod(server, package_name, version):
     This function will take in the server, package_name, and version.
     It will then connect to the PROD server and send the package to the PROD server.
     It will then untar the package in the /home/longsoup/build/ directory.
+
     #* Method Status: Passed Testing
     #* 12/2/2023
     #* Author: Alfred Simpson
@@ -656,7 +698,26 @@ def pass_package_in_qa(db, package_name):
 
 
 def qa_results(cluster, server, package_name, status):
-    """This function will update the database with the results of the QA testing."""
+    """#qa_results
+    This function will take in the cluster, server, package_name, and status.
+    If the status is 0, then we will pass the package to production.
+    If the status is -1, then we will fail the package and do nothing.
+    If the status is anything else, then we will return an error.
+
+    #* Method Status: Passed Testing
+    #* 12/2/2023
+    #* Author: Alfred Simpson
+
+    Args:
+        cluster (string): What cluster is the server in?
+        server (string): Which server is the package on?
+        package_name (string): What is the name of the package?
+        status (int): What is the status of the package? 0 = pass, -1 = fail
+
+    Returns:
+        dict: A dictionary with the returnCode and message.
+
+    """
     if status == 0:
         updated = pass_package_in_qa(db, package_name)
         print("Able to now move it to production...")
@@ -696,6 +757,25 @@ def qa_results(cluster, server, package_name, status):
 
 
 def return_error(ch, method, properties, body, msg):
+    """#return_error
+    This function will take in the ch, method, properties, body, and msg.
+    It will then return an error message to the webserver.
+
+    #* Method Status: Passed Testing
+    #* 12/2/2023
+    #* Author: Alfred Simpson
+
+    Args:
+        ch (object): The channel object
+        method (object): The method object
+        properties (object): The properties object
+        body (object): The body object
+        msg (string): The message we are sending back to the webserver.
+
+    Returns:
+        void: Nothing
+    """
+
     ch.basic_publish(
         exchange="",
         routing_key=properties.reply_to,
@@ -706,6 +786,25 @@ def return_error(ch, method, properties, body, msg):
 
 
 def request_processor(ch, method, properties, body):
+    """#request_processor
+    This function will take in the ch, method, properties, and body.
+    It will then process the request and send a response back to the webserver.
+
+    #* Method Status: Passed Testing
+    #* 12/2/2023
+    #* Author: Alfred Simpson
+
+    Args:
+        ch (object): The channel object
+        method (object): The method object
+        properties (object): The properties object
+        body (object): The body object
+
+    Returns:
+        void: Nothing
+
+    """
+
     try:
         request = json.loads(body.decode("utf-8"))
         # logging.debug(f"\nReceived request: {request}\n")
