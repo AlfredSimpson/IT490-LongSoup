@@ -100,11 +100,6 @@ def retrieve_package(host_name, file_path, LOCAL_NAME):
         return False
 
 
-def qa_to_prod(db):
-    """Similar to deploy, this function will move the package from qa to prod. It will also update the database accordingly."""
-    pass
-
-
 def dev_to_deploy(cluster, server, file_path, package_name, file_name, description):
     """This function will move the package from dev to deployment. It will also update the database accordingly."""
     host_name = server + "_" + cluster
@@ -534,8 +529,33 @@ def await_package():
         """This function will send the package to production. It will also update the database accordingly."""
         destination = "/home/longsoup/active/"
         host_name = server + "_prod"
-        print(f'Package "{package_name}" is being sent to production server at {host_name}')
-        pass
+        host_inbox = "/home/longsoup/inbox/"
+        host_build = "/home/longsoup/build/"
+        localfile = package_name + "_" + str(version) + ".tar.gz"
+        localpath = "/home/longsoup/STORE/" + localfile
+        print(
+            f'Package "{package_name}" is being sent to production server at {host_name}'
+        )
+        try:
+            with pysftp.Connection(
+                host=host_name, username=prod_host_user, password=prod_host_pass
+            ) as sftp:
+                sftp.put(
+                    localpath=localpath,
+                    remotepath=host_inbox + localfile,
+                    preserve_mtime=True,
+                )
+                sftp.execute(
+                    "tar -xzf " + (host_inbox + localfile) + " -C " + host_build
+                )
+                sftp.close()
+                print(
+                    f'Package "{package_name}" successfully sent to production. Unzipped and is ready to go.'
+                )
+                return True
+        except Exception as e:
+            print(f"Error sending package to production: {e}")
+            return False
 
     def fail_package_in_qa(db, package_name):
         """This function will update the database with the results of the QA testing when they fail."""
@@ -552,7 +572,9 @@ def await_package():
                     }
                 },
             )
-            print(f'Package "{package_name}" updated qa_status successfully --- marked as failed')
+            print(
+                f'Package "{package_name}" updated qa_status successfully --- marked as failed'
+            )
         except Exception as e:
             print(f"Error updating package in current_packages: {e}")
             return False
@@ -568,7 +590,9 @@ def await_package():
                     }
                 },
             )
-            print(f'Updated all_packages with version {v_num} successfully for package "{package_name}"')
+            print(
+                f'Updated all_packages with version {v_num} successfully for package "{package_name}"'
+            )
             return True
         except Exception as e:
             print(f"Error updating package in all_packages: {e}")
@@ -605,7 +629,9 @@ def await_package():
                     }
                 },
             )
-            print(f'Updated all_packages with version {v_num} successfully for package "{package_name}"')
+            print(
+                f'Updated all_packages with version {v_num} successfully for package "{package_name}"'
+            )
         except Exception as e:
             print(f"Error updating package in all_packages: {e}")
             return False
@@ -616,11 +642,13 @@ def await_package():
                     "name": package_name,
                     "version": v_num,
                     "date": cur.find_one({"name": package_name})["date"],
-                    "description": cur.find_one({"name": package_name})[
-                        "description"
-                    ],
+                    "description": cur.find_one({"name": package_name})["description"],
                     "server": cur.find_one({"name": package_name})["server"],
-                    "stored_path": "/home/longsoup/STORE/" + package_name + "_" + str(v_num) + ".tar.gz",
+                    "stored_path": "/home/longsoup/STORE/"
+                    + package_name
+                    + "_"
+                    + str(v_num)
+                    + ".tar.gz",
                     "qa_status": 0,
                 }
             )
@@ -629,79 +657,45 @@ def await_package():
         except Exception as e:
             print(f"Error adding package to backups: {e}")
             return False
-    
 
     def qa_results(cluster, server, package_name, status):
         """This function will update the database with the results of the QA testing."""
         if status == 0:
             updated = pass_package_in_qa(db, package_name)
-            """
-            # cur = db[current]
-            # all_p = db["all_packages"]
-            # backups = db["backup_packages"]
-            # # Update current_packages
-            # try:
-            #     cur.update_one(
-            #         {"name": package_name},
-            #         {
-            #             "$set": {
-            #                 "qa_status": 0,
-            #             }
-            #         },
-            #     )
-            #     print(f'Package "{package_name}" updated qa_status successfully')
-            # except Exception as e:
-            #     print(f"Error updating package in current_packages: {e}")
-            #     return False
-            # try:
-            #     # Get the version number
-            #     v_num = cur.find_one({"name": package_name})["version"]
-            #     # Update all_packages
-            #     all_p.update_one(
-            #         {"name": package_name, "version": v_num},
-            #         {
-            #             "$set": {
-            #                 "qa_status": 0,
-            #             }
-            #         },
-            #     )
-            #     print(f'Updated all_packages with version {v_num} successfully for package "{package_name}"')
-            # except Exception as e:
-            #     print(f"Error updating package in all_packages: {e}")
-            #     return False
-            # # Add to backups
-            # try:
-            #     backups.insert_one(
-            #         {
-            #             "name": package_name,
-            #             "version": v_num,
-            #             "date": cur.find_one({"name": package_name})["date"],
-            #             "description": cur.find_one({"name": package_name})[
-            #                 "description"
-            #             ],
-            #             "server": cur.find_one({"name": package_name})["server"],
-            #             "stored_path": "/home/longsoup/STORE/" + package_name + "_" + str(v_num) + ".tar.gz",
-            #             "qa_status": 0,
-            #         }
-            #     )
-            #     print(f'Package "{package_name}" added to backups successfully')
-            # except Exception as e:
-            #     print(f"Error adding package to backups: {e}")
-            #     return False
-            """
             print("Able to now move it to production...")
+            if updated:
+                print(
+                    'Package passed QA. Database updated to remove QA status, added to backups."'
+                )
+                version = get_last_version(db, package_name)
+                in_prod = send_to_prod(server, package_name, version)
+                if in_prod:
+                    print(f'Package "{package_name}" successfully sent to production')
+                    return {
+                        "returnCode": 1,
+                        "message": "Package passed QA. Database updated to remove QA status, added to backups.",
+                    }
+                else:
+                    print(f'Package "{package_name}" was not sent to production')
+                    return {
+                        "returnCode": 0,
+                        "message": "Package could not reach production. Please check the server and try again.",
+                    }
             # qa_to_prod(db)
         elif status == -1:
             print('Package failed QA. Updating database with status of "failed"')
             fail_package_in_qa(db, package_name)
-            #After failing, we just don't do anything. We just wait for the next package to come in.
+            # After failing, we just don't do anything. We just wait for the next package to come in.
             return {
                 "returnCode": 0,
                 "message": "Package failed QA. Updating database with status of failed",
             }
-
-
-        pass
+        else:
+            print("Invalid status code received")
+            return {
+                "returnCode": 1,
+                "message": "Invalid status code received",
+            }
 
     def return_error(ch, method, properties, body, msg):
         ch.basic_publish(
@@ -746,8 +740,9 @@ def await_package():
                         request["package"],
                         request["status"],
                     )
-                    )
+                case "revert":
                     pass
+                    # response = revert_package(request["package"])
                 case _:
                     response = "ERROR: Invalid type specified by message"
         ch.basic_publish(

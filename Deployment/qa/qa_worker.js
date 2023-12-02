@@ -42,6 +42,13 @@ function start_qa() {
             var packages = response.packages
             // packages should have a key number and value name, so we should iterate over all of them, printing the key and value
 
+            // If packages is empty, we should exit
+            if (Object.keys(packages).length === 0) {
+                console.log(`[APP] No packages to check`);
+                time.sleep(10);
+                exit(0);
+            }
+
             for (const [key, value] of Object.entries(packages)) {
                 console.log(`${key}: ${value}`);
             }
