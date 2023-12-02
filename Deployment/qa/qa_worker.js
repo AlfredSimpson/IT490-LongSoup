@@ -15,33 +15,6 @@ D_QUEUE = process.env.DEPLOYMENT_QUEUE;
 
 
 
-
-
-function check_qa() {
-
-    mustang.sendAndConsumeMessage(deploy_url, deploy_queue,
-        {
-            "type": "stage_1",
-            "cluster": cluster,
-            "server": server,
-            "file_path": deploy_file,
-            "package_name": package_name,
-            "file_name": file_name,
-            "description": description
-        }, (response) => {
-            var response = JSON.parse(response.content.toString());
-            var returnCode = response.returnCode;
-            var returnMessage = response.message;
-            if (returnCode == 0) {
-                console.log(`[APP] ${returnMessage}`);
-            } else {
-                console.log(`[APP] ${returnMessage}`);
-            }
-        })
-}
-
-
-
 function start_qa() {
     /**
      * start_qa() is our main function - it will start by asking the user which server they are on. Then it will message the deployment server.
@@ -66,8 +39,7 @@ function start_qa() {
         var returnMessage = response.message;
         if (returnCode == 0) {
             console.log(`[APP] ${returnMessage}`);
-            var packages = response.packages;
-            // console.log(`[APP] ${packages}`);
+            var packages = response.packages
             // packages should have a key number and value name, so we should iterate over all of them, printing the key and value
 
             for (const [key, value] of Object.entries(packages)) {
@@ -95,7 +67,7 @@ function start_qa() {
                 }
                 console.log(`[APP] Sending ${packages[choice]} to deployment server with status of ${task}`);
                 mustang.sendAndConsumeMessage(deploy_url, deploy_queue, {
-                    type: "qa",
+                    type: "stage_2",
                     cluster: cluster,
                     server: server,
                     package: packages[choice],
@@ -110,48 +82,16 @@ function start_qa() {
                         console.log(`[APP] ${returnMessage}`);
                     }
                 })
-
-
-
             }
             else {
-                console.log(`[APP] ${returnMessage}`);
+                console.log('[APP] Exiting');
+                exit(0);
+
             }
         }
-        //     if (returnCode == 0) {
-        //         console.log(`[APP] ${returnMessage}`);
-        //         var packages = response.packages;
-        //         console.log(`[APP] ${packages}`);
-        //         var package = prompt(`Which package do you want to check (type the name of the package): `);
-        //         console.log(`[APP] You selected ${package}`);
-        //         var status = prompt(`Did the package pass qa (y/n): `);
-        //         console.log(`[APP] You selected ${status}`);
-        //         if (status == "y") {
-        //             status = "pass";
-        //         } else {
-        //             status = "fail";
-        //         }
-        //         console.log(`[APP] Sending ${package} to deployment server with status of ${status}`);
-        //         mustang.sendAndConsumeMessage(deploy_url, deploy_queue, {
-        //             type: "qa",
-        //             cluster: cluster,
-        //             server: server,
-        //             package: package,
-        //             status: status
-        //         }, (response) => {
-        //             var response = JSON.parse(response.content.toString());
-        //             var returnCode = response.returnCode;
-        //             var returnMessage = response.message;
-        //             if (returnCode == 0) {
-        //                 console.log(`[APP] ${returnMessage}`);
-        //             } else {
-        //                 console.log(`[APP] ${returnMessage}`);
-        //             }
-        //         })
-        //     } else {
-        //         console.log(`[APP] ${returnMessage}`);
-        //     }
-        // })
+        else {
+            console.log(`[APP] ${returnMessage}`);
+        }
     })
 }
 

@@ -417,14 +417,6 @@ def await_package():
                 "message": "Packages found on server awaiting approval",
                 "packages": new_packages,
             }
-
-        # if new_packages.count() > 0:
-        #     print(f'Packages found on server "{server}" awaiting approval')
-        #     return {
-        #         "returnCode": 0,
-        #         "message": "Packages found on server awaiting approval",
-        #         "packages": packages,
-        #     }
         else:
             # If the package does not exist, then we need to create a new package.
             return {
@@ -538,15 +530,177 @@ def await_package():
             print(f"Error sending package to QA: {e}")
             return False
 
-    def send_to_prod():
+    def send_to_prod(server, package_name, version):
         """This function will send the package to production. It will also update the database accordingly."""
         destination = "/home/longsoup/active/"
+        host_name = server + "_prod"
+        print(f'Package "{package_name}" is being sent to production server at {host_name}')
         pass
 
-    def fail_package_in_qa():
-        pass
+    def fail_package_in_qa(db, package_name):
+        """This function will update the database with the results of the QA testing when they fail."""
+        cur = db[current]
+        all_p = db["all_packages"]
+        # we don't update backups since it failed and was never added to backups.
+        # Update current_packages
+        try:
+            cur.update_one(
+                {"name": package_name},
+                {
+                    "$set": {
+                        "qa_status": -1,
+                    }
+                },
+            )
+            print(f'Package "{package_name}" updated qa_status successfully --- marked as failed')
+        except Exception as e:
+            print(f"Error updating package in current_packages: {e}")
+            return False
+        try:
+            # Get the version number
+            v_num = cur.find_one({"name": package_name})["version"]
+            # Update all_packages
+            all_p.update_one(
+                {"name": package_name, "version": v_num},
+                {
+                    "$set": {
+                        "qa_status": -1,
+                    }
+                },
+            )
+            print(f'Updated all_packages with version {v_num} successfully for package "{package_name}"')
+            return True
+        except Exception as e:
+            print(f"Error updating package in all_packages: {e}")
+            return False
 
-    def pass_package_in_qa():
+    def pass_package_in_qa(db, package_name):
+        """This function will update the database with the results of the QA testing when they pass."""
+        cur = db[current]
+        all_p = db["all_packages"]
+        backups = db["backup_packages"]
+        # Update current_packages
+        try:
+            cur.update_one(
+                {"name": package_name},
+                {
+                    "$set": {
+                        "qa_status": 0,
+                    }
+                },
+            )
+            print(f'Package "{package_name}" updated qa_status successfully')
+        except Exception as e:
+            print(f"Error updating package in current_packages: {e}")
+            return False
+        try:
+            # Get the version number
+            v_num = cur.find_one({"name": package_name})["version"]
+            # Update all_packages
+            all_p.update_one(
+                {"name": package_name, "version": v_num},
+                {
+                    "$set": {
+                        "qa_status": 0,
+                    }
+                },
+            )
+            print(f'Updated all_packages with version {v_num} successfully for package "{package_name}"')
+        except Exception as e:
+            print(f"Error updating package in all_packages: {e}")
+            return False
+        # Add to backups
+        try:
+            backups.insert_one(
+                {
+                    "name": package_name,
+                    "version": v_num,
+                    "date": cur.find_one({"name": package_name})["date"],
+                    "description": cur.find_one({"name": package_name})[
+                        "description"
+                    ],
+                    "server": cur.find_one({"name": package_name})["server"],
+                    "stored_path": "/home/longsoup/STORE/" + package_name + "_" + str(v_num) + ".tar.gz",
+                    "qa_status": 0,
+                }
+            )
+            print(f'Package "{package_name}" added to backups successfully')
+            return True
+        except Exception as e:
+            print(f"Error adding package to backups: {e}")
+            return False
+    
+
+    def qa_results(cluster, server, package_name, status):
+        """This function will update the database with the results of the QA testing."""
+        if status == 0:
+            updated = pass_package_in_qa(db, package_name)
+            """
+            # cur = db[current]
+            # all_p = db["all_packages"]
+            # backups = db["backup_packages"]
+            # # Update current_packages
+            # try:
+            #     cur.update_one(
+            #         {"name": package_name},
+            #         {
+            #             "$set": {
+            #                 "qa_status": 0,
+            #             }
+            #         },
+            #     )
+            #     print(f'Package "{package_name}" updated qa_status successfully')
+            # except Exception as e:
+            #     print(f"Error updating package in current_packages: {e}")
+            #     return False
+            # try:
+            #     # Get the version number
+            #     v_num = cur.find_one({"name": package_name})["version"]
+            #     # Update all_packages
+            #     all_p.update_one(
+            #         {"name": package_name, "version": v_num},
+            #         {
+            #             "$set": {
+            #                 "qa_status": 0,
+            #             }
+            #         },
+            #     )
+            #     print(f'Updated all_packages with version {v_num} successfully for package "{package_name}"')
+            # except Exception as e:
+            #     print(f"Error updating package in all_packages: {e}")
+            #     return False
+            # # Add to backups
+            # try:
+            #     backups.insert_one(
+            #         {
+            #             "name": package_name,
+            #             "version": v_num,
+            #             "date": cur.find_one({"name": package_name})["date"],
+            #             "description": cur.find_one({"name": package_name})[
+            #                 "description"
+            #             ],
+            #             "server": cur.find_one({"name": package_name})["server"],
+            #             "stored_path": "/home/longsoup/STORE/" + package_name + "_" + str(v_num) + ".tar.gz",
+            #             "qa_status": 0,
+            #         }
+            #     )
+            #     print(f'Package "{package_name}" added to backups successfully')
+            # except Exception as e:
+            #     print(f"Error adding package to backups: {e}")
+            #     return False
+            """
+            print("Able to now move it to production...")
+            # qa_to_prod(db)
+        elif status == -1:
+            print('Package failed QA. Updating database with status of "failed"')
+            fail_package_in_qa(db, package_name)
+            #After failing, we just don't do anything. We just wait for the next package to come in.
+            return {
+                "returnCode": 0,
+                "message": "Package failed QA. Updating database with status of failed",
+            }
+
+
         pass
 
     def return_error(ch, method, properties, body, msg):
@@ -575,7 +729,7 @@ def await_package():
         else:
             match request["type"]:
                 case "check_qa":
-                    response = check_qa(request["package_name"])
+                    response = check_qa(request["server"])
                 case "stage_1":
                     response = dev_to_deploy(
                         request["cluster"],
@@ -585,9 +739,14 @@ def await_package():
                         request["file_name"],
                         request["description"],
                     )
-                case "stage_2_pass":
-                    pass
-                case "stage_2_fail":
+                case "stage_2":
+                    response = qa_results(
+                        request["cluster"],
+                        request["server"],
+                        request["package"],
+                        request["status"],
+                    )
+                    )
                     pass
                 case _:
                     response = "ERROR: Invalid type specified by message"
