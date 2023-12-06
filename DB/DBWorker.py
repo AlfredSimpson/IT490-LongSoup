@@ -13,12 +13,6 @@ import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import load_dotenv
 
-logging.basicConfig(
-    filename="/home/alfred/Desktop/ohno.log",
-    filemode="a",
-    format="%(asctime)s - %(message)s",
-    level=logging.INFO,
-)
 
 load_dotenv()
 
@@ -767,7 +761,7 @@ creds = pika.PlainCredentials(username=BROKER_USER, password=BROKER_PASS)
 
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
-        host=BROKER_HOST, port=5671, credentials=creds, virtual_host=vHost
+        host=BROKER_HOST, port=5672, credentials=creds, virtual_host=vHost
     )
 )
 
