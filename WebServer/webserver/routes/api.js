@@ -12,7 +12,7 @@ const mustang = require('../mustang.js');
 
 require('dotenv').config();
 
-// AMQP Constants
+// AMQP Constants for spotify queues and stuff
 
 const SPOTHOST = process.env.SPOT_HOST;
 const SPOTPORT = process.env.SPOT_PORT;
@@ -22,7 +22,15 @@ const SPOTVHOST = process.env.SPOT_VHOST;
 const SPOTEXCHANGE = process.env.SPOT_EXCHANGE;
 const SPOTQUEUE = process.env.SPOT_QUEUE;
 
+// AMQP Constants for main broker /DBWorker queues
 
+const DB_HOST = process.env.BROKER_HOST;
+const DB_PORT = process.env.BROKER_PORT;
+const DB_EX = process.env.BROKER_EXCHANGE;
+const DB_Q = process.env.BROKER_QUEUE;
+const DB_USER = process.env.BROKER_USER;
+const DB_PASS = process.env.BROKER_PASSWORD;
+const DB_V = process.env.BROKER_VHOST;
 
 
 router.use(function (req, res, next) {
@@ -140,19 +148,41 @@ router
                 var like_type = req.body.action; // the like_type (like/dislike)
                 var query_type = req.body.query_type; // the query type (track/artist/album)
                 console.log(`[API] \t Received like-dislike request by ${uid} for ${spotted_id} to ${like_type} it for query type ${query_type}`);
-                switch (like_type) {
-                    case 'like':
-                        console.log(`[API] \t Received like-dislike request by ${uid} for ${spotted_id} to like it`);
-                        break;
-                    case 'dislike':
-                        console.log(`[API] \t Received like-dislike request by ${uid} for ${spotted_id} to dislike it`);
-                        break;
-                    default:
-                        timber.logAndSend("[LIKE/DISLIKE] Invalid action received", "_LikeDislike_");
-                        res.status(200).send('Acknowledged');
-                        break;
-                }
+
+                var amqpURL = `ampq://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_V}`;
+                mustang.sendAndConsumeMessage(amqpURL, DB_Q, {
+                    type: "like_event",
+                    uid: uid,
+                    query_type: query_type,
+                    like_type: like_type,
+                    spotted_id: spotted_id
+                }, (msg) => {
+                    const response = JSON.parse(msg.content.toString());
+                    if (response.returnCode == 0) {
+                        console.log(`Successfully liked item!`);
+                        // Send it back to the front client handler.
+                        res.status(200).json(response);
+                    }
+                    else {
+                        res.status(401).send('Something went wrong');
+                    }
+                });
+
+            // switch (like_type) {
+            //     case 'like':
+            //         console.log(`[API] \t Received like-dislike request by ${uid} for ${spotted_id} to like it`);
+
+            //         break;
+            //     case 'dislike':
+            //         console.log(`[API] \t Received like-dislike request by ${uid} for ${spotted_id} to dislike it`);
+            //         break;
+            //     default:
+            //         timber.logAndSend("[LIKE/DISLIKE] Invalid action received", "_LikeDislike_");
+            //         res.status(200).send('Acknowledged');
+            //         break;
+            // }
             default:
+                break;
                 break;
         }
         // res.send(page);

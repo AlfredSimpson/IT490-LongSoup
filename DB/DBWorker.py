@@ -324,7 +324,7 @@ def postMessage(message, genre, uid, timestamp):
         }
 
 
-def handle_like(uid, spotify_id, like_type):
+def handle_like_event(uid, spotify_id, like_type):
     """
     handle_like takes in usercookieid, id, and like_type as arguments and handles the like.
 
@@ -336,6 +336,7 @@ def handle_like(uid, spotify_id, like_type):
     Returns:
         _type_: _description_
     """
+    print(f'\nHandling like for user "{uid}"\n')
 
     # We first want to make sure that the user did not already like or dislike this item
     # We can do this by querying the database for the usercookieid and seeing if the id is in the list of likes or dislikes
@@ -344,11 +345,13 @@ def handle_like(uid, spotify_id, like_type):
 
     if like_type == "like":
         # Add to user taste
-        addLike(uid, spotify_id)
+        # addLike(uid, spotify_id)
+        print("like received")
         pass
     elif like_type == "dislike":
         # Subtract from user taste
-        addDislike(uid, spotify_id)
+        print("dislike received")
+        # addDislike(uid, spotify_id)
         pass
     else:
         return {
@@ -732,8 +735,8 @@ def request_processor(ch, method, properties, body):
             case "getMusic":
                 response = ""
                 pass
-            case "handle_like":
-                response = handle_like(
+            case "like_event":
+                response = handle_like_event(
                     request["uid"],
                     request["spotted_id"],
                     request["like_type"],
