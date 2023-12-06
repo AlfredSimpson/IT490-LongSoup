@@ -28,7 +28,7 @@ const DB_HOST = process.env.BROKER_HOST;
 const DB_PORT = process.env.BROKER_PORT;
 const DB_EX = process.env.BROKER_EXCHANGE;
 const DB_Q = process.env.BROKER_QUEUE;
-const DB_USER = process.env.BROKER_USER;
+const DB_USER = process.env.BROKER_USERNAME;
 const DB_PASS = process.env.BROKER_PASSWORD;
 const DB_V = process.env.BROKER_VHOST;
 
@@ -149,7 +149,8 @@ router
                 var query_type = req.body.query_type; // the query type (track/artist/album)
                 console.log(`[API] \t Received like-dislike request by ${uid} for ${spotted_id} to ${like_type} it for query type ${query_type}`);
 
-                var amqpURL = `ampq://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_V}`;
+                var amqpURL = `amqp://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_V}`;
+
                 mustang.sendAndConsumeMessage(amqpURL, DB_Q, {
                     type: "like_event",
                     uid: uid,
@@ -161,10 +162,10 @@ router
                     if (response.returnCode == 0) {
                         console.log(`Successfully liked item!`);
                         // Send it back to the front client handler.
-                        res.status(200).json(response);
+                        // res.status(200).json(response);
                     }
                     else {
-                        res.status(401).send('Something went wrong');
+                        // res.status(401).send('Something went wrong');
                     }
                 });
 

@@ -341,12 +341,26 @@ def handle_like_event(uid, spotify_id, like_type):
         # Add to user taste
         # addLike(uid, spotify_id)
         print("like received")
-        pass
+        return {
+            "returnCode": 0,
+            "message": "Successfully liked",
+            "data": {
+                "errorStatus": False,
+                "errorOutput": "Successfully liked",
+            },
+        }
     elif like_type == "dislike":
         # Subtract from user taste
         print("dislike received")
         # addDislike(uid, spotify_id)
-        pass
+        return {
+            "returnCode": 0,
+            "message": "Successfully disliked",
+            "data": {
+                "errorStatus": False,
+                "errorOutput": "Successfully disliked",
+            },
+        }
     else:
         return {
             "returnCode": 1,
