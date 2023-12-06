@@ -148,7 +148,7 @@ const createUserCookie = (req, res) => {
  */
 function getCookie(req) {
     let cookie = req.headers.cookie;
-    console.log(`\n\n[getCookie] Cookie: ${cookie}\n\n`);
+    // console.log(`\n\n[getCookie] Cookie: ${cookie}\n\n`);
     return cookie;
 };
 

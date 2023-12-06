@@ -136,15 +136,16 @@ router
             case "like-dislike":
                 var uid = cache.get('uid');
                 console.log(`[API] \t Received like-dislike request by ${uid}`);
-                var rowId = req.body.rowId;
-                var action = req.body.action;
-                console.log(`[API] \t Received like-dislike request by ${uid} for ${rowId} to ${action} it`);
-                switch (action) {
+                var spotted_id = req.body.rowId; // The track/artist/album id (whatever was requested)
+                var like_type = req.body.action; // the like_type (like/dislike)
+                var query_type = req.body.query_type; // the query type (track/artist/album)
+                console.log(`[API] \t Received like-dislike request by ${uid} for ${spotted_id} to ${like_type} it for query type ${query_type}`);
+                switch (like_type) {
                     case 'like':
-                        console.log(`[API] \t Received like-dislike request by ${uid} for ${rowId} to like it`);
+                        console.log(`[API] \t Received like-dislike request by ${uid} for ${spotted_id} to like it`);
                         break;
                     case 'dislike':
-                        console.log(`[API] \t Received like-dislike request by ${uid} for ${rowId} to dislike it`);
+                        console.log(`[API] \t Received like-dislike request by ${uid} for ${spotted_id} to dislike it`);
                         break;
                     default:
                         timber.logAndSend("[LIKE/DISLIKE] Invalid action received", "_LikeDislike_");

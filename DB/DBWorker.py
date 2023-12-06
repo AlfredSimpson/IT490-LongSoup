@@ -1,5 +1,4 @@
 import pika
-import ssl
 import os, sys, json, random
 import datetime
 import bcrypt
@@ -14,6 +13,12 @@ import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import load_dotenv
 
+logging.basicConfig(
+    filename="/home/alfred/Desktop/ohno.log",
+    filemode="a",
+    format="%(asctime)s - %(message)s",
+    level=logging.INFO,
+)
 
 load_dotenv()
 
@@ -729,9 +734,9 @@ def request_processor(ch, method, properties, body):
                 pass
             case "handle_like":
                 response = handle_like(
-                    request["usercookieid"],
-                    request["id"],
-                    request["like-type"],
+                    request["uid"],
+                    request["spotted_id"],
+                    request["like_type"],
                 )
             case _:
                 # Default case - basically, all else failed.
@@ -756,51 +761,12 @@ queue2 = BROKER_QUEUE
 exchange2 = BROKER_EXCHANGE
 
 creds = pika.PlainCredentials(username=BROKER_USER, password=BROKER_PASS)
-ssl_options = {
-    "ca_certs": "/etc/rabbitmq/ssl/ca_certificate.pem",
-    "certfile": "/etc/rabbitmq/ssl/client_LongSoup-DB_certificate.pem",
-    "keyfile": "/etc/rabbitmq/ssl/client_LongSoup-DB_key.pem",
-    "cert_reqs": ssl.CERT_REQUIRED,
-    "ssl_version": ssl.PROTOCOL_TLS_CLIENT,
-}
 
-ssl_context = ssl.create_default_context(cafile=ssl_options["ca_certs"])
-#ssl_context.verify_mode = ssl.CERT_REQUIRED
-ssl_context.load_cert_chain(
-    ssl_options["certfile"], ssl_options["keyfile"], password="puosgnol"
-)
-ssl_options = pika.SSLOptions(ssl_context)
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
-        host=BROKER_HOST, port=5671, credentials=creds, virtual_host=vHost, ssl_options=ssl_options
+        host=BROKER_HOST, port=5671, credentials=creds, virtual_host=vHost
     )
 )
-
-# ssl_options = {
-#     "ca_certs": "/etc/rabbitmq/ssl/ca_certificate.pem",
-#     "certfile": "/etc/rabbitmq/ssl/client_LongSoup-DB_certificate.pem",
-#     "keyfile": "/etc/rabbitmq/ssl/client_LongSoup-DB_key.pem",
-#     "cert_reqs": ssl.CERT_REQUIRED,
-#     # "ssl_version": ssl.PROTOCOL_TLSv1_3,
-#     "ssl_version": ssl.PROTOCOL_SSLv3,
-# }
-
-# ssl_context = ssl.create_default_context(cafile=ssl_options["ca_certs"])
-# ssl_context.verify_mode = ssl.CERT_REQUIRED
-# ssl_context.load_cert_chain(
-#     ssl_options["certfile"], ssl_options["keyfile"], password="puosgnol"
-# )
-# ssl_options = pika.SSLOptions(ssl_context)
-# creds = pika.PlainCredentials(username=BROKER_USER, password=BROKER_PASS)
-# connection = pika.BlockingConnection(
-#     pika.ConnectionParameters(
-#         host=BROKER_HOST,
-#         port=5672,
-#         credentials=creds,
-#         virtual_host=vHost,
-#         ssl_options=ssl_options,
-#     )
-# )
 
 channel = connection.channel()
 channel.queue_declare(queue=queue2, durable=True)
