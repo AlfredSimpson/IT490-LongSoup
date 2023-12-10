@@ -10,7 +10,7 @@ load_dotenv()
 
 
 # Test only
-useremail = "8bitjava5354@gmail.com"
+#useremail = "8bitjava5354@gmail.com"
 
 # 2FA Code
 number = random.randint(1000,9999)

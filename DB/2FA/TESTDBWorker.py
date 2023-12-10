@@ -1,6 +1,6 @@
 import pika
 import os, sys, json, random
-import datetime
+from datetime import datetime, timedelta
 import bcrypt
 
 # Script below imports email + 2FA code
@@ -350,8 +350,20 @@ def do_login(useremail, password, session_id, usercookieid):
         if bcrypt.checkpw(enteredPass, dbpassword.encode('utf-8')):
             # Send mail (Referencing LongAuthMessage script to send 2FA code)
             send_email()
-            userInput = sentNumber # delete this after testing, need to implement user input logic on front
-            if userInput == sentNumber: # add else statement to allow user to try again to type 2FA code
+            userInput = sentNumber
+
+            # Create a document with a field titled "code" and an expiration time
+            expiration_time = datetime.utcnow() + timedelta(minutes=5)
+            addCode = {
+                "$set": {
+                    "code": userInput,
+                    "expiration_time": expiration_time
+                }
+            }  
+            # Insert updated document into the collection
+            collection.update_one(addCode)
+
+            if  userInput == sentNumber: #result from form == sentNumber: # add else statement to allow user to try again to type 2FA code
                 # Update/set the session id & user cookie id
                 # LMDB.set_usercookieid(useremail, usercookieid)
                 first_result = db.users.find_one({"email": useremail})
