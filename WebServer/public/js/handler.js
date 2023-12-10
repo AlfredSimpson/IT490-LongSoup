@@ -17,8 +17,8 @@ document.getElementById("queryButton").addEventListener("click", function (e) {
             // Isolate the query_results from the response
             var return_type = response.data.returnType;
             var query_results = response.data.message.query_results;
-            console.log(query_results);
-            // document.getElementById("query_results").innerHTML = query_results;
+            var return_type = response.data.returnType;
+            // console.log(query_results);
             populateData(return_type, query_results);
         })
         .catch(error => {
@@ -26,14 +26,15 @@ document.getElementById("queryButton").addEventListener("click", function (e) {
         });
 });
 
-function createTableRow(data, rowIndex) {
+function createTableRow(data, rowIndex, type_of) {
+    // console.log(`\n\tType of: ${type_of}    Data: ${data}`);
     const row = document.createElement('tr');
-    // const columns = ['Track Name', 'Artist Name', 'URLs'];
+
     // use the keys of the data object to create the column headers
     const columns = Object.keys(data);
-    // columns.classList.add("bg-secondary");
 
     row.id = `row-${data.id}`; // Optional: Add a unique ID to each row
+
 
     // For each key in data, create a column with the key's value.
     Object.keys(data).forEach(key => {
@@ -72,7 +73,8 @@ function createTableRow(data, rowIndex) {
     likeButton.classList.add("bg-success");
     likeButton.textContent = 'Like';
     likeButton.id = `like-${data.id}`;
-    likeButton.addEventListener('click', () => handleLikeDislike(data.id, 'like'));
+    console.log(`\n type_of is ${type_of} just before handling like/dislike\n`);
+    likeButton.addEventListener('click', () => handleLikeDislike(data.id, 'like', type_of));
 
     const dislikeButton = document.createElement('button');
     dislikeButton.textContent = 'Dislike';
@@ -82,7 +84,7 @@ function createTableRow(data, rowIndex) {
     dislikeButton.classList.add("rounded");
     dislikeButton.classList.add("bg-warning");
     dislikeButton.id = `dislike-${data.id}`;
-    dislikeButton.addEventListener('click', () => handleLikeDislike(data.id, 'dislike'));
+    dislikeButton.addEventListener('click', () => handleLikeDislike(data.id, 'dislike', type_of));
 
     // Create the fourth column with buttons
     const buttonsColumn = document.createElement('td');
@@ -94,7 +96,8 @@ function createTableRow(data, rowIndex) {
 }
 
 function populateData(return_type, query_results) {
-    console.log('Attempting to populate the data');
+    console.log(`\nAttempting to populate the data for ${return_type}`);
+    const QTYPE = return_type;
     query_results_container = document.getElementById("query_results_container");
 
     // get the table container by class name
@@ -139,13 +142,13 @@ function populateData(return_type, query_results) {
             break;
         default:
             break;
-
     }
+    // console.log(`\nPost switch statement, the QTYPE is ${QTYPE}`);
     table.appendChild(headerRow);
-
+    // console.log(`\nAttempting to populate the data for ${QTYPE} after he header row\n`);
     query_results.forEach((item) => {
-        // console.log(`item: ${item} name as ${item.name} artist as ${item.artist} and url as ${item.url}`);
-        const row = createTableRow(item);
+        // console.log(`\nQTYPE IS ${QTYPE} within the forEach loop`)
+        const row = createTableRow(data = item, rowIndex = 0, type_of = return_type);
         table.appendChild(row);
     });
     if (query_results_container.firstChild) {
@@ -159,10 +162,12 @@ function populateData(return_type, query_results) {
  * Function to handle like/dislike button clicks
  * TODO: update the server side to handle the logic.
  */
-function handleLikeDislike(rowId, action) {
+function handleLikeDislike(rowId, action, query_type) {
     // Send the rowId and action to the server for processing
-    console.log(`[Handler] \t Sending ${action} for row ${rowId}`);
-    axios.post('/api/like-dislike', { rowId, action }) // Replace with your API endpoint
+    // We also need to get the type of query that was performed
+
+    console.log(`[Handler] \t Sending ${action} for row ${rowId} for query type ${query_type}`);
+    axios.post('/api/like-dislike', { rowId, action, query_type })
         .then(response => {
             // Handle the response from the server (e.g., update UI)
             console.log(response.data);

@@ -14,6 +14,43 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import load_dotenv
 
 
+LIKED_ARTISTS = {
+    "uid": "",
+    "artists": [
+        {
+            "artist_id": "",
+        }
+    ],
+}
+
+LIKED_TRACKS = {
+    "uid": "",
+    "tracks": [
+        {
+            "track_id": "",
+        }
+    ],
+}
+
+LIKED_ALBUMS = {
+    "uid": "",
+    "albums": [
+        {
+            "album_id": "",
+        }
+    ],
+}
+
+LIKED_GENRES = {
+    "uid": "",
+    "genres": [
+        {
+            "genre_name": "",
+        }
+    ],
+}
+
+
 load_dotenv()
 
 
@@ -30,7 +67,7 @@ BROKER_EXCHANGE = os.getenv("BROKER_EXCHANGE")
 BROKER_USER = os.getenv("BROKER_USERNAME")
 BROKER_PASS = os.getenv("BROKER_PASSWORD")
 
-# TODO change the db to the maindb, add the user and pass to the connection
+
 myclient = pymongo.MongoClient(
     "mongodb://%s:%s@localhost:27017/cgs" % (maindbuser, maindbpass)
 )
@@ -41,7 +78,6 @@ db = myclient[maindb]
 #############
 
 
-# TODO: Move spotify related things to spotify class - and this should only be called IF the user is logged in. It should also store the data in the database.
 def get_recs(
     genre="punk", valence="0.2", energy="0.7", popularity="25", fromlogin=False
 ):
@@ -246,6 +282,182 @@ def storeToken(access_token, refresh_token, expires_in, token_type, usercookieid
 
 
 #############
+# Methods related to messages & taste
+#############
+
+
+def loadMessages(genre):
+    """
+    loadMessages takes in genre as an argument and returns a list of messages.
+
+    Args:
+        genre (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    pass
+
+
+def postMessage(message, genre, uid, timestamp):
+    """
+    postMessage takes in message, genre, and uid as arguments and posts the message to the database.
+
+    Args:
+        message (_type_): _description_
+        genre (_type_): _description_
+        uid (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # !Get the user's spotify username
+    # TODO! Get the user's spotify username
+
+    try:
+        doc = db.messages.find_one({"genre": genre})
+
+        if doc:
+            db.messages.update_one(
+                {"genre": genre},
+                {
+                    "$push": {
+                        "messages": {
+                            "message": message,
+                            "uid": uid,
+                            "timestamp": timestamp,
+                        }
+                    }
+                },
+            )
+            # We should also update taste...
+            return {
+                "returnCode": 0,
+                "message": "Successfully posted message",
+                "data": {"errorStatus": False, "message": message, "uid": uid},
+            }
+        else:
+            db.messages.insert_one(
+                {"genre": genre, "messages": [{"message": message, "uid": uid}]}
+            )
+            return {
+                "returnCode": 0,
+                "message": "Successfully posted message",
+                "data": {"errorStatus": False, "message": message, "uid": uid},
+            }
+
+    except Exception as e:
+        print(f"\nError finding genre: {e}\n")
+        return {
+            "returnCode": 1,
+            "message": "Error finding genre",
+            "data": {"errorStatus": True, "errorOutput": "Error finding genre"},
+        }
+
+
+def removeLike(uid, spotify_id, like_type):
+    # This should remove a like from a user's taste
+    pass
+
+
+def removeDislike(uid, spotify_id, like_type):
+    # This should remove a dislike from a user's taste
+    pass
+
+
+def handle_like_event(uid, query_type, spotify_id, like_type):
+    """
+    handle_like takes in usercookieid, id, and like_type as arguments and handles the like.
+    Args:
+        uid (string): the userid
+        query_type (string): what type of query (artist/track/album)
+        id (string): The id of that query type - i.e., they looked up a track, this is the track id.
+        like_type (string): Like/Dislike
+    Returns:
+        Dict: Nothing useful
+    """
+    print(f'\nHandling like for user "{uid}"\n')
+    print(
+        f"query_type is {query_type}, spotify_id is {spotify_id}, liketype is {like_type}"
+    )
+
+    if like_type == "like":
+        # Add to user taste
+        print("like received")
+        addLike(uid, query_type, spotify_id, like_type)
+        # NOTE _ we'll want to change add like to return a T/F value so we can act accordingly. Leaving this now so it doesn't crash in testing
+        return {
+            "returnCode": 0,
+            "message": "Successfully liked",
+            "data": {
+                "errorStatus": False,
+                "errorOutput": "Successfully liked",
+            },
+        }
+    elif like_type == "dislike":
+        print("dislike received")
+        addDislike(uid, query_type, spotify_id, like_type)
+        return {
+            "returnCode": 0,
+            "message": "Successfully disliked",
+            "data": {
+                "errorStatus": False,
+                "errorOutput": "Successfully disliked",
+            },
+        }
+    else:
+        return {
+            "returnCode": 1,
+            "message": "Error handling like",
+            "data": {
+                "errorStatus": True,
+                "errorOutput": "Error handling like - like_type not specified",
+            },
+        }
+
+
+def addLike(uid, query_type, spotted_id, like_type):
+    liked_col = db["liked_" + query_type]
+    disliked_col = db["disliked_" + query_type]
+    # Check if already liked
+    if liked_col.find_one({"uid": uid, "like.id": spotted_id}):
+        print("Item already liked")
+        return False
+    # Check if disliked and remove if necessary
+
+    if disliked_col.find_one({"uid": uid, "dislike.id": spotted_id}):
+        print("Removing previously disliked item")
+        disliked_col.update_one(
+            {"uid": uid}, {"$pull": {"dislike": {"id": spotted_id}}}
+        )
+    # Add the like
+    liked_col.update_one(
+        {"uid": uid}, {"$addToSet": {"like": {"id": spotted_id}}}, upsert=True
+    )
+    print("\nItem liked successfully!")
+    return True
+
+
+def addDislike(uid, query_type, spotted_id, like_type):
+    liked_col = db["liked_" + query_type]
+    disliked_col = db["disliked_" + query_type]
+    # Check if already disliked
+    if disliked_col.find_one({"uid": uid, "dislike.id": spotted_id}):
+        print("Item already disliked")
+        return False
+    # Check if liked and remove if necessary
+    if liked_col.find_one({"uid": uid, "like.id": spotted_id}):
+        print("Removing previously liked item")
+        liked_col.update_one({"uid": uid}, {"$pull": {"like": {"id": spotted_id}}})
+    # Add the dislike
+    disliked_col.update_one(
+        {"uid": uid}, {"$addToSet": {"dislike": {"id": spotted_id}}}, upsert=True
+    )
+    print("Item disliked successfully!")
+    return True
+
+
+#############
 # Methods related to user management
 #############
 
@@ -320,6 +532,7 @@ def do_logout(usercookieid, session_id):
     # print(f"User {usercookieid} logged out")
     return {"\nreturnCode": 0, "message": "Logout successful\n"}
 
+
 def do_login(useremail, password, session_id, usercookieid):
     """
     # do_login
@@ -342,10 +555,10 @@ def do_login(useremail, password, session_id, usercookieid):
     user = collection.find_one({"email": useremail})
     if user:
         dbpassword = user["password"]
-        enteredPass = password.encode('utf-8')
-        #dbsalt = user["salt"].encode('utf-8')
+        enteredPass = password.encode("utf-8")
+        # dbsalt = user["salt"].encode('utf-8')
 
-        if bcrypt.checkpw(enteredPass, dbpassword.encode('utf-8')):
+        if bcrypt.checkpw(enteredPass, dbpassword.encode("utf-8")):
             # Update/set the session id & user cookie id
             # LMDB.set_usercookieid(useremail, usercookieid)
             first_result = db.users.find_one({"email": useremail})
@@ -397,6 +610,7 @@ def do_login(useremail, password, session_id, usercookieid):
             },
         }
 
+
 def do_register(
     useremail, password, session_id, usercookieid, first_name, last_name, spot_name
 ):
@@ -428,7 +642,7 @@ def do_register(
         )
         try:
             salt = bcrypt.gensalt()
-            encodedpassword = password.encode('utf-8')
+            encodedpassword = password.encode("utf-8")
             hashed_password = bcrypt.hashpw(encodedpassword, salt)
             print(hashed_password)
             print(f'\nAttempting to add user "{useremail}" to users\n')
@@ -437,8 +651,8 @@ def do_register(
                 {
                     "uid": uid,
                     "email": useremail,
-                    "password": hashed_password.decode('utf-8'),
-                    "salt": salt.decode('utf-8'),
+                    "password": hashed_password.decode("utf-8"),
+                    "salt": salt.decode("utf-8"),
                     "sessionid": session_id,
                     "cookieid": usercookieid,
                 }
@@ -483,8 +697,6 @@ def do_register(
                     "errorOutput": "Registration unsuccessful - Please try again with a different email.",
                 },
             }
-
-
 
 
 #############
@@ -606,12 +818,13 @@ def request_processor(ch, method, properties, body):
             case "getMusic":
                 response = ""
                 pass
-            case "likeTrack":
-                response = ""
-                pass
-            case "dislikeTrack":
-                response = ""
-                pass
+            case "like_event":
+                response = handle_like_event(
+                    request["uid"],
+                    request["query_type"],
+                    request["spotted_id"],
+                    request["like_type"],
+                )
             case _:
                 # Default case - basically, all else failed.
                 response = {
@@ -635,11 +848,13 @@ queue2 = BROKER_QUEUE
 exchange2 = BROKER_EXCHANGE
 
 creds = pika.PlainCredentials(username=BROKER_USER, password=BROKER_PASS)
+
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
         host=BROKER_HOST, port=5672, credentials=creds, virtual_host=vHost
     )
 )
+
 channel = connection.channel()
 channel.queue_declare(queue=queue2, durable=True)
 channel.queue_bind(exchange=exchange2, queue=queue2)
