@@ -1,0 +1,36 @@
+{
+    "uid": "",
+    "likes": [
+        {
+            "artists": [
+                {}
+            ],
+            "tracks": [
+                {}
+            ],
+            "albums": [
+                {}
+            ],
+            "genres": [
+                {}
+            ]
+        }
+    ],
+    "genres": [
+        {
+            "artists": [
+                {}
+            ],
+            "tracks": [
+                {}
+            ],
+            "albums": [
+                {}
+            ],
+            "genres": [
+                {}
+            ]
+        }
+    ],
+    "weights": {}
+}
