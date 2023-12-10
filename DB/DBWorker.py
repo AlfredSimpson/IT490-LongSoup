@@ -14,6 +14,43 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import load_dotenv
 
 
+LIKED_ARTISTS = {
+    "uid": "",
+    "artists": [
+        {
+            "artist_id": "",
+        }
+    ],
+}
+
+LIKED_TRACKS = {
+    "uid": "",
+    "tracks": [
+        {
+            "track_id": "",
+        }
+    ],
+}
+
+LIKED_ALBUMS = {
+    "uid": "",
+    "albums": [
+        {
+            "album_id": "",
+        }
+    ],
+}
+
+LIKED_GENRES = {
+    "uid": "",
+    "genres": [
+        {
+            "genre_name": "",
+        }
+    ],
+}
+
+
 load_dotenv()
 
 
@@ -318,29 +355,37 @@ def postMessage(message, genre, uid, timestamp):
         }
 
 
-def handle_like_event(uid, spotify_id, like_type):
+def removeLike(uid, spotify_id, like_type):
+    # This should remove a like from a user's taste
+    pass
+
+
+def removeDislike(uid, spotify_id, like_type):
+    # This should remove a dislike from a user's taste
+    pass
+
+
+def handle_like_event(uid, query_type, spotify_id, like_type):
     """
     handle_like takes in usercookieid, id, and like_type as arguments and handles the like.
-
     Args:
-        usercookieid (string): _description_
-        id (_type_): _description_
-        like_type (_type_): _description_
-
+        uid (string): the userid
+        query_type (string): what type of query (artist/track/album)
+        id (string): The id of that query type - i.e., they looked up a track, this is the track id.
+        like_type (string): Like/Dislike
     Returns:
-        _type_: _description_
+        Dict: Nothing useful
     """
     print(f'\nHandling like for user "{uid}"\n')
-
-    # We first want to make sure that the user did not already like or dislike this item
-    # We can do this by querying the database for the usercookieid and seeing if the id is in the list of likes or dislikes
-    # If it is, we want to return an error
-    # If it is not, we want to add it to the list of likes or dislikes
+    print(
+        f"query_type is {query_type}, spotify_id is {spotify_id}, liketype is {like_type}"
+    )
 
     if like_type == "like":
         # Add to user taste
-        # addLike(uid, spotify_id)
         print("like received")
+        addLike(uid, query_type, spotify_id, like_type)
+        # NOTE _ we'll want to change add like to return a T/F value so we can act accordingly. Leaving this now so it doesn't crash in testing
         return {
             "returnCode": 0,
             "message": "Successfully liked",
@@ -350,9 +395,8 @@ def handle_like_event(uid, spotify_id, like_type):
             },
         }
     elif like_type == "dislike":
-        # Subtract from user taste
         print("dislike received")
-        # addDislike(uid, spotify_id)
+        addDislike(uid, query_type, spotify_id, like_type)
         return {
             "returnCode": 0,
             "message": "Successfully disliked",
@@ -372,14 +416,45 @@ def handle_like_event(uid, spotify_id, like_type):
         }
 
 
-def addLike(uid, spotify_id):
-    # This should add to a user's taste in something
-    pass
+def addLike(uid, query_type, spotted_id, like_type):
+    liked_col = db["liked_" + query_type]
+    disliked_col = db["disliked_" + query_type]
+    # Check if already liked
+    if liked_col.find_one({"uid": uid, "like.id": spotted_id}):
+        print("Item already liked")
+        return False
+    # Check if disliked and remove if necessary
+
+    if disliked_col.find_one({"uid": uid, "dislike.id": spotted_id}):
+        print("Removing previously disliked item")
+        disliked_col.update_one(
+            {"uid": uid}, {"$pull": {"dislike": {"id": spotted_id}}}
+        )
+    # Add the like
+    liked_col.update_one(
+        {"uid": uid}, {"$addToSet": {"like": {"id": spotted_id}}}, upsert=True
+    )
+    print("\nItem liked successfully!")
+    return True
 
 
-def addDislike(uid, spotify_id):
-    # This should subtract from a user's taste in something
-    pass
+def addDislike(uid, query_type, spotted_id, like_type):
+    liked_col = db["liked_" + query_type]
+    disliked_col = db["disliked_" + query_type]
+    # Check if already disliked
+    if disliked_col.find_one({"uid": uid, "dislike.id": spotted_id}):
+        print("Item already disliked")
+        return False
+    # Check if liked and remove if necessary
+    if liked_col.find_one({"uid": uid, "like.id": spotted_id}):
+        print("Removing previously liked item")
+        liked_col.update_one({"uid": uid}, {"$pull": {"like": {"id": spotted_id}}})
+    # Add the dislike
+    disliked_col.update_one(
+        {"uid": uid}, {"$addToSet": {"dislike": {"id": spotted_id}}}, upsert=True
+    )
+    print("Item disliked successfully!")
+    return True
 
 
 #############
@@ -746,6 +821,7 @@ def request_processor(ch, method, properties, body):
             case "like_event":
                 response = handle_like_event(
                     request["uid"],
+                    request["query_type"],
                     request["spotted_id"],
                     request["like_type"],
                 )

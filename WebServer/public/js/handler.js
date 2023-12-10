@@ -84,7 +84,7 @@ function createTableRow(data, rowIndex, type_of) {
     dislikeButton.classList.add("rounded");
     dislikeButton.classList.add("bg-warning");
     dislikeButton.id = `dislike-${data.id}`;
-    dislikeButton.addEventListener('click', () => handleLikeDislike(data.id, 'dislike', query_type));
+    dislikeButton.addEventListener('click', () => handleLikeDislike(data.id, 'dislike', type_of));
 
     // Create the fourth column with buttons
     const buttonsColumn = document.createElement('td');

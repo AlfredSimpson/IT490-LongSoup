@@ -160,30 +160,14 @@ router
                 }, (msg) => {
                     const response = JSON.parse(msg.content.toString());
                     if (response.returnCode == 0) {
-                        console.log(`Successfully liked item!`);
-                        // Send it back to the front client handler.
-                        // res.status(200).json(response);
+                        console.log(`Successfully liked or disliked item!`);
+
                     }
                     else {
                         // res.status(401).send('Something went wrong');
                     }
                 });
-
-            // switch (like_type) {
-            //     case 'like':
-            //         console.log(`[API] \t Received like-dislike request by ${uid} for ${spotted_id} to like it`);
-
-            //         break;
-            //     case 'dislike':
-            //         console.log(`[API] \t Received like-dislike request by ${uid} for ${spotted_id} to dislike it`);
-            //         break;
-            //     default:
-            //         timber.logAndSend("[LIKE/DISLIKE] Invalid action received", "_LikeDislike_");
-            //         res.status(200).send('Acknowledged');
-            //         break;
-            // }
             default:
-                break;
                 break;
         }
         // res.send(page);

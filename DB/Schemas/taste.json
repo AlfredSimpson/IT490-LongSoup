@@ -59,50 +59,24 @@
     },
     "liked": {
         "artists": [
-            {
-                "artist_name": "",
-                "id": "",
-                "weight": 0
-            }
+            {}
         ],
         "genres": [
-            {
-                "genre_name": "",
-                "id": "",
-                "weight": 0
-            }
+            {}
         ],
         "tracks": [
-            {
-                "track_name": "",
-                "id": "",
-                "artist_name": "",
-                "weight": 0
-            }
+            {}
         ]
     },
     "disliked": {
         "artists": [
-            {
-                "artist_name": "",
-                "id": "",
-                "weight": 0
-            }
+            {}
         ],
         "genres": [
-            {
-                "genre_name": "",
-                "id": "",
-                "weight": 0
-            }
+            {}
         ],
         "tracks": [
-            {
-                "track_name": "",
-                "id": "",
-                "artist_name": "",
-                "weight": 0
-            }
+            {}
         ]
     }
 }
