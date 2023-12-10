@@ -12,10 +12,18 @@ load_dotenv()
 DMZ_HOST = os.getenv("DMZ_HOST")
 DMZ_VHOST = os.getenv("DMZ_VHOST")
 DMZ_QUEUE = os.getenv("DMZ_QUEUE")
-DMZ_EXCHANGE = os.getenv("dmzExchange")
+DMZ_EXCHANGE = os.getenv("DMZ_EXCHANGE")
 DMZ_USER = os.getenv("DMZ_USER")
 DMZ_PASS = os.getenv("DMZ_PASS")
 DMZ_PORT = os.getenv("DMZ_PORT")
+
+print(f"DMZ_HOST: {DMZ_HOST}")
+print(f"DMZ_VHOST: {DMZ_VHOST}")
+print(f"DMZ_QUEUE: {DMZ_QUEUE}")
+print(f"DMZ_EXCHANGE: {DMZ_EXCHANGE}")
+print(f"DMZ_USER: {DMZ_USER}")
+print(f"DMZ_PASS: {DMZ_PASS}")
+print(f"DMZ_PORT: {DMZ_PORT}")
 
 # Connect to MongoDB
 maindb = os.getenv("MONGO_DB")
@@ -35,7 +43,9 @@ connection = pika.BlockingConnection(
 channel = connection.channel()
 
 # Declare the queue
-channel.queue_declare(queue=DMZ_QUEUE)
+channel.queue_declare(queue=DMZ_QUEUE, durable=True)
+# Binding to exchange
+channel.queue_bind(exchange=DMZ_EXCHANGE, queue=DMZ_QUEUE)
 
 def callback(ch, method, properties, body):
     # Parse the JSON data
