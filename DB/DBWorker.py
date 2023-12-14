@@ -1,6 +1,6 @@
 import pika
 import os, sys, json, random
-import datetime
+from datetime import datetime, timedelta
 import bcrypt
 
 # import LongMongoDB
@@ -12,6 +12,8 @@ import spotipy
 import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import load_dotenv
+
+from LongAuthMessage import send_email
 
 
 load_dotenv()
@@ -325,6 +327,40 @@ def auth_login(uid):
     print(f'\nAttempting to auth user "{uid}"\n')
     collection = db.users
     user = collection.find_one({"uid": uid})
+    if user:
+        # Query the db to find the code and expiration_time for the user
+        code = user["code"]
+        expiration_time = user["expiration_time"]
+        print(
+            f"Code showing as {code} and expiration_time showing as {expiration_time}"
+        )
+        # Check if the code is expired
+        if datetime.utcnow() > expiration_time:
+            print("\n[LOGIN ERROR] Code expired\n")
+            return {
+                "returnCode": 1,
+                "message": "Code expired",
+                "sessionValid": False,
+                "data": {
+                    "loggedin": False,
+                    "errorStatus": False,
+                    "errorOutput": "Your code has expired. Please request a new one.",
+                },
+            }
+        else:
+            # Code is not expired, check if it matches
+            #! TODO: Check if it matches lol, then generate the music and related info
+            print("\n[LOGIN SUCCESS] Code matches\n")
+            return {
+                "returnCode": 0,
+                "message": "Code matches",
+                "sessionValid": True,
+                "data": {
+                    "loggedin": True,
+                    "errorStatus": False,
+                    "errorOutput": "Code matches",
+                },
+            }
 
     pass
 
@@ -350,9 +386,13 @@ def start_login(useremail, password, session_id, usercookieid):
             user_uid = uid
             user_fname = db.userinfo.find_one({"uid": uid})["first_name"]
             user_spot_name = db.userinfo.find_one({"uid": uid})["spot_name"]
+            auth_num = send_email(useremail)
+            expiration_time = datetime.utcnow() + timedelta(minutes=5)
+            addCode = {"$set": {"code": auth_num, "expiration_time": expiration_time}}
+            db.users.update_one({"uid": uid}, addCode)
             return {
                 "returnCode": 0,
-                "message": "Login successful",
+                "message": "Login successful - Authentication Needed",
                 "sessionValid": "True",
                 "authenticated": 0,
                 "userinfo": {
