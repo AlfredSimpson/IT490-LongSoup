@@ -1,6 +1,8 @@
 import pika
 import os, sys, json, random
 from datetime import datetime, timedelta
+
+# import datetime
 import bcrypt
 
 # import LongMongoDB
@@ -228,7 +230,7 @@ def storeToken(access_token, refresh_token, expires_in, token_type, usercookieid
     Returns:
         _type_: _description_
     """
-    thedate = datetime.datetime.now()
+    thedate = datetime.now()
     print(f'\nAttempting to add token "{access_token}" to users\n')
     print(f"\nAdding on {thedate}\n")
     db.users.update_one(
@@ -335,7 +337,8 @@ def auth_login(uid, auth_code):
         print(
             f"Code showing as {code} and expiration_time showing as {expiration_time}"
         )
-        # Check if the code is expired
+        auth_code = int(auth_code)
+        # Check if the code is valid or expired
         if auth_code == code:
             print("Auth code match confirmation")
             if datetime.utcnow() < expiration_time:
@@ -343,7 +346,7 @@ def auth_login(uid, auth_code):
                 user_fname = db.userinfo.find_one({"uid": uid})["first_name"]
                 user_spot_name = db.userinfo.find_one({"uid": uid})["spot_name"]
                 genre = random.choice(
-                    ["punk", "rock", "pop", "country", "rap", "hip-hop"]
+                    ["punk", "rock", "pop", "grunge", "country", "rap", "hip-hop"]
                 )
                 valence = random.uniform(0, 1)
                 energy = random.uniform(0, 1)

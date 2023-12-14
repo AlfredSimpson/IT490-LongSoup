@@ -16,3 +16,6 @@
 {"type":"log","source":"Webserver","date":"2023-12-14T17:14:57.186EST","log_message":"User logged in successfully.\n"}
 {"type":"log","source":"Webserver","date":"2023-12-14T17:17:12.493EST","log_message":"User logged in successfully.\n"}
 {"type":"log","source":"Webserver","date":"2023-12-14T17:20:18.048EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-12-14T17:34:26.998EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-12-14T17:39:41.954EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-12-14T17:39:53.359EST","log_message":"User authenticated successfully.\n"}
