@@ -513,6 +513,24 @@ app.post('/authenticate', (req, res) => {
     const uid = cache.get('uid');
     console.log(`\n\n[authenticate] We're in authenticate\n\n`);
     console.log(`\n\n[authenticate] uid: ${uid}\n\n`);
+    const authcode = req.body.authcode;
+    console.log(`\n\n[authenticate] authcode: ${authcode}\n\n`);
+    const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(broker_vHost)}`;
+
+    mustang.sendAndConsumeMessage(amqpUrl, broker_Queue, {
+        type: "authenticate",
+        "uid": uid,
+        "authcode": authcode
+    }, (msg) => {
+        const response = JSON.parse(msg.content.toString());
+        if (response.returnCode === 0) {
+            console.log(`\n\n[authenticate] Success!\n\n`);
+
+        }
+        else {
+            console.log(`\n\n[authenticate] Failure!\n\n`);
+        }
+    });
 });
 
 // app.post('/login', (req, res) => {

@@ -323,7 +323,7 @@ def do_logout(usercookieid, session_id):
     return {"\nreturnCode": 0, "message": "Logout successful\n"}
 
 
-def auth_login(uid):
+def auth_login(uid, auth_code):
     print(f'\nAttempting to auth user "{uid}"\n')
     collection = db.users
     user = collection.find_one({"uid": uid})
@@ -649,7 +649,10 @@ def request_processor(ch, method, properties, body):
                     request["usercookieid"],
                 )
             case "auth_login":
-                response = auth_login(request["uid"])
+                response = auth_login(
+                    request["uid"],
+                    request["auth_code"],
+                )
             # case "login":
             #     response = do_login(
             #         request["useremail"],
