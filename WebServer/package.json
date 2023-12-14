@@ -8,7 +8,7 @@
     "start": "node webserver/server.js",
     "dev": "nodemon webserver/server.js",
     "experiment": "nodemon webserver/servertesting.js",
-    "opt_testing": "nodemon webserver/serveroptimized.js"
+    "opt_testing": "nodemon webserver/server.js"
   },
   "author": "",
   "license": "ISC",

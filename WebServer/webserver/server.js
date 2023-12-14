@@ -431,6 +431,7 @@ app.post('/account', (req, res) => {
  * =====================================================
  * This is the login process after a user has clicked login.
  */
+
 app.post('/login', (req, res) => {
     const useremail = req.body.useremail;
     const password = req.body.password;
@@ -459,34 +460,39 @@ app.post('/login', (req, res) => {
             // TODO: This may need an alternative function that renders the page, and awaits. I'm not 100% certain just yet.
             timber.logAndSend('User logged in successfully.');
             data = response.data;
-            musicdata = response.music;
             userinfo = response.userinfo;
-            let tracks = [];
-            let artists = [];
-            let links = [];
-            for (var i = 0; i < musicdata.length; i++) {
-                tracks.push(musicdata[i].track);
-                artists.push(musicdata[i].artist);
-                links.push(musicdata[i].url);
-            }
-            console.log('\n[Login] Setting session data\n');
-            cache.put('uid', userinfo.uid, 3600000);
-            console.log(`uid is ${userinfo.uid}`);
-            cache.put('name', userinfo.name, 3600000);
-            let loggedIn = true;
-            let uid = cache.get('uid');
-            cache.put('loggedIn', loggedIn, 3600000);
-            cache.put('tracks', tracks, 3600000);
-            cache.put('artists', artists, 3600000);
-            cache.put('links', links, 3600000);
-            cache.put('data', data, 3600000);
-            let oAuthed = cache.get('oAuthed');
-            console.log(`We are passing oAuthed: ${oAuthed}, uid: ${uid}, loggedIn: ${loggedIn}, data: ${data}, tracks: ${tracks}, artists: ${artists}, links: ${links}`)
-            // we may want to add other session information to keep, like username, spotify name, etc.
-            // passing back the uid may be good for messaging and other things.
-            res.status(200).render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid });
-            //res.redirect('/account');
-        } else {
+            let authed = response.authenticated;
+            res.status(200).render('authenticate', { data: data, authed: authed, userinfo: userinfo })
+
+
+
+            // musicdata = response.music;
+            // userinfo = response.userinfo;
+            // let tracks = [];
+            // let artists = [];
+            // let links = [];
+            // for (var i = 0; i < musicdata.length; i++) {
+            //     tracks.push(musicdata[i].track);
+            //     artists.push(musicdata[i].artist);
+            //     links.push(musicdata[i].url);
+            // }
+            // console.log('\n[Login] Setting session data\n');
+            // cache.put('uid', userinfo.uid, 3600000);
+            // console.log(`uid is ${userinfo.uid}`);
+            // cache.put('name', userinfo.name, 3600000);
+            // let loggedIn = true;
+            // let uid = cache.get('uid');
+            // cache.put('loggedIn', loggedIn, 3600000);
+            // cache.put('tracks', tracks, 3600000);
+            // cache.put('artists', artists, 3600000);
+            // cache.put('links', links, 3600000);
+            // cache.put('data', data, 3600000);
+            // let oAuthed = cache.get('oAuthed');
+            // // console.log(`We are passing oAuthed: ${oAuthed}, uid: ${uid}, loggedIn: ${loggedIn}, data: ${data}, tracks: ${tracks}, artists: ${artists}, links: ${links}`)
+            // res.status(200).render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid });
+            // //res.redirect('/account');
+        }
+        else {
             let errorMSG = 'You have failed to login.';
             const filePath = path.join(__dirname, 'public', 'login' + '.html');
             // let outcome = response.data['loggedin'];
@@ -500,6 +506,75 @@ app.post('/login', (req, res) => {
         }
     });
 });
+// app.post('/login', (req, res) => {
+//     const useremail = req.body.useremail;
+//     const password = req.body.password;
+//     // Check to see if a session cookie exists, if not call the create sessionCookie function
+//     let session_id = createSessionCookie(req, res);
+
+//     let usercookieid = createUserCookie(req, res);
+
+//     // console.log(`session cookie Created?: ${req.session.sessionId['sessionId']}`);
+//     console.log(`user cookie Created?: ${usercookieid}`);
+//     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(broker_vHost)}`;
+//     console.log(amqpUrl);
+
+//     getCookie(req);
+
+//     mustang.sendAndConsumeMessage(amqpUrl, broker_Queue, {
+//         type: "login",
+//         "useremail": useremail,
+//         "password": password,
+//         "session_id": session_id,
+//         "usercookieid": usercookieid
+//     }, (msg) => {
+//         const response = JSON.parse(msg.content.toString());
+//         if (response.returnCode === 0) {
+//             // TODO: we need to now render the authenticate page instead, still passing over the data, we receive from the database
+//             // TODO: This may need an alternative function that renders the page, and awaits. I'm not 100% certain just yet.
+//             timber.logAndSend('User logged in successfully.');
+//             data = response.data;
+//             musicdata = response.music;
+//             userinfo = response.userinfo;
+//             let tracks = [];
+//             let artists = [];
+//             let links = [];
+//             for (var i = 0; i < musicdata.length; i++) {
+//                 tracks.push(musicdata[i].track);
+//                 artists.push(musicdata[i].artist);
+//                 links.push(musicdata[i].url);
+//             }
+//             console.log('\n[Login] Setting session data\n');
+//             cache.put('uid', userinfo.uid, 3600000);
+//             console.log(`uid is ${userinfo.uid}`);
+//             cache.put('name', userinfo.name, 3600000);
+//             let loggedIn = true;
+//             let uid = cache.get('uid');
+//             cache.put('loggedIn', loggedIn, 3600000);
+//             cache.put('tracks', tracks, 3600000);
+//             cache.put('artists', artists, 3600000);
+//             cache.put('links', links, 3600000);
+//             cache.put('data', data, 3600000);
+//             let oAuthed = cache.get('oAuthed');
+//             console.log(`We are passing oAuthed: ${oAuthed}, uid: ${uid}, loggedIn: ${loggedIn}, data: ${data}, tracks: ${tracks}, artists: ${artists}, links: ${links}`)
+//             // we may want to add other session information to keep, like username, spotify name, etc.
+//             // passing back the uid may be good for messaging and other things.
+//             res.status(200).render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid });
+//             //res.redirect('/account');
+//         } else {
+//             let errorMSG = 'You have failed to login.';
+//             const filePath = path.join(__dirname, 'public', 'login' + '.html');
+//             // let outcome = response.data['loggedin'];
+//             console.log("Sending response data");
+//             // console.log(response.data['loggedin']);
+//             data = response.data;
+//             data.errorStatus = true;
+//             console.log("showing data");
+//             console.log(data);
+//             res.status(401).render('login', { data });
+//         }
+//     });
+// });
 
 app.post('/register', (req, res) => {
     const useremail = req.body.useremail;

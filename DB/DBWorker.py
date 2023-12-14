@@ -320,6 +320,64 @@ def do_logout(usercookieid, session_id):
     # print(f"User {usercookieid} logged out")
     return {"\nreturnCode": 0, "message": "Logout successful\n"}
 
+
+def auth_login(usercookieid):
+    collection = db.users
+    user = collection.find_one({"uid": usercookieid})
+
+    pass
+
+
+def start_login(useremail, password, session_id, usercookieid):
+    collection = db.users
+    user = collection.find_one({"email": useremail})
+    if user:
+        dbpassword = user["password"]
+        enteredPass = password.encode("utf-8")
+
+        if bcrypt.checkpw(enteredPass, dbpassword.encode("utf-8")):
+            # Update/set the session id & user cookie id
+            first_result = db.users.find_one({"email": useremail})
+            uid = first_result["uid"]
+            db.users.update_one(
+                {"uid": uid}, {"$set": {"usercookieid": usercookieid}}, upsert=False
+            )
+            db.users.update_one(
+                {"uid": uid}, {"$set": {"sessionid": session_id}}, upsert=False
+            )
+            # Get the user's name and spot_name to pass back to the front end
+            user_uid = uid
+            user_fname = db.userinfo.find_one({"uid": uid})["first_name"]
+            user_spot_name = db.userinfo.find_one({"uid": uid})["spot_name"]
+            return {
+                "returnCode": 0,
+                "message": "Login successful",
+                "sessionValid": "True",
+                "authenticated": 0,
+                "userinfo": {
+                    "name": user_fname,
+                    "spot_name": user_spot_name,
+                    "uid": user_uid,
+                },
+                "data": {
+                    "loggedin": "True",
+                },
+            }
+    else:
+        print("\n[LOGIN ERROR] User Not Found\n")
+        return {
+            "returnCode": 1,
+            "message": "You have failed to login.",
+            "sessionValid": False,
+            "data": {
+                "loggedin": False,
+                "errorStatus": False,
+                "errorOutput": "Either the password or email provided does not match. Please try again.",
+            },
+        }
+
+
+# Ignore below, this is old
 def do_login(useremail, password, session_id, usercookieid):
     """
     # do_login
@@ -342,10 +400,10 @@ def do_login(useremail, password, session_id, usercookieid):
     user = collection.find_one({"email": useremail})
     if user:
         dbpassword = user["password"]
-        enteredPass = password.encode('utf-8')
-        #dbsalt = user["salt"].encode('utf-8')
+        enteredPass = password.encode("utf-8")
+        # dbsalt = user["salt"].encode('utf-8')
 
-        if bcrypt.checkpw(enteredPass, dbpassword.encode('utf-8')):
+        if bcrypt.checkpw(enteredPass, dbpassword.encode("utf-8")):
             # Update/set the session id & user cookie id
             # LMDB.set_usercookieid(useremail, usercookieid)
             first_result = db.users.find_one({"email": useremail})
@@ -397,6 +455,7 @@ def do_login(useremail, password, session_id, usercookieid):
             },
         }
 
+
 def do_register(
     useremail, password, session_id, usercookieid, first_name, last_name, spot_name
 ):
@@ -428,7 +487,7 @@ def do_register(
         )
         try:
             salt = bcrypt.gensalt()
-            encodedpassword = password.encode('utf-8')
+            encodedpassword = password.encode("utf-8")
             hashed_password = bcrypt.hashpw(encodedpassword, salt)
             print(hashed_password)
             print(f'\nAttempting to add user "{useremail}" to users\n')
@@ -437,8 +496,8 @@ def do_register(
                 {
                     "uid": uid,
                     "email": useremail,
-                    "password": hashed_password.decode('utf-8'),
-                    "salt": salt.decode('utf-8'),
+                    "password": hashed_password.decode("utf-8"),
+                    "salt": salt.decode("utf-8"),
                     "sessionid": session_id,
                     "cookieid": usercookieid,
                 }
@@ -483,8 +542,6 @@ def do_register(
                     "errorOutput": "Registration unsuccessful - Please try again with a different email.",
                 },
             }
-
-
 
 
 #############
