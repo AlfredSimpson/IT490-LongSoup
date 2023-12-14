@@ -513,22 +513,50 @@ app.post('/authenticate', (req, res) => {
     const uid = cache.get('uid');
     console.log(`\n\n[authenticate] We're in authenticate\n\n`);
     console.log(`\n\n[authenticate] uid: ${uid}\n\n`);
-    const authcode = req.body.authcode;
+    const authcode = req.body.authCode;
     console.log(`\n\n[authenticate] authcode: ${authcode}\n\n`);
     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(broker_vHost)}`;
 
     mustang.sendAndConsumeMessage(amqpUrl, broker_Queue, {
-        type: "authenticate",
+        type: "auth_login",
         "uid": uid,
-        "authcode": authcode
+        "auth_code": authcode
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
         if (response.returnCode === 0) {
             console.log(`\n\n[authenticate] Success!\n\n`);
+            // Now we need to get the rest of the data from DBWorker originally sent during do_login...
+            timber.logAndSend('User authenticated successfully.');
+            data = response.data;
+            musicdata = response.music;
+            userinfo = response.userinfo;
+            let tracks = [];
+            let artists = [];
+            let links = [];
+            for (var i = 0; i < musicdata.length; i++) {
+                tracks.push(musicdata[i].track);
+                artists.push(musicdata[i].artist);
+                links.push(musicdata[i].url);
+            }
+            console.log('\n[Login] Setting session data\n');
+            cache.put('uid', userinfo.uid, 3600000);
+            console.log(`uid is ${userinfo.uid}`);
+            cache.put('name', userinfo.name, 3600000);
+            let loggedIn = true;
+            let uid = cache.get('uid');
+            cache.put('loggedIn', loggedIn, 3600000);
+            cache.put('tracks', tracks, 3600000);
+            cache.put('artists', artists, 3600000);
+            cache.put('links', links, 3600000);
+            cache.put('data', data, 3600000);
+            let oAuthed = cache.get('oAuthed');
+            console.log(`We are passing oAuthed: ${oAuthed}, uid: ${uid}, loggedIn: ${loggedIn}, data: ${data}, tracks: ${tracks}, artists: ${artists}, links: ${links}`)
 
+            res.status(200).render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid });
         }
         else {
             console.log(`\n\n[authenticate] Failure!\n\n`);
+            res.status(403).send('Your authentication code was incorrect. Pitiful.');
         }
     });
 });

@@ -330,13 +330,56 @@ def auth_login(uid, auth_code):
     if user:
         # Query the db to find the code and expiration_time for the user
         code = user["code"]
+        print(f"code is {code} and auth_code is {auth_code}")
         expiration_time = user["expiration_time"]
         print(
             f"Code showing as {code} and expiration_time showing as {expiration_time}"
         )
         # Check if the code is expired
-        if datetime.utcnow() > expiration_time:
-            print("\n[LOGIN ERROR] Code expired\n")
+        if auth_code == code:
+            print("Auth code match confirmation")
+            if datetime.utcnow() < expiration_time:
+                print("\n[AUTH] Login valid and in time...\n")
+                user_fname = db.userinfo.find_one({"uid": uid})["first_name"]
+                user_spot_name = db.userinfo.find_one({"uid": uid})["spot_name"]
+                genre = random.choice(
+                    ["punk", "rock", "pop", "country", "rap", "hip-hop"]
+                )
+                valence = random.uniform(0, 1)
+                energy = random.uniform(0, 1)
+                popularity = random.randint(0, 100)
+                music = get_recs(genre, valence, energy, popularity, True)
+                return {
+                    "returnCode": 0,
+                    "message": "Login Successful!",
+                    "sessionValid": True,
+                    "music": music["musicdata"],
+                    "userinfo": {
+                        "name": user_fname,
+                        "spot_name": user_spot_name,
+                        "uid": uid,
+                    },
+                    "data": {
+                        "loggedin": True,
+                        "errorStatus": False,
+                        "errorOutput": "Code matches",
+                    },
+                }
+            else:
+                print("Code matched, but expired.")
+                return {
+                    "returnCode": 1,
+                    "message": "Code expired",
+                    "sessionValid": False,
+                    "data": {
+                        "loggedin": False,
+                        "errorStatus": False,
+                        "errorOutput": "Your code has expired. Please request a new one.",
+                    },
+                }
+        else:
+            # Code is not correct
+            print("\n[LOGIN SUCCESS] Code failure\n")
             return {
                 "returnCode": 1,
                 "message": "Code expired",
@@ -344,24 +387,9 @@ def auth_login(uid, auth_code):
                 "data": {
                     "loggedin": False,
                     "errorStatus": False,
-                    "errorOutput": "Your code has expired. Please request a new one.",
+                    "errorOutput": "Your code was not valid. Please request a new one.",
                 },
             }
-        else:
-            # Code is not expired, check if it matches
-            #! TODO: Check if it matches lol, then generate the music and related info
-            print("\n[LOGIN SUCCESS] Code matches\n")
-            return {
-                "returnCode": 0,
-                "message": "Code matches",
-                "sessionValid": True,
-                "data": {
-                    "loggedin": True,
-                    "errorStatus": False,
-                    "errorOutput": "Code matches",
-                },
-            }
-
     pass
 
 
