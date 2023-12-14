@@ -461,11 +461,13 @@ app.post('/login', (req, res) => {
             timber.logAndSend('User logged in successfully.');
             data = response.data;
             userinfo = response.userinfo;
+            cache.put('uid', userinfo.uid, 3600000);
+            cache.put('name', userinfo.name, 3600000);
+            cache.put('spot_name', userinfo.spot_name, 3600000);
+            cache.put('data', data, 3600000);
             let authed = response.authenticated;
-            res.status(200).render('authenticate', { data: data, authed: authed, userinfo: userinfo })
-
-
-
+            console.log(`authed: ${authed}, uid = ${userinfo.uid}`);
+            res.status(200).render('authenticate', { data: data, authed: authed, userinfo: userinfo });
             // musicdata = response.music;
             // userinfo = response.userinfo;
             // let tracks = [];
@@ -506,6 +508,13 @@ app.post('/login', (req, res) => {
         }
     });
 });
+
+app.post('/authenticate', (req, res) => {
+    const uid = cache.get('uid');
+    console.log(`\n\n[authenticate] We're in authenticate\n\n`);
+    console.log(`\n\n[authenticate] uid: ${uid}\n\n`);
+});
+
 // app.post('/login', (req, res) => {
 //     const useremail = req.body.useremail;
 //     const password = req.body.password;

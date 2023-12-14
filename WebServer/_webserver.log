@@ -8,3 +8,5 @@
 {"type":"log","source":"_SPOTIFY_","date":"2023-11-15T12:41:41.553EST","log_message":"User requested some jams, got some.\n"}
 {"type":"log","source":"_REGISTRATION_","date":"2023-11-15T12:55:23.737EST","log_message":"[REGISTRATION] User registered successfully.\n"}
 {"type":"log","source":"Webserver","date":"2023-11-15T12:57:25.482EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-12-14T16:30:59.260EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-12-14T16:39:23.004EST","log_message":"User logged in successfully.\n"}
