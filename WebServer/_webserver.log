@@ -91,3 +91,5 @@
 {"type":"log","source":"Webserver","date":"2023-12-15T11:40:26.991EST","log_message":"User logged in successfully.\n"}
 {"type":"log","source":"Webserver","date":"2023-12-15T11:40:40.274EST","log_message":"User authenticated successfully.\n"}
 {"type":"log","source":"_SPOTIFY_","date":"2023-12-15T11:41:09.522EST","log_message":"User requested some jams, got some.\n"}
+{"type":"log","source":"Webserver","date":"2023-12-15T16:46:58.878EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-12-15T16:47:11.654EST","log_message":"User authenticated successfully.\n"}

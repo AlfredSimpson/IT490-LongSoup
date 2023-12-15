@@ -101,7 +101,9 @@ router.route("/:page")
                 console.log(`Rendering ${page}...Is it account ? `);
                 break;
             case 'stats':
+                console.log(`passing through the stats page... `);
             case 'messageboard':
+                console.log(`passing through the messageboard case...`);
             case 'browse':
                 // const viewPath = path.join(__dirname, '../../views/account/', page + '.ejs');
                 // console.log('viewPath is: ', viewPath);
