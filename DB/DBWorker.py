@@ -1,6 +1,8 @@
 import pika
 import os, sys, json, random
-import datetime
+from datetime import datetime, timedelta
+
+# import datetime
 import bcrypt
 
 # import LongMongoDB
@@ -12,6 +14,8 @@ import spotipy
 import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import load_dotenv
+
+from LongAuthMessage import send_email
 
 
 LIKED_ARTISTS = {
@@ -262,7 +266,7 @@ def storeToken(access_token, refresh_token, expires_in, token_type, usercookieid
     Returns:
         _type_: _description_
     """
-    thedate = datetime.datetime.now()
+    thedate = datetime.now()
     print(f'\nAttempting to add token "{access_token}" to users\n')
     print(f"\nAdding on {thedate}\n")
     db.users.update_one(
@@ -415,7 +419,6 @@ def handle_like_event(uid, query_type, spotify_id, like_type):
             },
         }
 
-
 def addLike(uid, query_type, spotted_id, like_type):
     liked_col = db["liked_" + query_type]
     disliked_col = db["disliked_" + query_type]
@@ -533,6 +536,134 @@ def do_logout(usercookieid, session_id):
     return {"\nreturnCode": 0, "message": "Logout successful\n"}
 
 
+<<<<<<< HEAD:DB/newDBWorker.py
+def auth_login(uid, auth_code):
+    print(f'\nAttempting to auth user "{uid}"\n')
+    collection = db.users
+    user = collection.find_one({"uid": uid})
+    if user:
+        # Query the db to find the code and expiration_time for the user
+        code = user["code"]
+        print(f"code is {code} and auth_code is {auth_code}")
+        expiration_time = user["expiration_time"]
+        print(
+            f"Code showing as {code} and expiration_time showing as {expiration_time}"
+        )
+        auth_code = int(auth_code)
+        # Check if the code is valid or expired
+        if auth_code == code:
+            print("Auth code match confirmation")
+            if datetime.utcnow() < expiration_time:
+                print("\n[AUTH] Login valid and in time...\n")
+                user_fname = db.userinfo.find_one({"uid": uid})["first_name"]
+                user_spot_name = db.userinfo.find_one({"uid": uid})["spot_name"]
+                genre = random.choice(
+                    ["punk", "rock", "pop", "grunge", "country", "rap", "hip-hop"]
+                )
+                valence = random.uniform(0, 1)
+                energy = random.uniform(0, 1)
+                popularity = random.randint(0, 100)
+                music = get_recs(genre, valence, energy, popularity, True)
+                return {
+                    "returnCode": 0,
+                    "message": "Login Successful!",
+                    "sessionValid": True,
+                    "music": music["musicdata"],
+                    "userinfo": {
+                        "name": user_fname,
+                        "spot_name": user_spot_name,
+                        "uid": uid,
+                    },
+                    "data": {
+                        "loggedin": True,
+                        "errorStatus": False,
+                        "errorOutput": "Code matches",
+                    },
+                }
+            else:
+                print("Code matched, but expired.")
+                return {
+                    "returnCode": 1,
+                    "message": "Code expired",
+                    "sessionValid": False,
+                    "data": {
+                        "loggedin": False,
+                        "errorStatus": False,
+                        "errorOutput": "Your code has expired. Please request a new one.",
+                    },
+                }
+        else:
+            # Code is not correct
+            print("\n[LOGIN SUCCESS] Code failure\n")
+            return {
+                "returnCode": 1,
+                "message": "Code expired",
+                "sessionValid": False,
+                "data": {
+                    "loggedin": False,
+                    "errorStatus": False,
+                    "errorOutput": "Your code was not valid. Please request a new one.",
+                },
+            }
+    pass
+
+
+def start_login(useremail, password, session_id, usercookieid):
+    collection = db.users
+    user = collection.find_one({"email": useremail})
+    if user:
+        dbpassword = user["password"]
+        enteredPass = password.encode("utf-8")
+
+        if bcrypt.checkpw(enteredPass, dbpassword.encode("utf-8")):
+            # Update/set the session id & user cookie id
+            first_result = db.users.find_one({"email": useremail})
+            uid = first_result["uid"]
+            db.users.update_one(
+                {"uid": uid}, {"$set": {"usercookieid": usercookieid}}, upsert=False
+            )
+            db.users.update_one(
+                {"uid": uid}, {"$set": {"sessionid": session_id}}, upsert=False
+            )
+            # Get the user's name and spot_name to pass back to the front end
+            user_uid = uid
+            user_fname = db.userinfo.find_one({"uid": uid})["first_name"]
+            user_spot_name = db.userinfo.find_one({"uid": uid})["spot_name"]
+            auth_num = send_email(useremail)
+            expiration_time = datetime.utcnow() + timedelta(minutes=5)
+            addCode = {"$set": {"code": auth_num, "expiration_time": expiration_time}}
+            db.users.update_one({"uid": uid}, addCode)
+            return {
+                "returnCode": 0,
+                "message": "Login successful - Authentication Needed",
+                "sessionValid": "True",
+                "authenticated": 0,
+                "userinfo": {
+                    "name": user_fname,
+                    "spot_name": user_spot_name,
+                    "uid": user_uid,
+                },
+                "data": {
+                    "loggedin": "True",
+                },
+            }
+    else:
+        print("\n[LOGIN ERROR] User Not Found\n")
+        return {
+            "returnCode": 1,
+            "message": "You have failed to login.",
+            "sessionValid": False,
+            "data": {
+                "loggedin": False,
+                "errorStatus": False,
+                "errorOutput": "Either the password or email provided does not match. Please try again.",
+            },
+        }
+
+
+# Ignore below, this is old
+=======
+>>>>>>> main:DB/DBWorker.py
 def do_login(useremail, password, session_id, usercookieid):
     """
     # do_login
@@ -756,6 +887,18 @@ def request_processor(ch, method, properties, body):
     else:
         match request["type"]:
             case "login":
+                response = start_login(
+                    request["useremail"],
+                    request["password"],
+                    request["session_id"],
+                    request["usercookieid"],
+                )
+            case "auth_login":
+                response = auth_login(
+                    request["uid"],
+                    request["auth_code"],
+                )
+            case "backkdoor_login":
                 response = do_login(
                     request["useremail"],
                     request["password"],
