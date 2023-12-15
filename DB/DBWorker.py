@@ -419,6 +419,7 @@ def handle_like_event(uid, query_type, spotify_id, like_type):
             },
         }
 
+
 def addLike(uid, query_type, spotted_id, like_type):
     liked_col = db["liked_" + query_type]
     disliked_col = db["disliked_" + query_type]
@@ -534,6 +535,7 @@ def do_logout(usercookieid, session_id):
     db.users.update_one({"cookieid": usercookieid}, {"$unset": {"sessionid": ""}})
     # print(f"User {usercookieid} logged out")
     return {"\nreturnCode": 0, "message": "Logout successful\n"}
+
 
 def auth_login(uid, auth_code):
     print(f'\nAttempting to auth user "{uid}"\n')
@@ -660,8 +662,6 @@ def start_login(useremail, password, session_id, usercookieid):
 
 
 # Ignore below, this is old
-=======
->>>>>>> main:DB/DBWorker.py
 def do_login(useremail, password, session_id, usercookieid):
     """
     # do_login
