@@ -9,6 +9,8 @@ import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import load_dotenv
 
+loggingFile = "/home/alfred/Desktop/dbSpotWorker.log"
+logging.basicConfig(filename=loggingFile, level=logging.DEBUG)
 
 load_dotenv()
 
@@ -488,6 +490,13 @@ db = myclient[maindb]
 }
 
 
+###################################
+#
+#  All of the functions below are used to clean the data we get from the Spotify API.
+#
+###################################
+
+
 def cleanTrackData(results):
     """Take in a JSON object from the Spotify API and clean it up for storage in the database, as well as for sending back to the client.
     It should return only the track name, artist, spotify url.
@@ -504,7 +513,7 @@ def cleanTrackData(results):
     except Exception as e:
         print("error", e)
 
-    print(f"Tracks displaying as follows: {tracks}")
+    # print(f"Tracks displaying as follows: {tracks}")
     data = {"query_results": []}
     for i in tracks:
         name = i["name"]
@@ -629,20 +638,21 @@ def spotQuery(uid, query_type, query, by_type, limit=10):
     # If they don't, we use the client credentials flow to query the Spotify API
     try:
         results = db.users.find_one({"uid": uid})
-        print(f"\nResults: {results}\n")
+        # print(f"\nResults: {results}\n")
 
     except Exception as e:
         print("\nNo user found in db\n")
         results = None
         return {"returnCode": 1, "message": "This did not go as planned"}
 
-    print(f"\nResults: {results}\n")
+    # print(f"\nResults: {results}\n")
     if results:
         if "access_token" in results:
             access_token = results["access_token"]
-            print(f"\nFound access token in db: {access_token}\n")
+            # print(f"\nFound access token in db: {access_token}\n")
         else:
-            print("\nNo access token found in db\n")
+            print("\n[ERROR] No access token found in db\n")
+            logging.debug(f"[ERROR] Could not find access token in db for user {uid}")
             access_token = None
             return {
                 "returnCode": 1,
@@ -715,7 +725,6 @@ def request_processor(ch, method, properties, body):
     # Try / except added just in case bad JSON is received
     try:
         request = json.loads(body.decode("utf-8"))
-        logging.debug(f"\nReceived request: {request}\n")
     except json.JSONDecodeError:
         print("\n\tError decoding incoming JSON\n")
         logging.error("Error decoding incoming JSON")
@@ -728,20 +737,20 @@ def request_processor(ch, method, properties, body):
         response = "ERROR: No type specified by message"
     else:
         # iterate over all key value pairs in the request
-        for key, value in request.items():
-            print(f"\nKey: {key}\n")
-            print(f"\nValue: {value}\n")
-            # if value == "":
-            #     print(f"\nValue is empty\n")
-            #     logging.error(
-            #         f"Error in value. Request received with empty value: {key}"
-            #     )
-            #     response = "ERROR: Empty value specified by message"
-            #     return return_error(ch, method, properties, body, response)
-            # else:
-            #     print(f"\nValue is not empty\n")
-            #     logging.debug(f"\nValue is not empty: {value}\n")
-            #     response = "ERROR: No value specified by message"
+        # for key, value in request.items():
+        # print(f"\nKey: {key}\n")
+        # print(f"\nValue: {value}\n")
+        # if value == "":
+        #     print(f"\nValue is empty\n")
+        #     logging.error(
+        #         f"Error in value. Request received with empty value: {key}"
+        #     )
+        #     response = "ERROR: Empty value specified by message"
+        #     return return_error(ch, method, properties, body, response)
+        # else:
+        #     print(f"\nValue is not empty\n")
+        #     logging.debug(f"\nValue is not empty: {value}\n")
+        #     response = "ERROR: No value specified by message"
 
         match request["type"]:
             case "spot_query":

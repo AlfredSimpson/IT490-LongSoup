@@ -1,0 +1,16 @@
+{
+  "name": "qa_worker",
+  "version": "1.0.0",
+  "description": "Handles sending pass/fail to deployment",
+  "main": "qa_app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alfred Simpson",
+  "license": "ISC",
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "dotenv": "^16.3.1",
+    "prompt-sync": "^4.2.0"
+  }
+}

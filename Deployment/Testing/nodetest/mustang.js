@@ -6,7 +6,6 @@
 //  */
 
 const amqp = require('amqplib/callback_api');
-const timber = require('./lumberjack.js');
 // Generate a unique ID for the correlationId
 const generateUuid = () => {
     return Math.random().toString() +
@@ -24,16 +23,16 @@ module.exports = {
          * @param {object} requestPayload - The payload to send to the queue
          * @param {function} callback - The callback function to run when a response is received
          */
-        // console.log(`[MUSTANG] The payload is ${requestPayload}`);
+        console.log(`[MUSTANG] The payload is ${requestPayload}`);
         // Iterate over the requestPayload and log each key/value pair
-        // for (let [key, value] of Object.entries(requestPayload)) {
-        //     console.log(`[MUSTANG] ${key}: ${value}`);
-        // }
+        for (let [key, value] of Object.entries(requestPayload)) {
+            console.log(`[MUSTANG] ${key}: ${value}`);
+        }
         amqp.connect(amqpUrl, (error, connection) => {
             // Attempt to connect to the RMQ broker
             if (error) {
                 // console.error('Connection Error:', error);
-                timber.logAndSend(`Error connecting to RMQ: ${error}. Error caught with ${amqpUrl}, ${requestPayload}, ${callback}`, 'RMQ');
+                // timber.logAndSend(`Error connecting to RMQ: ${error}. Error caught with ${amqpUrl}, ${requestPayload}, ${callback}`, 'RMQ');
                 throw error;
             }
             // console.log('[MUSTANG] Step 1 | Connected. Creating channel.');
@@ -41,14 +40,14 @@ module.exports = {
             connection.createChannel((error1, channel) => {
                 if (error1) {
                     // console.error('\n[MUSTANG - ERROR] Step 2 | Channel Creation Error:', error1);
-                    timber.logAndSend(`Error creating channel in RMQ: ${error1}. Error caught with ${amqpUrl}, ${requestPayload}, ${callback}`, 'RMQ');
+                    // timber.logAndSend(`Error creating channel in RMQ: ${error1}. Error caught with ${amqpUrl}, ${requestPayload}, ${callback}`, 'RMQ');
                     throw error1;
                 }
                 // console.log('\n[MUSTANG] Step 2 | Channel created. Asserting queue.');
                 // Assert the queue, if successful, create a consumer
                 channel.assertQueue('', { exclusive: true }, (error2, q) => {
                     if (error2) {
-                        timber.logAndSend(`Error asserting queue in RMQ: ${error2}. Error caught using queue: ${queueName}`, 'RMQ');
+                        // timber.logAndSend(`Error asserting queue in RMQ: ${error2}. Error caught using queue: ${queueName}`, 'RMQ');
                         // console.error('\n[MUSTANG ERROR] Step 3 | Queue Assertion Error:', error2);
                         throw error2;
                     }
@@ -72,11 +71,11 @@ module.exports = {
                         }
                     }, { noAck: true }); // noAck means that the message is not acknowledged. This means that the message will be lost if the consumer dies before the message is processed.
                     // console.log('[MUSTANG] Step 7 |  Attempting to send message to queue.')
-                    // console.log(`\n[MUSTANG exports] Sending message to queue ${queueName}\n`);
-                    // console.log(`\n\n\n End of the line for mustang \n\n\n`);
-                    // for (let [key, value] of Object.entries(requestPayload)) {
-                    //     console.log(`\n[MUSTANG]\t ${key}: ${value}`);
-                    // }
+                    console.log(`\n[MUSTANG exports] Sending message to queue ${queueName}\n`);
+                    console.log(`\n\n\n End of the line for mustang \n\n\n`);
+                    for (let [key, value] of Object.entries(requestPayload)) {
+                        console.log(`\n[MUSTANG]\t ${key}: ${value}`);
+                    }
                     // Send the message to the queue
                     channel.sendToQueue(
                         queueName,

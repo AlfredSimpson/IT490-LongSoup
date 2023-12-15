@@ -42,9 +42,3 @@ sudo apt-get install -y erlang-base \
 
 ## Install rabbitmq-server and its dependencies
 sudo apt-get install rabbitmq-server -y --fix-missing
-
-# Enable the RabbitMQ management plugin
-sudo rabbitmq-plugins enable rabbitmq_management
-
-
-# We should add extra information using rabbitmq cli to add users, queues, etc. 
