@@ -535,8 +535,6 @@ def do_logout(usercookieid, session_id):
     # print(f"User {usercookieid} logged out")
     return {"\nreturnCode": 0, "message": "Logout successful\n"}
 
-
-<<<<<<< HEAD:DB/newDBWorker.py
 def auth_login(uid, auth_code):
     print(f'\nAttempting to auth user "{uid}"\n')
     collection = db.users
