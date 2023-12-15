@@ -30,6 +30,27 @@ MB_Q = os.getenv("MBOARD_QUEUE")
 MB_X = os.getenv("MBOARD_EXCHANGE")
 
 
+def post_message(uid, board, message):
+    """# post_message
+    This function takes in a user ID, a board name, and a message and posts the message to the message board.
+
+    Args:
+        uid (_type_): _description_
+        board (_type_): _description_
+        message (_type_): _description_
+        session_id (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    return {"returnCode": 0, "message": "Message posted"}
+
+
+def get_messages(board, limit=20):
+    # This is different than load_messages - it will be a helper function for post_message and for auto refreshing the message board.
+    pass
+
+
 def load_messages(uid, board, limit=20):
     """# load_messages
     This function takes in a user ID and a board name and returns the messages for that board.
@@ -97,11 +118,18 @@ def request_processor(ch, method, properties, body):
     else:
         match request["type"]:
             case "loadMessages":
-                print(f'\n Received a request to load Messages: {request}\n')
-                response = 
+                print(f"\n Received a request to load Messages: {request}\n")
+                response = load_messages(
+                    request["uid"], request["board"], request["limit"]
+                )
                 pass
             case "postMessage":
-                response = ""
+                print(f"\n Received a request to post a message: {request}\n")
+                response = post_message(
+                    request["uid"],
+                    request["board"],
+                    request["message"],
+                )
                 pass
             case _:
                 # Default case - basically, all else failed.
