@@ -1,33 +1,34 @@
 function fetchRockBoards() {
-    return axios.get('/api/get-rock-boards') // Replace with your API endpoint
+    return axios.get('/api/get-rock-boards')
         .then(response => response.data)
         .catch(error => {
             throw error;
         });
 }
 function fetchRapBoards() {
-    return axios.get('/api/get-rap-boards') // Replace with your API endpoint
+    return axios.get('/api/get-rap-boards')
         .then(response => response.data)
         .catch(error => {
             throw error;
         });
 }
 function fetchPunkBoards() {
-    return axios.get('/api/get-punk-boards') // Replace with your API endpoint
+    return axios.get('/api/get-punk-boards')
         .then(response => response.data)
         .catch(error => {
             throw error;
         });
 }
 function fetchPopBoards() {
-    return axios.get('/api/get-pop-boards') // Replace with your API endpoint
+    return axios.get('/api/get-pop-boards')
         .then(response => response.data)
         .catch(error => {
             throw error;
         });
 }
 function fetchAllTalkBoards() {
-    return axios.get('/api/get-all-boards') // Replace with your API endpoint
+    console.log(`[fetch all talk boards] \t Fetching all talk boards`);
+    return axios.get('/api/get-all-boards')
         .then(response => response.data)
         .catch(error => {
             throw error;

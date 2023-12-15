@@ -30,6 +30,21 @@ MB_Q = os.getenv("MBOARD_QUEUE")
 MB_X = os.getenv("MBOARD_EXCHANGE")
 
 
+def load_messages(uid, board, limit=20):
+    """# load_messages
+    This function takes in a user ID and a board name and returns the messages for that board.
+
+    Args:
+        uid (_type_): _description_
+        board (_type_): _description_
+        limit (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    return {"returnCode": 0, "messages": []}
+
+
 def return_error(ch, method, properties, body, msg):
     ch.basic_publish(
         exchange="",
@@ -82,7 +97,8 @@ def request_processor(ch, method, properties, body):
     else:
         match request["type"]:
             case "loadMessages":
-                response = ""
+                print(f'\n Received a request to load Messages: {request}\n')
+                response = 
                 pass
             case "postMessage":
                 response = ""

@@ -33,6 +33,14 @@ const DB_PASS = process.env.BROKER_PASSWORD;
 const DB_V = process.env.BROKER_VHOST;
 
 
+const MB_HOST = process.env.MBOARD_HOST;
+const MB_PORT = process.env.MBOARD_PORT;
+const MB_USER = process.env.MBOARD_USER;
+const MB_PASS = process.env.MBOARD_PASS;
+const MB_V = process.env.MBOARD_VHOST;
+const MB_EX = process.env.MBOARD_EXCHANGE;
+const MB_Q = process.env.MBOARD_QUEUE;
+
 router.use(function (req, res, next) {
     let d = new Date();
     console.log(req.url, "@", d.toTimeString());
@@ -51,11 +59,11 @@ function requireAuthentication(req, res, next) {
 }
 
 function cacheAgain(stuff) {
-    console.log('trying to recache stuff');
-    console.log(`stuff is: ${stuff}`);
+    console.log('[Cache Again - API] trying to recache stuff');
+    // console.log(`stuff is: ${stuff}`);
     // Iterate over a dictionary, and cache each key/value pair
     for (let [key, value] of Object.entries(stuff)) {
-        console.log(`${key}: ${value}`);
+        // console.log(`${key}: ${value}`);
         cache.put(key, value);
     }
 }
@@ -102,6 +110,38 @@ router
                 break;
             case "query":
                 console.log(`This should not have sent from the get section...`);
+                break;
+            case "get-all-boards":
+                var mbURL = `amqp://${MB_USER}:${MB_PASS}@${MB_HOST}:${MB_PORT}/${MB_V}`;
+                mustang.sendAndConsumeMessage(mbURL, MB_Q, {
+                    type: "loadMessages",
+                    uid: cache.get('uid'),
+                    board: "all",
+                    limit: 20,
+                }, (msg) => {
+                    const response = JSON.parse(msg.content.toString());
+                    if (response.returnCode == 0) {
+                        console.log(`Successfully loaded all messages!`);
+                        // Send it back to the front client handler.
+                        res.status(200).json(response);
+                    }
+                    else {
+                        res.status(401).send('Ugh yo this is not working.');
+                    }
+                });
+                console.log('Switch case statement - get-all-boards');
+                break;
+            case "get-punk-boards":
+                console.log(`Switch case statement - get-punk-boards\n\n`);
+                break;
+            case "get-pop-boards":
+                console.log(`Switch case statement - get-pop-boards\n\n`);
+                break;
+            case "get-rap-boards":
+                console.log(`Switch case statement - get-rap-boards\n\n`);
+                break;
+            case "get-messages":
+                console.log(`Switch case statement - get-messages\n\n`);
                 break;
             default:
                 break;
@@ -167,6 +207,13 @@ router
                         // res.status(401).send('Something went wrong');
                     }
                 });
+
+            case "get-all-boards":
+                console.log('Switch case statement - get-all-boards');
+                break;
+            case "get-punk-boards":
+                console.log(`Switch case statement - get-punk-boards\n\n`);
+                break;
             default:
                 break;
         }
