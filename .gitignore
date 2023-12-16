@@ -24,3 +24,4 @@ WebServer/_webserver.log
 *.log
 creds.txt
 WebServer/_webserver.log
+*.log

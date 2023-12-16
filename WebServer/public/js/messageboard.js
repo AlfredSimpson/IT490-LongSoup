@@ -36,6 +36,35 @@ function fetchAllTalkBoards() {
 }
 
 
+function createTable(data) {
+    const table = document.createElement('table');
+    table.classList.add('table', 'table-hover', 'table-bordered', 'table-striped', 'table-dark');
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th scope="col">Author</th>
+                <th scope="col">Date</th>
+                <th scope="col">Message</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    `;
+
+    const tableBody = table.querySelector('tbody');
+    data.forEach(message => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${message.author}</td>
+            <td>${message.date}</td>
+            <td>${message.message}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+
+    return table;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const genreTalkButtons = document.getElementById('genreTalkButtons');
     genreTalkButtons.addEventListener('click', (event) => {

@@ -63,7 +63,11 @@ def load_messages(uid, board, limit=20):
     Returns:
         _type_: _description_
     """
-    return {"returnCode": 0, "messages": []}
+    data = [
+        {"author": "Me", "date": "today", "message": "Hello, World!"},
+        {"author": "You", "date": "yesterday", "message": "Hello, World!"},
+    ]
+    return {"returnCode": 0, "messages": data}
 
 
 def return_error(ch, method, properties, body, msg):

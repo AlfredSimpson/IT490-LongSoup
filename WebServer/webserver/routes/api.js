@@ -109,7 +109,7 @@ router
             case "browse":
                 break;
             case "query":
-                console.log(`This should not have sent from the get section...`);
+                // console.log(`This should not have sent from the get section...`);
                 break;
             case "get-all-boards":
                 var mbURL = `amqp://${MB_USER}:${MB_PASS}@${MB_HOST}:${MB_PORT}/${MB_V}`;
@@ -119,14 +119,19 @@ router
                     board: "all",
                     limit: 20,
                 }, (msg) => {
+                    if (res.headersSent) {
+                        console.log(`[API] \t Headers already sent, returning`);
+                        return;
+                    }
                     const response = JSON.parse(msg.content.toString());
+                    console.log(`[API] \t Received response from messageboard: ${response}`);
                     if (response.returnCode == 0) {
                         console.log(`Successfully loaded all messages!`);
                         // Send it back to the front client handler.
                         res.status(200).json(response);
                     }
                     else {
-                        res.status(401).send('Ugh yo this is not working.');
+                        res.status(500).send('Ugh yo this is not working.');
                     }
                 });
                 console.log('Switch case statement - get-all-boards');
