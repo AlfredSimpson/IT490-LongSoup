@@ -3,7 +3,8 @@
     "made_playlist_count": 0,
     "playlists": [
         {
-            "id": 0,
+            "cgsid": 0,
+            "id": "spotify's id",
             "name": "",
             "track_count": 0,
             "content": [

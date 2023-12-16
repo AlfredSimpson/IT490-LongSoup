@@ -1,31 +1,31 @@
-function fetchRockBoards() {
-    return axios.get('/api/get-rock-boards')
-        .then(response => response.data)
-        .catch(error => {
-            throw error;
-        });
-}
-function fetchRapBoards() {
-    return axios.get('/api/get-rap-boards')
-        .then(response => response.data)
-        .catch(error => {
-            throw error;
-        });
-}
-function fetchPunkBoards() {
-    return axios.get('/api/get-punk-boards')
-        .then(response => response.data)
-        .catch(error => {
-            throw error;
-        });
-}
-function fetchPopBoards() {
-    return axios.get('/api/get-pop-boards')
-        .then(response => response.data)
-        .catch(error => {
-            throw error;
-        });
-}
+// function fetchRockBoards() {
+//     return axios.get('/api/get-rock-boards')
+//         .then(response => response.data)
+//         .catch(error => {
+//             throw error;
+//         });
+// }
+// function fetchRapBoards() {
+//     return axios.get('/api/get-rap-boards')
+//         .then(response => response.data)
+//         .catch(error => {
+//             throw error;
+//         });
+// }
+// function fetchPunkBoards() {
+//     return axios.get('/api/get-punk-boards')
+//         .then(response => response.data)
+//         .catch(error => {
+//             throw error;
+//         });
+// }
+// function fetchPopBoards() {
+//     return axios.get('/api/get-pop-boards')
+//         .then(response => response.data)
+//         .catch(error => {
+//             throw error;
+//         });
+// }
 function fetchAllTalkBoards() {
     console.log(`[fetch all talk boards] \t Fetching all talk boards`);
     return axios.get('/api/get-all-boards')
@@ -82,18 +82,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'alltalk':
                     fetchFunction = fetchAllTalkBoards;
                     break;
-                case 'rocktalk':
-                    fetchFunction = fetchRockBoards;
-                    break;
-                case 'punktalk':
-                    fetchFunction = fetchPunkBoards;
-                    break;
-                case 'poptalk':
-                    fetchFunction = fetchPopBoards;
-                    break;
-                case 'raptalk':
-                    fetchFunction = fetchRapBoards;
-                    break;
+                // case 'rocktalk':
+                //     fetchFunction = fetchRockBoards;
+                //     break;
+                // case 'punktalk':
+                //     fetchFunction = fetchPunkBoards;
+                //     break;
+                // case 'poptalk':
+                //     fetchFunction = fetchPopBoards;
+                //     break;
+                // case 'raptalk':
+                //     fetchFunction = fetchRapBoards;
+                //     break;
             }
 
             fetchFunction()
@@ -111,11 +111,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendButton = document.getElementById('sendMessageButton');
     sendButton.addEventListener('click', async () => {
         const messageContent = document.getElementById('messageContentInput').value;
-        const genre = document.getElementById('genreSelect').value;
+        const board = document.getElementById('genreSelect').value;
 
         if (messageContent && genre) {
             try {
-                await sendMessage(messageContent, genre);
+                await sendMessage(messageContent, board);
 
             } catch (error) {
                 console.error(`Error sending message: ${error.message}`);

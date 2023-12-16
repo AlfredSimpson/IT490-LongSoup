@@ -136,18 +136,18 @@ router
                 });
                 console.log('Switch case statement - get-all-boards');
                 break;
-            case "get-punk-boards":
-                console.log(`Switch case statement - get-punk-boards\n\n`);
-                break;
-            case "get-pop-boards":
-                console.log(`Switch case statement - get-pop-boards\n\n`);
-                break;
-            case "get-rap-boards":
-                console.log(`Switch case statement - get-rap-boards\n\n`);
-                break;
-            case "get-messages":
-                console.log(`Switch case statement - get-messages\n\n`);
-                break;
+            // case "get-punk-boards":
+            //     console.log(`Switch case statement - get-punk-boards\n\n`);
+            //     break;
+            // case "get-pop-boards":
+            //     console.log(`Switch case statement - get-pop-boards\n\n`);
+            //     break;
+            // case "get-rap-boards":
+            //     console.log(`Switch case statement - get-rap-boards\n\n`);
+            //     break;
+            // case "get-messages":
+            //     console.log(`Switch case statement - get-messages\n\n`);
+            //     break;
             default:
                 res.send(page);
                 break;
@@ -212,12 +212,28 @@ router
                         // res.status(401).send('Something went wrong');
                     }
                 });
-
-            case "get-all-boards":
-                console.log('Switch case statement - get-all-boards');
                 break;
-            case "get-punk-boards":
-                console.log(`Switch case statement - get-punk-boards\n\n`);
+            case "send-message":
+                var uid = cache.get('uid');
+                var messageContent = req.body.messageContent;
+                var board = req.body.board;
+                var mbURL = `amqp://${MB_USER}:${MB_PASS}@${MB_HOST}:${MB_PORT}/${MB_V}`;
+                mustang.sendAndConsumeMessage(mbURL, MB_Q, {
+                    type: "postMessage",
+                    uid: uid,
+                    messageContent: messageContent,
+                    board: board
+                }, (msg) => {
+                    const response = JSON.parse(msg.content.toString());
+                    if (response.returnCode == 0) {
+                        console.log(`Successfully sent message!`);
+                        // Send it back to the front client handler.
+                        res.status(200).json(response);
+                    }
+                    else {
+                        res.status(401).send('Ugh yo this is not working.');
+                    }
+                });
                 break;
             default:
                 break;
