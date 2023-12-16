@@ -119,16 +119,16 @@ router
                     board: "all",
                     limit: 20,
                 }, (msg) => {
+                    const response = JSON.parse(msg.content.toString());
+                    let msgs = response.messages;
                     if (res.headersSent) {
                         console.log(`[API] \t Headers already sent, returning`);
                         return;
                     }
-                    const response = JSON.parse(msg.content.toString());
-                    console.log(`[API] \t Received response from messageboard: ${response}`);
                     if (response.returnCode == 0) {
                         console.log(`Successfully loaded all messages!`);
                         // Send it back to the front client handler.
-                        res.status(200).json(response);
+                        res.status(200).json(msgs);
                     }
                     else {
                         res.status(500).send('Ugh yo this is not working.');
@@ -149,9 +149,9 @@ router
                 console.log(`Switch case statement - get-messages\n\n`);
                 break;
             default:
+                res.send(page);
                 break;
         }
-        res.send(page);
     })
     .post((req, res) => {
         let type = req.params.param;

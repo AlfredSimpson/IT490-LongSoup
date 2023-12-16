@@ -31,10 +31,15 @@ function fetchAllTalkBoards() {
     return axios.get('/api/get-all-boards')
         .then(response => response.data)
         .catch(error => {
+            console.error(`[fetch all talk boards] \t Error fetching all talk boards: ${error.message}`);
             throw error;
         });
 }
 
+function replaceTable(tableContainer, newTable) {
+    tableContainer.innerHTML = '';
+    tableContainer.appendChild(newTable);
+}
 
 function createTable(data) {
     const table = document.createElement('table');
@@ -54,6 +59,7 @@ function createTable(data) {
     const tableBody = table.querySelector('tbody');
     data.forEach(message => {
         const row = document.createElement('tr');
+        // TODO: update message.author to link to a profile - we'll needt to pass in a url and store urls in the database first, though.
         row.innerHTML = `
             <td>${message.author}</td>
             <td>${message.date}</td>

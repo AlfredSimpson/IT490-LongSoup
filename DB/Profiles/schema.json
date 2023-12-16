@@ -1,0 +1,36 @@
+{
+    "uid": 0,
+    "username": "",
+    "spotify_username": "",
+    "image": {
+        "public": 0,
+        "url": ""
+    },
+    "spotify_link": {
+        "public": 0,
+        "id": ""
+    },
+    "CGS_playlists": [
+        {
+            "public": 0,
+            "cgs_made": 0,
+            "exported": 0,
+            "playlist_id": 0,
+            "followers": 0,
+            "info": {
+                "playlist_name": "",
+                "playlist_description": ""
+            },
+            "contents": [
+                {
+                    "track_id": 0,
+                    "track_name": "",
+                    "artist_name": "",
+                    "album_name": "",
+                    "artist_id": 0,
+                    "from_spotify": 0
+                }
+            ]
+        }
+    ]
+}
