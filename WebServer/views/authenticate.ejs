@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <title>Account Authentication| CGS</title>
+    <%- include('partials/head'); %>
+</head>
+
+<body>
+    <%- include('partials/mainheader.ejs') %>
+        <div class="container my-5">
+            <div class="row">
+                <div class="col-md-6 mx-auto">
+                    <h1>Welcome back!</h1>
+                    <p class="lead">Please check your email for the 4 digit authentication code.
+                    </p>
+                    <form method="post" action="/authenticate">
+                        <div class="mb-3">
+                            <label for="authCode" class="form-label">Enter a 4-digit number:</label>
+                            <input type="text" class="form-control" id="authCode" name="authCode" pattern="\d{4}"
+                                required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        <%- include('partials/footer.ejs') %>
+</body>
+
+</html>

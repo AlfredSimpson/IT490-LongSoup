@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verification Form</title>
+</head>
+<body>
+  <h1>Four Digit Input Form</h1>
+  <% if (typeof error !== 'undefined') { %>
+    <p style="color: red;"><%= error %></p>
+  <% } %>
+  <form action="/submit" method="post">
+    <label for="userInput">Enter a 4-digit number:</label>
+    <input type="text" id="userInput" name="userInput" pattern="\d{4}" required>
+    <button type="submit">Submit</button>
+  </form>
+</body>
+</html>
