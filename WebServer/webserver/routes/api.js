@@ -142,18 +142,7 @@ router
                 });
                 console.log('Switch case statement - get-all-boards');
                 break;
-            // case "get-punk-boards":
-            //     console.log(`Switch case statement - get-punk-boards\n\n`);
-            //     break;
-            // case "get-pop-boards":
-            //     console.log(`Switch case statement - get-pop-boards\n\n`);
-            //     break;
-            // case "get-rap-boards":
-            //     console.log(`Switch case statement - get-rap-boards\n\n`);
-            //     break;
-            // case "get-messages":
-            //     console.log(`Switch case statement - get-messages\n\n`);
-            //     break;
+
             default:
                 res.send(page);
                 break;
@@ -222,7 +211,8 @@ router
             case "send-message":
                 var uid = cache.get('uid');
                 var messageContent = req.body.messageContent;
-                var board = req.body.board;
+                // var board = req.body.board;
+                var board = "alltalk";
                 var mbURL = `amqp://${MB_USER}:${MB_PASS}@${MB_HOST}:${MB_PORT}/${MB_V}`;
                 mustang.sendAndConsumeMessage(mbURL, MB_Q, {
                     type: "postMessage",
