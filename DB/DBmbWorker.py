@@ -137,19 +137,22 @@ def get_messages(board, limit=20):
                     "uid": message["uid"],
                 }
             )
+        return message_list
         # Now we'll return the list of messages
-        return {
-            "returnCode": 0,
-            "message": "Succcessfully retrieved messages",
-            "message_list": message_list,
-        }
+        # return {
+        #     "returnCode": 0,
+        #     "message": "Succcessfully retrieved messages",
+        #     "message_list": message_list,
+        # }
     except Exception as e:
         print(f"\nError retrieving messages: {e}\n")
-        return {
-            "returnCode": 1,
-            "message": "Error retrieving messages",
-            message_list: [],
-        }
+        message_list = []
+        return message_list
+        # return {
+        #     "returnCode": 1,
+        #     "message": "Error retrieving messages",
+        #     message_list: [],
+        # }
 
 
 def load_messages(uid, board, limit=20):
@@ -173,7 +176,7 @@ def load_messages(uid, board, limit=20):
     data = get_messages(board, limit)
     print(f"\nData: {data}\n")
 
-    return {"returnCode": 0, "messages": data}
+    return {"returnCode": 0, "message": "success", "messages": data}
 
 
 def return_error(ch, method, properties, body, msg):

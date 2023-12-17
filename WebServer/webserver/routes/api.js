@@ -120,13 +120,19 @@ router
                     limit: 20,
                 }, (msg) => {
                     const response = JSON.parse(msg.content.toString());
-                    let msgs = response.messages;
+                    console.log(`[API] \t Received response: ${response}`);
+                    let msgs = response.message_list;
+
                     if (res.headersSent) {
                         console.log(`[API] \t Headers already sent, returning`);
                         return;
                     }
                     if (response.returnCode == 0) {
-                        console.log(`Successfully loaded all messages!`);
+                        console.log(`\n\nSuccessfully loaded all messages!\n\n`);
+                        // Iterate over all fo the messages:
+                        msgs.forEach((msg) => {
+                            console.log(`\n\nMessage: ${msg.message}\n\n`);
+                        });
                         // Send it back to the front client handler.
                         res.status(200).json(msgs);
                     }

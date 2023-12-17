@@ -42,6 +42,9 @@ function replaceTable(tableContainer, newTable) {
 }
 
 function createTable(data) {
+    console.log(`data: ${data}`);
+    let msgs = data.messages;
+    console.log(`msgs: ${msgs}`);
     const table = document.createElement('table');
     table.classList.add('table', 'table-hover', 'table-bordered', 'table-striped', 'table-dark');
     table.innerHTML = `
