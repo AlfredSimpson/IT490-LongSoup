@@ -40,7 +40,7 @@ MB_DB = os.getenv("MB_MONGO_DB")
 # Connect to the database - we're going to use cgs_mb
 
 myclient = pymongo.MongoClient(
-    "mongodb://%s:%s@localhost:27017/%s" % (MB_DB_USER, MB_DB_PASS, MB_DB)
+    "mongodb://%s:%s@localhost:27017/" % (MB_DB_USER, MB_DB_PASS)
 )
 
 db = myclient[MB_DB]
@@ -164,10 +164,15 @@ def load_messages(uid, board, limit=20):
     Returns:
         _type_: _description_
     """
-    data = [
-        {"author": "Me", "date": "today", "message": "Hello, World!"},
-        {"author": "You", "date": "yesterday", "message": "Hello, World!"},
-    ]
+    # data = [
+    #     {"author": "Me", "date": "today", "message": "Hello, World!"},
+    #     {"author": "You", "date": "yesterday", "message": "Hello, World!"},
+    # ]
+
+    # First, we'll get the messages. We'll ignore board for now - that comes later.
+    data = get_messages(board, limit)
+    print(f"\nData: {data}\n")
+
     return {"returnCode": 0, "messages": data}
 
 

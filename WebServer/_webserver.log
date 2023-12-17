@@ -106,3 +106,4 @@
 {"type":"log","source":"Webserver","date":"2023-12-16T18:18:28.861EST","log_message":"User logged in successfully.\n"}
 {"type":"log","source":"Webserver","date":"2023-12-16T18:19:32.418EST","log_message":"User logged in successfully.\n"}
 {"type":"log","source":"Webserver","date":"2023-12-16T18:21:02.936EST","log_message":"User logged in successfully.\n"}
+{"type":"log","source":"Webserver","date":"2023-12-16T22:11:41.831EST","log_message":"User logged in successfully.\n"}
