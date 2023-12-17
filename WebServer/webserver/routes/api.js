@@ -221,7 +221,7 @@ router
                 mustang.sendAndConsumeMessage(mbURL, MB_Q, {
                     type: "postMessage",
                     uid: uid,
-                    messageContent: messageContent,
+                    message: messageContent,
                     board: board
                 }, (msg) => {
                     const response = JSON.parse(msg.content.toString());

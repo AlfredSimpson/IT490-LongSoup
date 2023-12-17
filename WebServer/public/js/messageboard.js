@@ -113,8 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageContent = document.getElementById('messageContentInput').value;
         const board = document.getElementById('genreSelect').value;
 
-        if (messageContent && genre) {
+        if (messageContent && board) {
             try {
+                console.log(`Sending message ${messageContent} to board ${board}`);
                 await sendMessage(messageContent, board);
 
             } catch (error) {
@@ -126,11 +127,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Make the sendMessage function async
-    async function sendMessage(messageContent, genre) {
+    async function sendMessage(messageContent, board) {
+        console.log(`[sendMessage()] - Sending message ${messageContent} to board ${board}`);
         try {
             const response = await axios.post('/api/send-message', {
                 messageContent,
-                genre
+                board
             });
             return response.data;
         } catch (error) {
