@@ -98,7 +98,7 @@ def post_message(uid, board, message):
 
     # Now, we need to connect to the database and insert the message.
     #! If we want to use individual message boards for each genre - we'll call db[board] instead of db.messages
-    #! TODO: We also need to take a username - or get it somehow.
+    #! TODO: We also need to take a username - or get it somehow. - This still isn't created by the user profile, so that has to wait.
     col = db.messages
     new_message = {
         "post_id": post_id,
@@ -124,12 +124,13 @@ def get_messages(board, limit=20):
     #! If we want to use individual message boards for each genre - we'll call db[board] instead of db.messages
 
     try:
-        messages = col.find().sort("timestamp", -1).limit(limit)
-
+        messages = col.find().sort("timestamp", 1).limit(limit)
         # First, we'll create an empty list to hold the messages
         message_list = []
         # Now we'll loop through the messages and add them to the list
         for message in messages:
+            # When we get user names, we'll need to add them here.
+            # TODO: Add user names functionality
             message_list.append(
                 {
                     "message": message["message"],
@@ -137,22 +138,12 @@ def get_messages(board, limit=20):
                     "uid": message["uid"],
                 }
             )
+        # We want to
         return message_list
-        # Now we'll return the list of messages
-        # return {
-        #     "returnCode": 0,
-        #     "message": "Succcessfully retrieved messages",
-        #     "message_list": message_list,
-        # }
     except Exception as e:
         print(f"\nError retrieving messages: {e}\n")
         message_list = []
         return message_list
-        # return {
-        #     "returnCode": 1,
-        #     "message": "Error retrieving messages",
-        #     message_list: [],
-        # }
 
 
 def load_messages(uid, board, limit=20):
@@ -167,10 +158,6 @@ def load_messages(uid, board, limit=20):
     Returns:
         _type_: _description_
     """
-    # data = [
-    #     {"author": "Me", "date": "today", "message": "Hello, World!"},
-    #     {"author": "You", "date": "yesterday", "message": "Hello, World!"},
-    # ]
 
     # First, we'll get the messages. We'll ignore board for now - that comes later.
     data = get_messages(board, limit)

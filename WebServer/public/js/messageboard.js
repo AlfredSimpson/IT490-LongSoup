@@ -63,9 +63,10 @@ function createTable(data) {
     data.forEach(message => {
         const row = document.createElement('tr');
         // TODO: update message.author to link to a profile - we'll needt to pass in a url and store urls in the database first, though.
+        // We'll just use message.username once that's ready.
         row.innerHTML = `
-            <td>${message.author}</td>
-            <td>${message.date}</td>
+            <td>${message.uid}</td>
+            <td>${message.timestamp}</td>
             <td>${message.message}</td>
         `;
         tableBody.appendChild(row);

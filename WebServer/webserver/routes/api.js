@@ -121,7 +121,7 @@ router
                 }, (msg) => {
                     const response = JSON.parse(msg.content.toString());
                     console.log(`[API] \t Received response: ${response}`);
-                    let msgs = response.message_list;
+                    let msgs = response.messages;
 
                     if (res.headersSent) {
                         console.log(`[API] \t Headers already sent, returning`);
