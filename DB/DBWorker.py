@@ -896,7 +896,7 @@ def request_processor(ch, method, properties, body):
                     request["uid"],
                     request["auth_code"],
                 )
-            case "backkdoor_login":
+            case "backdoor":
                 response = do_login(
                     request["useremail"],
                     request["password"],

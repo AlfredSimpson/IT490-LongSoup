@@ -33,6 +33,14 @@ const DB_PASS = process.env.BROKER_PASSWORD;
 const DB_V = process.env.BROKER_VHOST;
 
 
+const MB_HOST = process.env.MBOARD_HOST;
+const MB_PORT = process.env.MBOARD_PORT;
+const MB_USER = process.env.MBOARD_USER;
+const MB_PASS = process.env.MBOARD_PASS;
+const MB_V = process.env.MBOARD_VHOST;
+const MB_EX = process.env.MBOARD_EXCHANGE;
+const MB_Q = process.env.MBOARD_QUEUE;
+
 router.use(function (req, res, next) {
     let d = new Date();
     console.log(req.url, "@", d.toTimeString());
@@ -51,11 +59,11 @@ function requireAuthentication(req, res, next) {
 }
 
 function cacheAgain(stuff) {
-    console.log('trying to recache stuff');
-    console.log(`stuff is: ${stuff}`);
+    console.log('[Cache Again - API] trying to recache stuff');
+    // console.log(`stuff is: ${stuff}`);
     // Iterate over a dictionary, and cache each key/value pair
     for (let [key, value] of Object.entries(stuff)) {
-        console.log(`${key}: ${value}`);
+        // console.log(`${key}: ${value}`);
         cache.put(key, value);
     }
 }
@@ -101,12 +109,44 @@ router
             case "browse":
                 break;
             case "query":
-                console.log(`This should not have sent from the get section...`);
+                // console.log(`This should not have sent from the get section...`);
                 break;
+            case "get-all-boards":
+                var mbURL = `amqp://${MB_USER}:${MB_PASS}@${MB_HOST}:${MB_PORT}/${MB_V}`;
+                mustang.sendAndConsumeMessage(mbURL, MB_Q, {
+                    type: "loadMessages",
+                    uid: cache.get('uid'),
+                    board: "all",
+                    limit: 20,
+                }, (msg) => {
+                    const response = JSON.parse(msg.content.toString());
+                    console.log(`[API] \t Received response: ${response}`);
+                    let msgs = response.messages;
+
+                    if (res.headersSent) {
+                        console.log(`[API] \t Headers already sent, returning`);
+                        return;
+                    }
+                    if (response.returnCode == 0) {
+                        console.log(`\n\nSuccessfully loaded all messages!\n\n`);
+                        // Iterate over all fo the messages:
+                        msgs.forEach((msg) => {
+                            console.log(`\n\nMessage: ${msg.message}\n\n`);
+                        });
+                        // Send it back to the front client handler.
+                        res.status(200).json(msgs);
+                    }
+                    else {
+                        res.status(500).send('Ugh yo this is not working.');
+                    }
+                });
+                console.log('Switch case statement - get-all-boards');
+                break;
+
             default:
+                res.send(page);
                 break;
         }
-        res.send(page);
     })
     .post((req, res) => {
         let type = req.params.param;
@@ -167,6 +207,30 @@ router
                         // res.status(401).send('Something went wrong');
                     }
                 });
+                break;
+            case "send-message":
+                var uid = cache.get('uid');
+                var messageContent = req.body.messageContent;
+                // var board = req.body.board;
+                var board = "alltalk";
+                var mbURL = `amqp://${MB_USER}:${MB_PASS}@${MB_HOST}:${MB_PORT}/${MB_V}`;
+                mustang.sendAndConsumeMessage(mbURL, MB_Q, {
+                    type: "postMessage",
+                    uid: uid,
+                    message: messageContent,
+                    board: board
+                }, (msg) => {
+                    const response = JSON.parse(msg.content.toString());
+                    if (response.returnCode == 0) {
+                        console.log(`Successfully sent message!`);
+                        // Send it back to the front client handler.
+                        res.status(200).json(response);
+                    }
+                    else {
+                        res.status(401).send('Ugh yo this is not working.');
+                    }
+                });
+                break;
             default:
                 break;
         }

@@ -1,0 +1,12 @@
+[Unit]
+Description=Keep RabbitMQ running
+
+[Service]
+User=YOURUSERNAMEORWHATEVER
+WorkingDirectory=/home/longsoup (not the full path to the file directly)
+Type=simple
+ExecStart=/home/longsoup/keephopping.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,20 @@
+{
+    "uid": 0,
+    "made_playlist_count": 0,
+    "playlists": [
+        {
+            "cgsid": 0,
+            "id": "spotify's id",
+            "name": "",
+            "track_count": 0,
+            "content": [
+                {
+                    "id": "THE SPOTIFY TRACK ID, if exists",
+                    "name": "The Track Name",
+                    "artist": "Artist Name",
+                    "artist_id": "THE SPOTIFY ARTIST ID, if exists"
+                }
+            ]
+        }
+    ]
+}
