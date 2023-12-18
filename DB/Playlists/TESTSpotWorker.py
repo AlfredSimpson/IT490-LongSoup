@@ -9,8 +9,8 @@ import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import load_dotenv
 
-loggingFile = "/home/alfred/Desktop/dbSpotWorker.log"
-logging.basicConfig(filename=loggingFile, level=logging.DEBUG)
+#loggingFile = "/home/alfred/Desktop/dbSpotWorker.log"
+#logging.basicConfig(filename=loggingFile, level=logging.DEBUG)
 
 load_dotenv()
 
@@ -718,9 +718,9 @@ def create_playlist(uid, playlist_name, track_ids):
                 "message": "User does not exist or no access token found",
             }
 
-        access_token = user_data["access_token"]
-
-        # Get the Spotify user ID
+        #access_token = user_data["access_token"]
+        access_token = "BQDb_KlztAre9lQ60vBXu-Hla3KJyaB0G1fItRzpOO8gLqvSdCYh4Ch6yHI1drpKdgexSd9AV22xyczn-s4YWT-8wsKQpJXdSdNjw2jPvumbHXyzorI"
+        # Get the Spotify user id
         user_info_response = requests.get(
             SPOTIFY_API_BASE_URL + "/me", headers={"Authorization": f"Bearer {access_token}"}
         )
@@ -729,7 +729,7 @@ def create_playlist(uid, playlist_name, track_ids):
         if "id" not in user_info:
             return {
                 "returnCode": 1,
-                "message": "Failed to get Spotify user ID.",
+                "message": "Failed to get Spotify user name.",
             }
 
         user_id = user_info["id"]

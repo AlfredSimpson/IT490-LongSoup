@@ -1,50 +1,50 @@
-import requests
-from requests.auth import HTTPBasicAuth
-import os
-import dotenv
-from dotenv import load_dotenv
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-load_dotenv()
+# Set up your Spotify API credentials
+SPOTIPY_CLIENT_ID = '10c241e9a6b944928d20497ef814ef7d'
+SPOTIPY_CLIENT_SECRET = 'b1cb224681ee4f8ea9d3f54ea1a3966a'
+SPOTIPY_REDIRECT_URI = 'https://njiticc.com'
 
+# Set up the scope for playlist modification
+SCOPE = 'playlist-modify-public playlist-modify-private'
+
+# Create a Spotify OAuth object
 sp_oauth = SpotifyOAuth(
-    "your_client_id",
-    "your_client_secret",
-    "your_redirect_uri",
-    scope=["playlist-modify-public"]
+    SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET, SPOTIPY_REDIRECT_URI, scope=SCOPE
 )
 
-token_info = sp_oauth.get_access_token(requests.args['code'])
-access_token = token_info['access_token']
+# Get user authorization
+token_info = sp_oauth.get_access_token()
+token = token_info['access_token']
 
-def create_playlist(user_id, access_token, playlist_name, public=True):
-    url = f"https://api.spotify.com/v1/users/{user_id}/playlists"
+# Create a Spotify object
+sp = spotipy.Spotify(auth=token)
 
-    # Playlist data
-    data = {
-        "name": playlist_name,
-        "public": public
-    }
+def create_playlist(user_id, playlist_name):
+    # Create a new playlist
+    playlist = sp.user_playlist_create(user=user_id, name=playlist_name)
+    return playlist['id']
 
-    # headers for auth
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json"
-    }
+def add_tracks_to_playlist(playlist_id, track_uris):
+    # Add tracks to the playlist
+    sp.playlist_add_items(playlist_id, track_uris)
 
-    # post request
-    response = requests.post(url, json=data, headers=headers)
+if __name__ == '__main__':
+    # Replace 'your_spotify_username' with your Spotify username
+    spotify_username = 'jtekson'
+    
+    # Replace 'Your Playlist Name' with the desired playlist name
+    playlist_name = 'test playlist'
 
-    # Check if the request was successful 
-    if response.status_code == 201:
-        print("Playlist has been created.")
-    else:
-        print(f"Error, unable to create playlist: {response.status_code}, {response.text}")
+    # Replace 'track_uri_1', 'track_uri_2', etc. with the URIs of the tracks you want to add
+    track_uris = ['1G391cbiT3v3Cywg8T7DM1', '1Ic9pKxGSJGM0LKeqf6lGe']
 
-# Test
-user_id = "jtekson"
-access_token = "BQCYQC2fnugsOr7uxOflQKIvo52B9cvcabPIKHs-Bp-79KIxooToLEk5H4itxwD9re090-XhyCevwqjvW_RKqT46hCM7vd_FiBOgO3snji478JJ8Oeg"
-playlist_name = "test playlist"
+    # Create the playlist
+    playlist_id = create_playlist(spotify_username, playlist_name)
 
-create_playlist(user_id, access_token, playlist_name)
+    # Add tracks to the playlist
+    add_tracks_to_playlist(playlist_id, track_uris)
+
+    print(f"Playlist '{playlist_name}' created and tracks added successfully!")
+
