@@ -1,0 +1,12 @@
+[Unit]
+Description=Checks if StoreDMZtoDB.py is working.
+
+[Service]
+User=root
+WorkingDirectory=/home/utilities
+Type=simple
+ExecStart=/home/utilities/storedmz.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

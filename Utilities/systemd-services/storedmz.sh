@@ -7,21 +7,20 @@ if ! is_process_running "rabbitmq-server"; then
     sleep 15
 fi
 
-#Check if DMZWorker.py is working/running
-if ! is_process_running DMZWorker.py; then
-    echo "DMZWorker.py is not running. Restarting..."
-        if is_process_running "rabbitmq-server"; then
+#Checks if procedural_data_script.py is running
+if ! is_process_running StoreDMZtoDB.py; then
+    echo "StoreDMZtoDB is not running. Restarting..."
+        if is_process_running "rabbit-server"; then
             echo "RabbitMQ server is running. Restarting..."
             systemctl restart rabbitmq-server
             sleep 15; else
             echo "RabbitMQ server is not running. Attempting to restart..."
             systemctl restart rabbitmq-server
-            sleep 15
-        
+            sleep
         fi
 
-    python /home/david/Desktop/IT490-LongSoup/DMZ/DMZWorkey.py &
+    python /home/david/Desktop/IT490-LongSoup/DB/DMZ_Testing/StoreDMZtoDB.py &
     sleep 2
 fi
 
-echo "DMZ's script execution complete."
+echo "StoreDMZtoDB execution complete."

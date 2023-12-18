@@ -25,22 +25,3 @@ if ! is_process_running LongDMZQuery.py; then
 fi
 
 echo "LongDMZQuery's script execution complete."
-
-#Check if LongProceduralQuery.py is working/running
-if ! is_process_running LongProceduralQuery.py; then
-    echo "LongProceduralQuery.py is not running. Restarting..."
-        if is_process_running "rabbitmq-server"; then
-            echo "RabbitMQ server is running. Restarting..."
-            systemctl restart rabbitmq-server
-            sleep 15; else
-            echo "RabbitMQ server is not running. Attempting to restart..."
-            systemctl restart rabbitmq-server
-            sleep 15
-        
-        fi
-
-    python /home/david/Desktop/IT490-LongSoup/DMZ/API_Scripts/LongProceduralQuery.py &
-    sleep 2
-fi
-
-echo "LongProceduralQuery's script execution complete."

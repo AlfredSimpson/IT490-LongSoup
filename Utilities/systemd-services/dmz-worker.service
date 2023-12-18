@@ -1,0 +1,12 @@
+[Unit]
+Description=Checks is DMZWorker.py is runnning
+
+[Service]
+User=root
+WorkingDirectory=/home/utilities
+Type=simple
+ExecStart=/home/utilities/dmz-worker.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
