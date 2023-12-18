@@ -2,6 +2,9 @@
 
 We were required to create a hot standby server for each of our production machines. We did this by first creating our initial production servers, and then cloning them in VirtualBox once they were configured. After that, we installed Keepalived on each of the machines - production and the standby machines. Finally, we configured them to work together.
 
+## Resources
+
+[Great Youtube Video](https://www.youtube.com/watch?v=hPfk0qd4xEY)
 
 ## Keepalived Configuration
 
