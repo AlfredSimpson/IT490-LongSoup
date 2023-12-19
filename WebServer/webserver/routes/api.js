@@ -7,6 +7,7 @@ const axios = require('axios');
 const querystring = require('querystring');
 var cache = require('memory-cache');
 const jwt = require('jsonwebtoken');
+const jwtDecode = require('jwt-decode');
 const cookieParser = require('cookie-parser');
 // My own modules
 const timber = require('../lumberjack.js');
@@ -53,13 +54,39 @@ router.use(function (req, res, next) {
 
 // A function, requireAuthentication, which will be used as middleware to check if a user is logged in or not
 function requireAuthentication(req, res, next) {
-    var loggedIn = req.account_config.loggedIn ?? false;
+    let token = req.cookies.token;
+    var decoded = jwtDecode.jwtDecode(token);
+    var loggedIn = decoded.loggedIn ?? false;
+    // var loggedIn = req.account_config.loggedIn ?? false;
     if (loggedIn === true) {
         next();
     } else {
         // if the user is not logged in, redirect them to the login page
         res.redirect('/login');
     }
+}
+
+function authenticateToken(req, res, next) {
+    const token = req.cookies.token;
+    var decodedToken = jwtDecode.jwtDecode(token);
+    var uid = decodedToken.uid;
+    if (!token) return res.sendStatus(401);
+    jwt.verify(token, process.env.SESSION_SECRET_KEYMAKER, (err, user) => {
+        if (err) return res.status(403).send('Man we goofed up here...');
+        req.user = user;
+        next();
+    });
+}
+
+function decodeToken(token) {
+    var decodedToken = jwtDecode.jwtDecode(token);
+    return decodedToken;
+}
+
+function getUID(token) {
+    var decodedToken = jwtDecode.jwtDecode(token);
+    var uid = decodedToken.uid;
+    return uid;
 }
 
 function cacheAgain(stuff) {
@@ -72,14 +99,20 @@ function cacheAgain(stuff) {
     }
 }
 
+router.use(authenticateToken);
+
 router.get('/', (req, res, next) => {
-    var uid = req.account_config.uid;
-    var loggedIn = req.account_config.loggedIn ?? false;
-    var oAuthed = req.account_config.oAuthed ?? null;
-    var data = req.account_config.data ?? null;
-    var links = req.account_config.links ?? null;
-    var artists = req.account_config.artists ?? null;
-    var tracks = req.account_config.tracks ?? null;
+    var token = req.cookies.token;
+    var decodedToken = jwtDecode.jwtDecode(token);
+    var profilemusic = req.cookies.profilemusic;
+    var decodedProfileMusic = jwtDecode.jwtDecode(profilemusic);
+    var uid = decodedToken.uid;
+    var loggedIn = decodedToken.loggedIn ?? false;
+    var oAuthed = decodedToken.oAuthed ?? null;
+    var data = decodedToken.data ?? null;
+    var links = decodedProfileMusic.links ?? null;
+    var artists = decodedProfileMusic.artists ?? null;
+    var tracks = decodedProfileMusic.tracks ?? null;
     var attributes = {}
     attributes['uid'] = uid;
     attributes['loggedIn'] = loggedIn;
@@ -96,17 +129,25 @@ router.get('/', (req, res, next) => {
 router
     .route("/:param")
     .get((req, res) => {
+        var token = req.cookies.token;
+        var decodedToken = jwtDecode.jwtDecode(token);
+        var profilemusic = req.cookies.profilemusic;
+        var decodedProfileMusic = jwtDecode.jwtDecode(profilemusic);
+        var uid = decodedToken.uid;
+        var loggedIn = decodedToken.loggedIn ?? false;
+        var oAuthed = decodedToken.oAuthed ?? null;
+        var data = decodedToken.data ?? null;
+        var links = decodedProfileMusic.links ?? null;
+        var artists = decodedProfileMusic.artists ?? null;
+        var tracks = decodedProfileMusic.tracks ?? null;
         var attributes = {}
-        attributes['uid'] = cache.get('uid');
-        attributes['loggedIn'] = cache.get('loggedIn');
-        attributes['oAuthed'] = cache.get('oAuthed');
-        attributes['data'] = cache.get('data');
-        attributes['links'] = cache.get('links');
-        attributes['artists'] = cache.get('artists');
-        attributes['tracks'] = cache.get('tracks');
-        cacheAgain(attributes);
-        // console.log(`\n\nattributes: ${uid}, ${loggedIn}, ${oAuthed}, ${data}, ${links}, ${artists}, ${tracks}\n\n`);
-
+        attributes['uid'] = uid;
+        attributes['loggedIn'] = loggedIn;
+        attributes['oAuthed'] = oAuthed;
+        attributes['data'] = data;
+        attributes['links'] = links;
+        attributes['artists'] = artists;
+        attributes['tracks'] = tracks;
         let page = req.params.param;
         // handle where it goes
         switch (page) {
@@ -116,10 +157,11 @@ router
                 // console.log(`This should not have sent from the get section...`);
                 break;
             case "get-all-boards":
+                console.log(`Does the UID reach here? ${uid}`)
                 var mbURL = `amqp://${MB_USER}:${MB_PASS}@${MB_HOST}:${MB_PORT}/${MB_V}`;
                 mustang.sendAndConsumeMessage(mbURL, MB_Q, {
                     type: "loadMessages",
-                    uid: cache.get('uid'),
+                    uid: uid,
                     board: "all",
                     limit: 20,
                 }, (msg) => {
@@ -157,8 +199,8 @@ router
         // handle where it goes
         switch (type) {
             case "query":
-                // Get the Params to send to the query function
-                var uid = cache.get('uid');
+                var token = req.cookies.token;
+                var uid = getUID(token);
                 var query = req.body.query;
                 var queryT = req.body.query_type;
                 var by = req.body.by_type;
@@ -213,7 +255,8 @@ router
                 });
                 break;
             case "send-message":
-                var uid = cache.get('uid');
+                var token = req.cookies.token;
+                var uid = getUID(token);
                 var messageContent = req.body.messageContent;
                 // var board = req.body.board;
                 var board = "alltalk";

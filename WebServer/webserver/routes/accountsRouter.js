@@ -7,50 +7,53 @@ var cache = require('memory-cache');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const jwtDecode = require('jwt-decode');
+
 // We cam apply middleware here that only applies for this section as well - such as my logic for checking if a user is logged in or not!
 
 router.use(cookieParser());
 
-
-
-
 router.use(function (req, res, next) {
     let d = new Date();
     console.log(req.url, "@", d.toTimeString());
-    // console.log(`accountPath: ${accountPath}`);
     console.log(`req.url: ${req.url}`);
     next();
 });
 
 // A function, requireAuthentication, which will be used as middleware to check if a user is logged in or not
 function requireAuthentication(req, res, next) {
-    var loggedIn = req.account_config.loggedIn ?? false;
+    let token = req.cookies.token;
+    var decoded = jwtDecode.jwtDecode(token);
+    var loggedIn = decoded.loggedIn;
+    var loggedIn = loggedIn ?? false;
+    // console.log(`\n\n[ACCOUNTS MIDDLEWARE] loggedIn is: ${loggedIn}`);
+
     if (loggedIn === true) {
         next();
     } else {
-        // if the user is not logged in, redirect them to the login page
         res.redirect('/login');
     }
 }
 
-function cacheAgain(stuff) {
-    console.log('\n\ntrying to recache stuff');
-    console.log(`\n\nstuff is: ${stuff}`);
-    // Iterate over a dictionary, and cache each key/value pair
-    for (let [key, value] of Object.entries(stuff)) {
-        console.log(`\n${key}: ${value}`);
-        cache.put(key, value);
-    }
+function decodeToken(token) {
+    var decodedToken = jwtDecode.jwtDecode(token);
+    return decodedToken;
 }
 
-//! Added this, can delete. 
-//TODO: Fix or delete
-function authenticateToken(req, res, next) {
-    console.log('[SERVER.JS]attempting to authenticate the token');
-    const token = req.cookies.token;
-    console.log(`token is: ${token}`);
-    if (!token) return res.sendStatus(401);
+function getUID(token) {
+    var decodedToken = jwtDecode.jwtDecode(token);
+    var uid = decodedToken.uid;
+    return uid;
+}
 
+
+function authenticateToken(req, res, next) {
+    const token = req.cookies.token;
+    var decodedToken = jwtDecode.jwtDecode(token);
+    // console.log(`\n\n[MIDDLEWARE - ACCOUNTS] decodedToken is: ${decodedToken}`);
+    var uid = decodedToken.uid;
+    // console.log(`\n\n[MIDDLEWARE- ACCOUNTS] uid is: ${uid}`);
+    if (!token) return res.sendStatus(401);
     jwt.verify(token, process.env.SESSION_SECRET_KEYMAKER, (err, user) => {
         if (err) return res.status(403).send('Man we goofed up here...');
         req.user = user;
@@ -62,23 +65,17 @@ router.use(authenticateToken);
 
 // router.all('*', requireAuthentication);
 router.get('/', requireAuthentication, (req, res) => {
-
-    var uid = req.account_config.uid;
-    var loggedIn = req.account_config.loggedIn ?? false;
-    var oAuthed = req.account_config.oAuthed ?? null;
-    var data = req.account_config.data ?? null;
-    var links = req.account_config.links ?? null;
-    var artists = req.account_config.artists ?? null;
-    var tracks = req.account_config.tracks ?? null;
-    var attributes = {}
-    attributes['uid'] = uid;
-    attributes['loggedIn'] = loggedIn;
-    attributes['oAuthed'] = oAuthed;
-    attributes['data'] = data;
-    attributes['links'] = links;
-    attributes['artists'] = artists;
-    attributes['tracks'] = tracks;
-    cacheAgain(attributes);
+    var token = req.cookies.token;
+    var decodedToken = jwtDecode.jwtDecode(token);
+    var profilemusic = req.cookies.profilemusic;
+    var decodedProfileMusic = jwtDecode.jwtDecode(profilemusic);
+    var uid = decodedToken.uid;
+    var loggedIn = decodedToken.loggedIn ?? false;
+    var oAuthed = decodedToken.oAuthed ?? null;
+    var data = decodedToken.data ?? null;
+    var links = decodedProfileMusic.links ?? null;
+    var artists = decodedProfileMusic.artists ?? null;
+    var tracks = decodedProfileMusic.tracks ?? null;
     var accountPath = path.join(__dirname, '../../views/account.ejs');
     res.render(accountPath, {
         loggedIn: loggedIn,
@@ -90,21 +87,27 @@ router.get('/', requireAuthentication, (req, res) => {
         oAuthed: oAuthed
     });
 });
-
-
+router.get('/profile/:username', requireAuthentication, (req, res) => {
+    var username = req.params.username;
+    console.log(`username is: ${username}`);
+});
 router.route("/:page")
     .get(requireAuthentication, (req, res) => {
         console.log('checking for page in the accounts router');
         var page = req.params.page;
         var viewPath = path.join(__dirname, '../../views/account/', page + '.ejs');
-        console.log('__dirname is: ', __dirname);
-        var uid = req.account_config.uid;
-        var loggedIn = req.account_config.loggedIn ?? false;
-        var oAuthed = req.account_config.oAuthed ?? null;
-        var data = req.account_config.data ?? null;
-        var links = req.account_config.links ?? null;
-        var artists = req.account_config.artists ?? null;
-        var tracks = req.account_config.tracks ?? null;
+        // console.log('__dirname is: ', __dirname);
+        let token = req.cookies.token;
+        token = decodeToken(token);
+        var uid = token.uid;
+        var loggedIn = token.loggedIn ?? false;
+        var oAuthed = token.oAuthed ?? null;
+        var data = token.data ?? null;
+        token = req.cookies.profilemusic;
+        token = decodeToken(token);
+        var links = token.links ?? null;
+        var artists = token.artists ?? null;
+        var tracks = token.tracks ?? null;
         var attributes = {}
         attributes['uid'] = uid;
         attributes['loggedIn'] = loggedIn;
@@ -127,7 +130,6 @@ router.route("/:page")
             case 'browse':
                 // const viewPath = path.join(__dirname, '../../views/account/', page + '.ejs');
                 // console.log('viewPath is: ', viewPath);
-
                 console.log(`Rendering ${page}...`);
                 res.status(200).render(viewPath, {
                     // your context objects here

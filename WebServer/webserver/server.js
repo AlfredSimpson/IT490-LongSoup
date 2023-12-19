@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken'); // Helps us with JWTs
 const fs = require('fs'); // Helps us with file system tasks
 const querystring = require('querystring'); // Helps us with query strings
 var https = require('https');
+const jwtDecode = require('jwt-decode');
 
 require('dotenv').config();
 
@@ -545,8 +546,8 @@ app.post('/authenticate', (req, res) => {
             cache.put('data', data, 3600000);
             let oAuthed = cache.get('oAuthed');
             // console.log(`We are passing oAuthed: ${oAuthed}, uid: ${uid}, loggedIn: ${loggedIn}, data: ${data}, tracks: ${tracks}, artists: ${artists}, links: ${links}`)
-            const token = jwt.sign({ uid: uid }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '1h' });
-            res.cookie('token', token, { httpOnly: true, secure: true });
+            const token = jwt.sign({ data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid, loggedIn: loggedIn }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '3h' });
+            res.cookie('CGS-User', token, { httpOnly: true, secure: true });
             res.status(200).render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid });
         }
         else {
@@ -605,8 +606,11 @@ app.post('/backdoor', (req, res) => {
             cache.put('data', data, 3600000);
             let oAuthed = cache.get('oAuthed');
             console.log(`Attempting to set JWT token`);
-            const token = jwt.sign({ uid: uid }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '1h' });
+            // context = { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid };
+            const token = jwt.sign({ data: data, oAuthed: oAuthed, uid: uid, loggedIn: loggedIn }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '3h' });
+            const profilemusic = jwt.sign({ tracks: tracks, artists: artists, links: links }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '3h' });
             res.cookie('token', token, { httpOnly: true, secure: true });
+            res.cookie('profilemusic', profilemusic, { httpOnly: true, secure: true });
             console.log(`\n\n[BACKDOOR] token: ${token}\n\n`);
             /**
              * END JWT STUFF HERE

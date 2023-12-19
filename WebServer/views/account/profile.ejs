@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <title>Account | CGS</title>
+    <%- include('partials/head'); %>
+</head>
+<!-- This is the one that gets loaded - outside of views... -->
+
+<body>
+    <%- include('partials/loggedheader'); %>
+
+        <% if (uid) { %>
+            <div id="uid"> <%- uid %> </div>
+            <% } %>
+
+                <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+                <script src="js/handler.js"></script>
+                <%- include('partials/footer'); %>
+</body>
+
+</html>
