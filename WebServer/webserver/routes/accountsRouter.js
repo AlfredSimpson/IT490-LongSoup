@@ -4,9 +4,12 @@ const router = express.Router();
 const timber = require('../lumberjack.js');
 const mustang = require('../mustang.js');
 var cache = require('memory-cache');
+const cookieParser = require('cookie-parser');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 // We cam apply middleware here that only applies for this section as well - such as my logic for checking if a user is logged in or not!
 
+router.use(cookieParser());
 
 
 
@@ -39,6 +42,23 @@ function cacheAgain(stuff) {
         cache.put(key, value);
     }
 }
+
+//! Added this, can delete. 
+//TODO: Fix or delete
+function authenticateToken(req, res, next) {
+    console.log('[SERVER.JS]attempting to authenticate the token');
+    const token = req.cookies.token;
+    console.log(`token is: ${token}`);
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.SESSION_SECRET_KEYMAKER, (err, user) => {
+        if (err) return res.status(403).send('Man we goofed up here...');
+        req.user = user;
+        next();
+    });
+}
+
+router.use(authenticateToken);
 
 // router.all('*', requireAuthentication);
 router.get('/', requireAuthentication, (req, res) => {

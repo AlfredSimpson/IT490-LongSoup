@@ -5,6 +5,7 @@ const api = require('./routes/api.js');
 var cache = require('memory-cache');
 const axios = require('axios'); // Helps with AJAX requests
 const bcrypt = require('bcrypt'); // Helps us encrypt passwords
+const jwt = require('jsonwebtoken'); // Helps us with JWTs
 const fs = require('fs'); // Helps us with file system tasks
 const querystring = require('querystring'); // Helps us with query strings
 var https = require('https');
@@ -20,7 +21,15 @@ const statusMessageHandler = require('./status.js');
 const app = express();
 
 // Other Constants
-const Port = process.env.PORT || 9001;
+// const Port = process.env.PORT || 9001;
+const Port = 443;
+
+const options = {
+    key: fs.readFileSync(path.join(__dirname, 'cert/key.pem')),
+    cert: fs.readFileSync(path.join(__dirname, 'cert/cgs-cert.pem'))
+}
+
+
 
 // AMQP Constants
 const broker_vHost = process.env.BROKER_VHOST;
@@ -64,8 +73,6 @@ app.use('/img', express.static(path.join(publicPath, 'img')));
 app.use('/account', express.static(path.join(publicPath, 'account')));
 app.use('/account/js', express.static(path.join(publicPath, 'js')));
 app.use('/account/css', express.static(path.join(publicPath, 'js')));
-
-
 
 // Set views and view engine so we can use EJS. Views are the pages, view engine is the template engine
 app.set('views', path.join(__dirname, '../views')); // this gets us out of the dir we're in and into the views, for separation
@@ -141,6 +148,9 @@ const createUserCookie = (req, res) => {
     // res.cookie('usercookieid', usercookieid, { httpOnly: true });
     return usercookieid;
 };
+
+
+
 
 /**
  * getCookies - gets the cookies from the request
@@ -477,31 +487,6 @@ app.post('/login', (req, res) => {
             let authed = response.authenticated;
             console.log(`authed: ${authed}, uid = ${userinfo.uid}`);
             res.status(200).render('authenticate', { data: data, authed: authed, userinfo: userinfo });
-            // musicdata = response.music;
-            // userinfo = response.userinfo;
-            // let tracks = [];
-            // let artists = [];
-            // let links = [];
-            // for (var i = 0; i < musicdata.length; i++) {
-            //     tracks.push(musicdata[i].track);
-            //     artists.push(musicdata[i].artist);
-            //     links.push(musicdata[i].url);
-            // }
-            // console.log('\n[Login] Setting session data\n');
-            // cache.put('uid', userinfo.uid, 3600000);
-            // console.log(`uid is ${userinfo.uid}`);
-            // cache.put('name', userinfo.name, 3600000);
-            // let loggedIn = true;
-            // let uid = cache.get('uid');
-            // cache.put('loggedIn', loggedIn, 3600000);
-            // cache.put('tracks', tracks, 3600000);
-            // cache.put('artists', artists, 3600000);
-            // cache.put('links', links, 3600000);
-            // cache.put('data', data, 3600000);
-            // let oAuthed = cache.get('oAuthed');
-            // // console.log(`We are passing oAuthed: ${oAuthed}, uid: ${uid}, loggedIn: ${loggedIn}, data: ${data}, tracks: ${tracks}, artists: ${artists}, links: ${links}`)
-            // res.status(200).render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid });
-            // //res.redirect('/account');
         }
         else {
             let errorMSG = 'You have failed to login.';
@@ -560,7 +545,8 @@ app.post('/authenticate', (req, res) => {
             cache.put('data', data, 3600000);
             let oAuthed = cache.get('oAuthed');
             // console.log(`We are passing oAuthed: ${oAuthed}, uid: ${uid}, loggedIn: ${loggedIn}, data: ${data}, tracks: ${tracks}, artists: ${artists}, links: ${links}`)
-
+            const token = jwt.sign({ uid: uid }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '1h' });
+            res.cookie('token', token, { httpOnly: true, secure: true });
             res.status(200).render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid });
         }
         else {
@@ -579,7 +565,7 @@ app.post('/backdoor', (req, res) => {
     let usercookieid = createUserCookie(req, res);
 
     // console.log(`session cookie Created?: ${req.session.sessionId['sessionId']}`);
-    console.log(`user cookie Created?: ${usercookieid}`);
+    console.log(`\n\nuser cookie Created?: ${usercookieid}\n\n`);
     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(broker_vHost)}`;
     console.log(amqpUrl);
 
@@ -594,7 +580,7 @@ app.post('/backdoor', (req, res) => {
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
         if (response.returnCode === 0) {
-            timber.logAndSend('User logged in successfully.');
+            timber.logAndSend('\nUser logged in successfully.\n');
             data = response.data;
             musicdata = response.music;
             userinfo = response.userinfo;
@@ -606,7 +592,7 @@ app.post('/backdoor', (req, res) => {
                 artists.push(musicdata[i].artist);
                 links.push(musicdata[i].url);
             }
-            console.log('\n[Login] Setting session data\n');
+            console.log('\n[BACKDOOR] Setting session data\n');
             cache.put('uid', userinfo.uid, 3600000);
             console.log(`uid is ${userinfo.uid}`);
             cache.put('name', userinfo.name, 3600000);
@@ -618,9 +604,13 @@ app.post('/backdoor', (req, res) => {
             cache.put('links', links, 3600000);
             cache.put('data', data, 3600000);
             let oAuthed = cache.get('oAuthed');
-            // console.log(`We are passing oAuthed: ${oAuthed}, uid: ${uid}, loggedIn: ${loggedIn}, data: ${data}, tracks: ${tracks}, artists: ${artists}, links: ${links}`)
-            // we may want to add other session information to keep, like username, spotify name, etc.
-            // passing back the uid may be good for messaging and other things.
+            console.log(`Attempting to set JWT token`);
+            const token = jwt.sign({ uid: uid }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '1h' });
+            res.cookie('token', token, { httpOnly: true, secure: true });
+            console.log(`\n\n[BACKDOOR] token: ${token}\n\n`);
+            /**
+             * END JWT STUFF HERE
+             */
             res.status(200).render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid });
             //res.redirect('/account');
         } else {
@@ -696,6 +686,13 @@ app.post('/register', (req, res) => {
 
 app.post('/authenticate', (req, res) => {
 });
-app.listen(9001, () => {
-    console.log('Listening on port 9001');
+
+
+// app.listen(9001, () => {
+//     console.log('Listening on port 9001');
+// });
+const server = https.createServer(options, app);
+
+server.listen(Port, () => {
+    console.log(`Listening on port ${Port}`);
 });
