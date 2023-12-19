@@ -26,3 +26,7 @@ creds.txt
 WebServer/_webserver.log
 *.log
 *.log
+WebServer/webserver/cert/server.crt
+WebServer/webserver/cert/server.key
+WebServer/webserver/cert/cgs-cert.pem
+WebServer/webserver/cert/key.pem

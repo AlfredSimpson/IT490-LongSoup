@@ -6,6 +6,8 @@ const fs = require('fs');
 const axios = require('axios');
 const querystring = require('querystring');
 var cache = require('memory-cache');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 // My own modules
 const timber = require('../lumberjack.js');
 const mustang = require('../mustang.js');
@@ -41,6 +43,8 @@ const MB_V = process.env.MBOARD_VHOST;
 const MB_EX = process.env.MBOARD_EXCHANGE;
 const MB_Q = process.env.MBOARD_QUEUE;
 
+
+router.use(cookieParser());
 router.use(function (req, res, next) {
     let d = new Date();
     console.log(req.url, "@", d.toTimeString());
