@@ -89,15 +89,15 @@ function getUID(token) {
     return uid;
 }
 
-function cacheAgain(stuff) {
-    console.log('[Cache Again - API] trying to recache stuff');
-    // console.log(`stuff is: ${stuff}`);
-    // Iterate over a dictionary, and cache each key/value pair
-    for (let [key, value] of Object.entries(stuff)) {
-        // console.log(`${key}: ${value}`);
-        cache.put(key, value);
-    }
-}
+// function cacheAgain(stuff) {
+//     console.log('[Cache Again - API] trying to recache stuff');
+//     // console.log(`stuff is: ${stuff}`);
+//     // Iterate over a dictionary, and cache each key/value pair
+//     for (let [key, value] of Object.entries(stuff)) {
+//         // console.log(`${key}: ${value}`);
+//         cache.put(key, value);
+//     }
+// }
 
 router.use(authenticateToken);
 
@@ -121,7 +121,7 @@ router.get('/', (req, res, next) => {
     attributes['links'] = links;
     attributes['artists'] = artists;
     attributes['tracks'] = tracks;
-    console.log(`attributes: ${attributes}, ${attributes['uid']}`);
+    // console.log(`attributes: ${attributes}, ${attributes['uid']}`);
     next();
 });
 
@@ -157,7 +157,6 @@ router
                 // console.log(`This should not have sent from the get section...`);
                 break;
             case "get-all-boards":
-                console.log(`Does the UID reach here? ${uid}`)
                 var mbURL = `amqp://${MB_USER}:${MB_PASS}@${MB_HOST}:${MB_PORT}/${MB_V}`;
                 mustang.sendAndConsumeMessage(mbURL, MB_Q, {
                     type: "loadMessages",
@@ -166,7 +165,7 @@ router
                     limit: 20,
                 }, (msg) => {
                     const response = JSON.parse(msg.content.toString());
-                    console.log(`[API] \t Received response: ${response}`);
+                    // console.log(`[API] \t Received response: ${response}`);
                     let msgs = response.messages;
 
                     if (res.headersSent) {
@@ -174,11 +173,7 @@ router
                         return;
                     }
                     if (response.returnCode == 0) {
-                        console.log(`\n\nSuccessfully loaded all messages!\n\n`);
-                        // Iterate over all fo the messages:
-                        msgs.forEach((msg) => {
-                            console.log(`\n\nMessage: ${msg.message}\n\n`);
-                        });
+                        // console.log(`\n\nSuccessfully loaded all messages!\n\n`);
                         // Send it back to the front client handler.
                         res.status(200).json(msgs);
                     }
@@ -186,9 +181,7 @@ router
                         res.status(500).send('Ugh yo this is not working.');
                     }
                 });
-                console.log('Switch case statement - get-all-boards');
                 break;
-
             default:
                 res.send(page);
                 break;
@@ -198,12 +191,39 @@ router
         let type = req.params.param;
         // handle where it goes
         switch (type) {
+            case "add-to-playlist":
+                console.log(`[API] \t Adding to playlist`);
+                var token = req.cookies.token;
+                var uid = getUID(token);
+                var rowId = req.body.rowId;
+                var action = req.body.action;
+                var query_type = req.body.query_type;
+                var amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
+                mustang.sendAndConsumeMessage(amqpURL, SPOTQUEUE, {
+                    type: "add_to_playlist",
+                    uid: uid,
+                    rowId: rowId,
+                    action: action,
+                    query_type: query_type
+                }, (msg) => {
+                    const response = JSON.parse(msg.content.toString());
+                    if (response.returnCode == 0) {
+                        console.log(`Successfully added to playlist!`);
+                        // Send it back to the front client handler.
+                        // res.status(200).json(response);
+                    }
+                    else {
+                        res.status(401).send('Ugh yo this is not working.');
+                    }
+                });
+                break;
             case "query":
                 var token = req.cookies.token;
                 var uid = getUID(token);
                 var query = req.body.query;
                 var queryT = req.body.query_type;
                 var by = req.body.by_type;
+                console.log(`[API] \t Querying ${queryT} by ${by} for ${query}`);
                 // url encode query to prevent errors in sending
                 query = encodeURIComponent(query);
                 var amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
@@ -216,9 +236,9 @@ router
                 }, (msg) => {
                     const response = JSON.parse(msg.content.toString());
                     if (response.returnCode == 0) {
-                        console.log(`Generation success!`);
                         // Send it back to the front client handler.
                         res.status(200).json(response);
+                        // console.log(`Successfully added to playlist!`);
                     }
                     else {
                         res.status(401).send('Ugh yo this is not working.');
@@ -229,11 +249,9 @@ router
                 break;
             case "like-dislike":
                 var uid = cache.get('uid');
-                console.log(`[API] \t Received like-dislike request by ${uid}`);
                 var spotted_id = req.body.rowId; // The track/artist/album id (whatever was requested)
                 var like_type = req.body.action; // the like_type (like/dislike)
                 var query_type = req.body.query_type; // the query type (track/artist/album)
-                console.log(`[API] \t Received like-dislike request by ${uid} for ${spotted_id} to ${like_type} it for query type ${query_type}`);
 
                 var amqpURL = `amqp://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_V}`;
 
@@ -250,7 +268,7 @@ router
 
                     }
                     else {
-                        // res.status(401).send('Something went wrong');
+                        res.status(401).send('Something went wrong');
                     }
                 });
                 break;

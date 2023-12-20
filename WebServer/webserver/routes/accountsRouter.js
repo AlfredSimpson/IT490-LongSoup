@@ -71,7 +71,9 @@ router.get('/', requireAuthentication, (req, res) => {
     var decodedProfileMusic = jwtDecode.jwtDecode(profilemusic);
     var uid = decodedToken.uid;
     var loggedIn = decodedToken.loggedIn ?? false;
-    var oAuthed = decodedToken.oAuthed ?? null;
+    let t = req.cookies.oAuthed;
+    var decodedOAuthed = jwtDecode.jwtDecode(t);
+    var oAuthed = decodedOAuthed.oAuthed ?? null;
     var data = decodedToken.data ?? null;
     var links = decodedProfileMusic.links ?? null;
     var artists = decodedProfileMusic.artists ?? null;
@@ -132,7 +134,13 @@ router.route("/:page")
                 // console.log('viewPath is: ', viewPath);
                 console.log(`Rendering ${page}...`);
                 res.status(200).render(viewPath, {
-                    // your context objects here
+                    // will need to put context objects here
+                });
+                break;
+            case 'profile':
+                console.log(`Rendering ${page}...`);
+                res.status(200).render(viewPath, {
+                    // will need to put context objects here
                 });
                 break;
             default:
@@ -145,67 +153,5 @@ router.route("/:page")
         res.send("Hello, world!");
     }
     );
-
-// Additional handlers (like POST, PUT, etc.) can be chained here if needed in the future
-
-
-
-// accounts/:param
-// router.get("/:page", (req, res) => {
-//     var page = req.params.page;
-//     // page = path.join(accountPath, page + '.ejs');
-//     console.log(`Requesting ${ page }...`);
-//     const viewPath = path.join(__dirname, '../views/account/', page + '.ejs');
-//     console.log(`Requesting ${ viewPath }... - but where is it ? `);
-
-//     // handle where it goes
-//     switch (page) {
-//         case "/":
-//             console.log(`Requesting ${ page }...`);
-//             res.render('account', {
-//                 loggedIn: loggedIn,
-//                 uid: uid,
-//                 tracks: tracks,
-//                 artists: artists,
-//                 links: links,
-//                 data: data
-
-//             })
-//             break;
-//         case "account":
-//             console.log(page);
-//             res.render('account', {
-//                 loggedIn: loggedIn,
-//                 uid: uid,
-//                 tracks: tracks,
-//                 artists: artists,
-//                 links: links,
-//                 data: data
-
-//             })
-//             break;
-//         case "browse":
-//             console.log(`passed to switch case ${ page }...`);
-//             res.render('browse', {
-//                 loggedIn: loggedIn,
-//                 uid: uid,
-//                 tracks: tracks,
-//                 artists: artists,
-//                 links: links,
-//                 data: data
-
-//             });
-//             break;
-//         default:
-//             console.log(page);
-//             break;
-//     }
-//     res.send('we could not find what you were looking for...');
-// })
-//     .post((req, res) => {
-//         res.send("Hello, world!");
-//     });
-
-
 
 module.exports = router;
