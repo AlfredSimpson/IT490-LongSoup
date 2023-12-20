@@ -704,6 +704,14 @@ def spotQuery(uid, query_type, query, by_type, limit=10):
     return {"returnCode": 0, "message": response, "returnType": returnType}
 
 
+def create_playlist(uid):
+    pass
+
+
+def addToPlaylist(uid, track_id):
+    pass
+
+
 def return_error():
     pass
 
@@ -759,6 +767,12 @@ def request_processor(ch, method, properties, body):
                     request["queryT"],
                     request["query"],
                     request["by"],
+                )
+            case "add_to_playlist":
+                #! TODO: Justin - handle addToPlaylist
+                response = addToPlaylist(
+                    request["uid"],
+                    request["track_id"],
                 )
             case _:
                 # Default case - basically, all else failed.

@@ -13,7 +13,6 @@
         <!-- Logged in Above here -->
         <!-- If they're logged in, allow them to edit: -->
         <% if (data.username==data.loggedUser) { %>
-
             <section>
                 <div class="container">
                     <h1 class="text-center"> Hey <%= data.loggedUser %>!
@@ -34,8 +33,6 @@
                                         <% if (data.profilePicture) { %>
                                             <img src="h" alt="Admin" class="rounded-circle p-1 bg-primary" width="110">
                                             <% } else { %>
-                                                <!-- <img src="" alt="Admin" class="rounded-circle p-1 bg-primary"
-                                                    width="110"> -->
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"
                                                     fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
                                                     <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
@@ -43,6 +40,10 @@
                                                         d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
                                                 </svg>
                                                 <% } %>
+                                                    <button type="button" class="btn btn-warning btn-sm mt-3"
+                                                        id="profilePic-btn">Change
+                                                        Profile
+                                                        Picture?</button>
                                                     <div class="mt-3">
                                                         <% if (data.username_set) { %>
                                                             <h4>
@@ -51,9 +52,11 @@
                                                             <% } else { %>
                                                                 <h4> No user name chosen... want one?</h4>
                                                                 <% } %>
-                                                                    <p class="text-secondary mb-1">Punk Rocker
-                                                                    </p>
+                                                                    <button type="button" class="btn btn-warning btn-sm"
+                                                                        id="username-btn">Edit</button>
                                                                     <p class="text-muted font-size-sm">Newark, NJ</p>
+                                                                    <button type="button" class="btn btn-warning btn-sm"
+                                                                        id="location-btn">Edit</button>
                                                     </div>
                                     </div>
                                     <hr class="my-4">
@@ -71,6 +74,8 @@
                                                     </path>
                                                 </svg>Website</h6>
                                             <span class="text-secondary">cgs.com</span>
+                                            <button type="button" class="btn btn-warning btn-sm"
+                                                id="website">Change?</button>
                                         </li>
                                         <li
                                             class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
@@ -82,6 +87,8 @@
                                                 </svg>
                                                 Spotify</h6>
                                             <span class="text-secondary">username</span>
+                                            <button type="button" class="btn btn-warning btn-sm" id="spotify">Change
+                                                Visibility?</button>
                                         </li>
                                     </ul>
                                 </div>

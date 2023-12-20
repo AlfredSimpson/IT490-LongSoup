@@ -191,6 +191,10 @@ router
         let type = req.params.param;
         // handle where it goes
         switch (type) {
+            case "update-profile":
+                break;
+            case "set-username":
+                break;
             case "add-to-playlist":
                 console.log(`[API] \t Adding to playlist`);
                 var token = req.cookies.token;
