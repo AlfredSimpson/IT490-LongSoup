@@ -3,11 +3,13 @@ const express = require('express');
 const router = express.Router();
 const timber = require('../lumberjack.js');
 const mustang = require('../mustang.js');
-var cache = require('memory-cache');
+// var cache = require('memory-cache');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const jwtDecode = require('jwt-decode');
+require('dotenv').config();
+
 
 // We cam apply middleware here that only applies for this section as well - such as my logic for checking if a user is logged in or not!
 
@@ -145,9 +147,23 @@ router.route("/:page")
                 break;
             case 'profile':
                 console.log(`Rendering ${page}...`);
+                // let username = "al";
+                // let loggedUser = "al";
+                data = {
+                    username_set: false,
+                    loggedUser: "al",
+                    username: "al",
+                    profilePicture: false,
+                }
                 res.status(200).render(viewPath, {
-                    // will need to put context objects here
+                    data: data
                 });
+                // actual testing of the code
+                let t = req.cookies.token;
+                var uid = getUID(t);
+
+
+
                 break;
             default:
                 console.log(`Unknown request: ${page}`);

@@ -168,4 +168,24 @@ We checked what ssl library we were using in python by running this in the termi
 ```bash
 python -c "import ssl; print(ssl.OPENSSL_VERSION)"
 ```
-The version we had was from March 2022 - which was likely part of the issue. I say this because the changes to SSL came about after a critical vulnerability was discovered around this time. We had to update python3 to the latest version on Ubuntu using this:
+The version we had was from March 2022 - which seemed likely part of the issue. I say this because the changes to SSL came about after a critical vulnerability was discovered around this time. 
+
+However, it ultimately turned out to be that we were just using an outdated RabbitMQ. When installing RabbitMQ on Ubuntu, and following the tutorials, we installed version 3.9 - assuming it was the most recent version. However, it turned out to be the most that RabbitMQ was up to 3.12. We updated to 3.12 and everything worked.
+
+We were only able to install 3.12 by manually installing it - as the apt-get install rabbitmq-server command only installed 3.9. We did this by following the instructions here: https://www.rabbitmq.com/install-debian.html#manual-installation
+
+# MongoDB
+
+Multiple issues were encountered with MongoDB. For starters, for some reason that we cannot figure out, MongoDB on Ubuntu 22.04 in VirtualBox will not use the latest version (even though they say it's supported). We had to revert to version 4.4 to run.
+
+On two other occasions, MongoDB randomly turned off. This was seemingly an issue with permissions. Why this wasn't encountered previously is also confusion. However, the fix was to run the following commands:
+
+```bash
+
+sudo systemctl stop mongod;
+sudo rm /tmp/mongodb-27017.sock;
+sudo chmod 1777 /tmp;
+sudo systemctl start mongod;
+```
+
+After doing this it seemingly resolved.
