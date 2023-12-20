@@ -145,8 +145,17 @@ router.route("/:page")
                 break;
             case 'profile':
                 console.log(`Rendering ${page}...`);
+                // let username = "al";
+                // let loggedUser = "al";
+                data = {
+                    username_set: false,
+                    loggedUser: "al",
+                    username: "al",
+                    profilePicture: false,
+                }
                 res.status(200).render(viewPath, {
                     // will need to put context objects here
+                    data: data
                 });
                 break;
             default:
