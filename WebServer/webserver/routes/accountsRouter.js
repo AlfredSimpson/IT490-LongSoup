@@ -71,9 +71,15 @@ router.get('/', requireAuthentication, (req, res) => {
     var decodedProfileMusic = jwtDecode.jwtDecode(profilemusic);
     var uid = decodedToken.uid;
     var loggedIn = decodedToken.loggedIn ?? false;
-    let t = req.cookies.oAuthed;
-    var decodedOAuthed = jwtDecode.jwtDecode(t);
-    var oAuthed = decodedOAuthed.oAuthed ?? null;
+    try {
+        let t = req.cookies.oAuthed;
+        var decodedOAuthed = jwtDecode.jwtDecode(t);
+        var oAuthed = decodedOAuthed.oAuthed ?? null;
+    }
+    catch (err) {
+        console.log(`[ACCOUNTS ROUTER] Error: ${err}`);
+        var oAuthed = null;
+    }
     var data = decodedToken.data ?? null;
     var links = decodedProfileMusic.links ?? null;
     var artists = decodedProfileMusic.artists ?? null;
