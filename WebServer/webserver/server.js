@@ -9,6 +9,8 @@ const jwt = require('jsonwebtoken'); // Helps us with JWTs
 const fs = require('fs'); // Helps us with file system tasks
 const querystring = require('querystring'); // Helps us with query strings
 var https = require('https');
+const jwtDecode = require('jwt-decode');
+const cookieParser = require('cookie-parser');
 
 require('dotenv').config();
 
@@ -73,7 +75,7 @@ app.use('/img', express.static(path.join(publicPath, 'img')));
 app.use('/account', express.static(path.join(publicPath, 'account')));
 app.use('/account/js', express.static(path.join(publicPath, 'js')));
 app.use('/account/css', express.static(path.join(publicPath, 'js')));
-
+app.use(cookieParser());
 // Set views and view engine so we can use EJS. Views are the pages, view engine is the template engine
 app.set('views', path.join(__dirname, '../views')); // this gets us out of the dir we're in and into the views, for separation
 app.set('view engine', 'ejs');
@@ -86,31 +88,35 @@ app.set('view engine', 'ejs');
  * This is important to note and I'm commenting so we all can understand. What they do is tell the express server to use these routers if a request is made to, for example, account/anything or api/anything. Middleware before this should still be called and passed through. 
  */
 app.use("/account", function (req, res, next) {
-    req.account_config = {
-        loggedIn: cache.get('loggedIn'),
-        uid: cache.get('uid'),
-        tracks: cache.get('tracks'),
-        artists: cache.get('artists'),
-        links: cache.get('links'),
-        data: cache.get('data'),
-        oAuthed: cache.get('oAuthed'),
-        data: cache.get('data'),
-    };
+    console.log('no need to send data anymore - we have the jwt token!');
+    // req.account_config = {
+    //     loggedIn: cache.get('loggedIn'),
+    //     uid: cache.get('uid'),
+    //     tracks: cache.get('tracks'),
+    //     artists: cache.get('artists'),
+    //     links: cache.get('links'),
+    //     data: cache.get('data'),
+    //     oAuthed: cache.get('oAuthed'),
+    //     data: cache.get('data'),
+    // };
     next();
 }, accountsRouter);
 
 // Routing done in accounts.js
 app.use("/api", function (req, res, next) {
-    req.api_config = {
-        loggedIn: cache.get('loggedIn'),
-        uid: cache.get('uid'),
-        tracks: cache.get('tracks'),
-        artists: cache.get('artists'),
-        links: cache.get('links'),
-        data: cache.get('data'),
-        oAuthed: cache.get('oAuthed'),
-        data: cache.get('data'),
-    };
+    console.log('no need to send data anymore - we have the jwt token!')
+    let token = req.cookies.token;
+
+    // req.api_config = {
+    //     loggedIn: cache.get('loggedIn'),
+    //     uid: cache.get('uid'),
+    //     tracks: cache.get('tracks'),
+    //     artists: cache.get('artists'),
+    //     links: cache.get('links'),
+    //     data: cache.get('data'),
+    //     oAuthed: cache.get('oAuthed'),
+    //     data: cache.get('data'),
+    // };
     next();
 }, api); // Routing done in api.js
 
@@ -128,7 +134,7 @@ const createSessionCookie = (req, res) => {
     let sessionId = bcrypt.hashSync(plains, salt);
     // req.session.sessionId = { sessionId: sessionId };
     // res.cookie('sessionId', sessionId, { httpOnly: true });
-    cache.put('sessionId', sessionId, 3600000,);
+    // cache.put('sessionId', sessionId, 3600000,);
     return sessionId;
 };
 
@@ -143,13 +149,14 @@ const createUserCookie = (req, res) => {
     const plains = process.env.USER_SECRET_ID;
     let salt = bcrypt.genSaltSync(saltRounds);
     let usercookieid = bcrypt.hashSync(plains, salt);
-    cache.put('usercookieid', usercookieid, 3600000);
-    // req.session.usercookieid = { usercookieid: usercookieid };
-    // res.cookie('usercookieid', usercookieid, { httpOnly: true });
+    console.log(`\n\n[createUserCookie] usercookieid: ${usercookieid}\n\n`)
     return usercookieid;
 };
 
-
+const getSessionCookie = (req) => {
+    let sessionId = req.cookies.sessionId;
+    return sessionId;
+}
 
 
 /**
@@ -157,13 +164,19 @@ const createUserCookie = (req, res) => {
  * @param {*} req - a request object
  */
 function getCookie(req) {
-    let cookie = req.headers.cookie;
+    // let c = req.cookies.usercookie
+    // let cookie = jwtDecode.jwtDecode(c);
+    let cookie = req.cookies.usercookie;
     console.log(`\n\n[getCookie] Cookie: ${cookie}\n\n`);
     return cookie;
 };
 
 
-
+function getUID(token) {
+    var decodedToken = jwtDecode.jwtDecode(token);
+    var uid = decodedToken.uid;
+    return uid;
+}
 
 
 /**
@@ -199,13 +212,14 @@ app.get('/callback', async (req, res) => {
      * @param {*} req - a request object
      * @param {*} res - a response object
      */
+    var userinfo = req.cookies.token;
+    var uid = getUID(userinfo) ?? null;
+    let usercookie = req.cookies.usercookie;
 
+    console.log(`\n\n[Callback] thecooks: ${uid}\n\n`);
     const code = req.query.code || null;
     try {
-        // let uid = sessionStorage.getItem('uid') ?? null;
-        let uid = cache.get('uid') ?? null;
-        let usercookie = cache.get('usercookieid') ?? null;
-        console.log(`\n[Callback] Received code from Spotify: ${code}, attempting to get the real one\n`);
+        console.log(`\n\n[Callback] code: ${code}\n\n`);
         const response = await axios({
             method: 'post',
             url: 'https://accounts.spotify.com/api/token',
@@ -220,24 +234,20 @@ app.get('/callback', async (req, res) => {
             }
         });
         if (response.data.access_token) {
-            console.log('\n[Callback] Received response from Spotify, parsing it...\n');
-            console.log(`response.data.access_token: ${response.data.access_token}`);
+            // console.log('\n[Callback] Received response from Spotify, parsing it...\n');
             // Probably can clean this up and import up top before sending to production
             var spotvHost = process.env.BROKER_VHOST;
             var spotQueue = process.env.BROKER_QUEUE;
             const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(spotvHost)}`;
-            // console.log(amqpUrl);
             // All of the data we need to send to the broker so that we can get the user's Spotify data
             let access_token = response.data.access_token;
             let refresh_token = response.data.refresh_token;
             let expires_in = response.data.expires_in;
             let token_type = response.data.token_type;
-            // let usercookie = res.locals.usercookieid;
-            let usercookie = cache.get('usercookieid');
-            console.log(`[Spotify Token Grab] What's the usercookie? ${usercookie}`);
+
             mustang.sendAndConsumeMessage(amqpUrl, spotQueue, {
                 type: "spotToken",
-                "usercookie": usercookie,
+                "uid": uid,
                 "access_token": access_token,
                 "refresh_token": refresh_token,
                 "expires_in": expires_in,
@@ -247,19 +257,23 @@ app.get('/callback', async (req, res) => {
                 if (response.returnCode === 0) {
                     console.log(`[Spotify Token Grab] Success!`);
                     timber.logAndSend('User requested some jams, got some.', "_SPOTIFY_");
-                    cache.put('oAuthed', true, 3600000);
-                    let oAuthed = cache.get('oAuthed');
-                    res.status(200).render('success', { oAuthed: oAuthed });
+                    // cache.put('oAuthed', true, 3600000);
+                    let oAuth = true;
+                    let oAuthed = jwt.sign({ oAuthed: oAuth }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '45m' });
+                    res.cookie('oAuthed', oAuthed, { httpOnly: true, secure: true });
+                    res.status(200).render('success', { oAuthed: oAuth });
                 } else {
                     console.log(`[Spotify Token Grab] Failure!`);
                     res.status(401).send('You have failed to authorize Spotify - did we do something?');
                 }
-            });
+            }
+            );
         }
     } catch (error) {
         res.status(500).send('Authentication Failed');
     }
 });
+
 
 /**
  * =====================================================
@@ -369,14 +383,15 @@ app.get("/:page", (req, res) => {
 
 app.get('/api/:param', (req, res) => {
     let type = req.params.param;
-    var uid = cache.get('uid');
+    // var uid = cache.get('uid');
     // handle where it goes
     switch (type) {
         case "query":
             const queryT = req.query.queryT;
             const query = req.query.query;
             const by = req.query.by_type;
-            var uid = cache.get('uid');
+            let token = req.cookies.token;
+            var uid = getUID(token) ?? null;
             query = encodeURIComponent(query);
             console.log(`Sending a request to the query function in server.js`);
             console.log(`queryT: ${queryT}, query: ${query}, by: ${by}`);
@@ -394,7 +409,6 @@ app.post('/account', (req, res) => {
     const valence = req.body.vibe;
     console.log(`\ngenre: ${genre}, popularity: ${popularity}, valence: ${valence}`);
     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(broker_vHost)}`;
-    // getCookie(req);
     mustang.sendAndConsumeMessage(amqpUrl, broker_Queue, {
         type: "simplerecs",
         genre,
@@ -419,14 +433,19 @@ app.post('/account', (req, res) => {
                     artists.push(musicdata[i].artist);
                     links.push(musicdata[i].url);
                 }
-                let oAuthed = cache.get('oAuthed');
-                let uid = cache.get('uid');
-                cache.put('tracks', tracks, 3600000);
-                cache.put('artists', artists, 3600000);
-                cache.put('links', links, 3600000);
-                cache.put('data', data, 3600000);
+                let t = req.cookies.token;
+                let uid = getUID(t) ?? null;
+                let loggedIn = jwtDecode.jwtDecode(t).loggedIn ?? false;
+                let authCookie = req.cookies.oAuthed;
+                let oAuthed = jwtDecode.jwtDecode(authCookie);
+                oAuthed = oAuthed.oAuthed;
+
                 console.log('\n[Account] Setting session data\n');
-                // console.log('\n[Account] req.session.uid: ', req.session.tracks);
+                // set jwt tokens
+                const profilemusic = jwt.sign({ tracks: tracks, artists: artists, links: links }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '1h' });
+                const token = jwt.sign({ data: data, uid: uid, loggedIn: loggedIn }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '1h' });
+                res.cookie('profilemusic', profilemusic, { httpOnly: true, secure: true });
+                res.cookie('token', token, { httpOnly: true, secure: true });
                 res.render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid });
             } else {
                 console.log("Failure!");
@@ -459,7 +478,7 @@ app.post('/login', (req, res) => {
 
     let usercookieid = createUserCookie(req, res);
 
-    // console.log(`session cookie Created?: ${req.session.sessionId['sessionId']}`);
+    console.log(`session cookie Created?: ${session_id}`);
     console.log(`user cookie Created?: ${usercookieid}`);
     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(broker_vHost)}`;
     console.log(amqpUrl);
@@ -475,17 +494,16 @@ app.post('/login', (req, res) => {
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
         if (response.returnCode === 0) {
-            // TODO: we need to now render the authenticate page instead, still passing over the data, we receive from the database
-            // TODO: This may need an alternative function that renders the page, and awaits. I'm not 100% certain just yet.
             timber.logAndSend('User logged in successfully.');
             data = response.data;
             userinfo = response.userinfo;
-            cache.put('uid', userinfo.uid, 3600000);
-            cache.put('name', userinfo.name, 3600000);
-            cache.put('spot_name', userinfo.spot_name, 3600000);
-            cache.put('data', data, 3600000);
+            // cache.put('uid', userinfo.uid, 3600000);
+            // cache.put('name', userinfo.name, 3600000);
+            // cache.put('spot_name', userinfo.spot_name, 3600000);
+            // cache.put('data', data, 3600000);
             let authed = response.authenticated;
             console.log(`authed: ${authed}, uid = ${userinfo.uid}`);
+
             res.status(200).render('authenticate', { data: data, authed: authed, userinfo: userinfo });
         }
         else {
@@ -504,13 +522,13 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/authenticate', (req, res) => {
-    const uid = cache.get('uid');
+    let t = req.cookies.token;
+    let uid = getUID(t) ?? null;
     console.log(`\n\n[authenticate] We're in authenticate\n\n`);
     console.log(`\n\n[authenticate] uid: ${uid}\n\n`);
     const authcode = req.body.authCode;
     console.log(`\n\n[authenticate] authcode: ${authcode}\n\n`);
     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(broker_vHost)}`;
-
     mustang.sendAndConsumeMessage(amqpUrl, broker_Queue, {
         type: "auth_login",
         "uid": uid,
@@ -533,20 +551,25 @@ app.post('/authenticate', (req, res) => {
                 links.push(musicdata[i].url);
             }
             console.log('\n[Login] Setting session data\n');
-            cache.put('uid', userinfo.uid, 3600000);
-            console.log(`uid is ${userinfo.uid}`);
-            cache.put('name', userinfo.name, 3600000);
+            // cache.put('uid', userinfo.uid, 3600000);
+            // console.log(`uid is ${userinfo.uid}`);
+            // cache.put('name', userinfo.name, 3600000);
             let loggedIn = true;
-            let uid = cache.get('uid');
-            cache.put('loggedIn', loggedIn, 3600000);
-            cache.put('tracks', tracks, 3600000);
-            cache.put('artists', artists, 3600000);
-            cache.put('links', links, 3600000);
-            cache.put('data', data, 3600000);
-            let oAuthed = cache.get('oAuthed');
-            // console.log(`We are passing oAuthed: ${oAuthed}, uid: ${uid}, loggedIn: ${loggedIn}, data: ${data}, tracks: ${tracks}, artists: ${artists}, links: ${links}`)
-            const token = jwt.sign({ uid: uid }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '1h' });
+            let t = req.cookies.token;
+            let uid = getUID(t) ?? null;
+            // let uid = cache.get('uid');
+            // cache.put('loggedIn', loggedIn, 3600000);
+            // cache.put('tracks', tracks, 3600000);
+            // cache.put('artists', artists, 3600000);
+            // cache.put('links', links, 3600000);
+            // cache.put('data', data, 3600000);
+            // let oAuthed = cache.get('oAuthed');
+            let oAuthed = false; // setting to false so whenever logging in we can authorize it.
+            const token = jwt.sign({ data: data, oAuthed: oAuthed, uid: uid, loggedIn: loggedIn }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '3h' });
+            const profilemusic = jwt.sign({ tracks: tracks, artists: artists, links: links }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '3h' });
             res.cookie('token', token, { httpOnly: true, secure: true });
+            res.cookie('profilemusic', profilemusic, { httpOnly: true, secure: true });
+
             res.status(200).render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid });
         }
         else {
@@ -560,16 +583,17 @@ app.post('/backdoor', (req, res) => {
     const useremail = req.body.useremail;
     const password = req.body.password;
     // Check to see if a session cookie exists, if not call the create sessionCookie function
-    let session_id = createSessionCookie(req, res);
+    var session_id = createSessionCookie(req, res);
 
-    let usercookieid = createUserCookie(req, res);
+    var usercookieid = createUserCookie(req, res);
+    const usercookie = jwt.sign({ usercookieid: usercookieid }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '3h' });
+    res.cookie('usercookie', usercookie, { httpOnly: true, secure: true });
 
-    // console.log(`session cookie Created?: ${req.session.sessionId['sessionId']}`);
-    console.log(`\n\nuser cookie Created?: ${usercookieid}\n\n`);
+    console.log(`session cookie Created?: ${session_id}`);
+    console.log(`\n\n[BACKDOOR] user cookie Created?: ${usercookieid}\n\n`);
     const amqpUrl = `amqp://longsoup:puosgnol@${process.env.BROKER_HOST}:${process.env.BROKER_PORT}/${encodeURIComponent(broker_vHost)}`;
     console.log(amqpUrl);
 
-    getCookie(req);
 
     mustang.sendAndConsumeMessage(amqpUrl, broker_Queue, {
         type: "backdoor",
@@ -593,20 +617,20 @@ app.post('/backdoor', (req, res) => {
                 links.push(musicdata[i].url);
             }
             console.log('\n[BACKDOOR] Setting session data\n');
-            cache.put('uid', userinfo.uid, 3600000);
-            console.log(`uid is ${userinfo.uid}`);
-            cache.put('name', userinfo.name, 3600000);
+            // cache.put('uid', userinfo.uid, 3600000);
+            // console.log(`uid is ${userinfo.uid}`);
+            // cache.put('name', userinfo.name, 3600000);
             let loggedIn = true;
-            let uid = cache.get('uid');
-            cache.put('loggedIn', loggedIn, 3600000);
-            cache.put('tracks', tracks, 3600000);
-            cache.put('artists', artists, 3600000);
-            cache.put('links', links, 3600000);
-            cache.put('data', data, 3600000);
-            let oAuthed = cache.get('oAuthed');
+
+
+            let uid = userinfo.uid;
+            let oAuthed = false;
             console.log(`Attempting to set JWT token`);
-            const token = jwt.sign({ uid: uid }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '1h' });
+            // context = { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid };
+            const token = jwt.sign({ data: data, oAuthed: oAuthed, uid: uid, loggedIn: loggedIn }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '3h' });
+            const profilemusic = jwt.sign({ tracks: tracks, artists: artists, links: links }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '3h' });
             res.cookie('token', token, { httpOnly: true, secure: true });
+            res.cookie('profilemusic', profilemusic, { httpOnly: true, secure: true });
             console.log(`\n\n[BACKDOOR] token: ${token}\n\n`);
             /**
              * END JWT STUFF HERE
@@ -667,14 +691,18 @@ app.post('/register', (req, res) => {
             cache.put('uid', userinfo.uid, 3600000);
             cache.put('name', userinfo.name, 3600000);
             let loggedIn = true;
-            let uid = cache.get('uid');
-            cache.put('loggedIn', loggedIn, 3600000);
-            cache.put('tracks', tracks, 3600000);
-            cache.put('artists', artists, 3600000);
-            cache.put('links', links, 3600000);
-            cache.put('data', data, 3600000);
-            let oAuthed = cache.get('oAuthed');
-            console.log(`We are passing oAuthed: ${oAuthed}, uid: ${uid}, loggedIn: ${loggedIn}, data: ${data}, tracks: ${tracks}, artists: ${artists}, links: ${links}`)
+            let uid = userinfo.uid;
+            // cache.put('loggedIn', loggedIn, 3600000);
+            // cache.put('tracks', tracks, 3600000);
+            // cache.put('artists', artists, 3600000);
+            // cache.put('links', links, 3600000);
+            // cache.put('data', data, 3600000);
+            let oAuthed = false; // If they're registering they did not oAuth.
+            // console.log(`We are passing oAuthed: ${oAuthed}, uid: ${uid}, loggedIn: ${loggedIn}, data: ${data}, tracks: ${tracks}, artists: ${artists}, links: ${links}`)
+            const token = jwt.sign({ data: data, uid: uid, loggedIn: loggedIn }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '1h' });
+            const profilemusic = jwt.sign({ tracks: tracks, artists: artists, links: links }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '1h' });
+            res.cookie('token', token, { httpOnly: true, secure: true });
+            res.cookie('profilemusic', profilemusic, { httpOnly: true, secure: true });
             res.status(200).render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid });
         } else {
             data = { "errorStatus": true, "errorOutput": "You have failed to register." };
@@ -682,9 +710,6 @@ app.post('/register', (req, res) => {
         }
     }
     );
-});
-
-app.post('/authenticate', (req, res) => {
 });
 
 

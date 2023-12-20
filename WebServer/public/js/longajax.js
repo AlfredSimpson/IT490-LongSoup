@@ -22,7 +22,7 @@ function createTableRow(data, rowIndex) {
 
     // Create like and dislike buttons
     const likeButton = document.createElement('button');
-    likeButton.textContent = 'Like';
+    likeButton.textContent = '<i class="bi bi-arrow-up-circle-fill"></i>';
     likeButton.id = `like-${data.id}`;
     likeButton.addEventListener('click', () => handleLikeDislike(data.id, 'like'));
 

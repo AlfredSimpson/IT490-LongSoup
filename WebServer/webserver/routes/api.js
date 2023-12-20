@@ -7,6 +7,7 @@ const axios = require('axios');
 const querystring = require('querystring');
 var cache = require('memory-cache');
 const jwt = require('jsonwebtoken');
+const jwtDecode = require('jwt-decode');
 const cookieParser = require('cookie-parser');
 // My own modules
 const timber = require('../lumberjack.js');
@@ -53,7 +54,10 @@ router.use(function (req, res, next) {
 
 // A function, requireAuthentication, which will be used as middleware to check if a user is logged in or not
 function requireAuthentication(req, res, next) {
-    var loggedIn = req.account_config.loggedIn ?? false;
+    let token = req.cookies.token;
+    var decoded = jwtDecode.jwtDecode(token);
+    var loggedIn = decoded.loggedIn ?? false;
+    // var loggedIn = req.account_config.loggedIn ?? false;
     if (loggedIn === true) {
         next();
     } else {
@@ -62,24 +66,53 @@ function requireAuthentication(req, res, next) {
     }
 }
 
-function cacheAgain(stuff) {
-    console.log('[Cache Again - API] trying to recache stuff');
-    // console.log(`stuff is: ${stuff}`);
-    // Iterate over a dictionary, and cache each key/value pair
-    for (let [key, value] of Object.entries(stuff)) {
-        // console.log(`${key}: ${value}`);
-        cache.put(key, value);
-    }
+function authenticateToken(req, res, next) {
+    const token = req.cookies.token;
+    var decodedToken = jwtDecode.jwtDecode(token);
+    var uid = decodedToken.uid;
+    if (!token) return res.sendStatus(401);
+    jwt.verify(token, process.env.SESSION_SECRET_KEYMAKER, (err, user) => {
+        if (err) return res.status(403).send('Man we goofed up here...');
+        req.user = user;
+        next();
+    });
 }
 
+function decodeToken(token) {
+    var decodedToken = jwtDecode.jwtDecode(token);
+    return decodedToken;
+}
+
+function getUID(token) {
+    var decodedToken = jwtDecode.jwtDecode(token);
+    var uid = decodedToken.uid;
+    return uid;
+}
+
+// function cacheAgain(stuff) {
+//     console.log('[Cache Again - API] trying to recache stuff');
+//     // console.log(`stuff is: ${stuff}`);
+//     // Iterate over a dictionary, and cache each key/value pair
+//     for (let [key, value] of Object.entries(stuff)) {
+//         // console.log(`${key}: ${value}`);
+//         cache.put(key, value);
+//     }
+// }
+
+router.use(authenticateToken);
+
 router.get('/', (req, res, next) => {
-    var uid = req.account_config.uid;
-    var loggedIn = req.account_config.loggedIn ?? false;
-    var oAuthed = req.account_config.oAuthed ?? null;
-    var data = req.account_config.data ?? null;
-    var links = req.account_config.links ?? null;
-    var artists = req.account_config.artists ?? null;
-    var tracks = req.account_config.tracks ?? null;
+    var token = req.cookies.token;
+    var decodedToken = jwtDecode.jwtDecode(token);
+    var profilemusic = req.cookies.profilemusic;
+    var decodedProfileMusic = jwtDecode.jwtDecode(profilemusic);
+    var uid = decodedToken.uid;
+    var loggedIn = decodedToken.loggedIn ?? false;
+    var oAuthed = decodedToken.oAuthed ?? null;
+    var data = decodedToken.data ?? null;
+    var links = decodedProfileMusic.links ?? null;
+    var artists = decodedProfileMusic.artists ?? null;
+    var tracks = decodedProfileMusic.tracks ?? null;
     var attributes = {}
     attributes['uid'] = uid;
     attributes['loggedIn'] = loggedIn;
@@ -88,7 +121,7 @@ router.get('/', (req, res, next) => {
     attributes['links'] = links;
     attributes['artists'] = artists;
     attributes['tracks'] = tracks;
-    console.log(`attributes: ${attributes}, ${attributes['uid']}`);
+    // console.log(`attributes: ${attributes}, ${attributes['uid']}`);
     next();
 });
 
@@ -96,17 +129,25 @@ router.get('/', (req, res, next) => {
 router
     .route("/:param")
     .get((req, res) => {
+        var token = req.cookies.token;
+        var decodedToken = jwtDecode.jwtDecode(token);
+        var profilemusic = req.cookies.profilemusic;
+        var decodedProfileMusic = jwtDecode.jwtDecode(profilemusic);
+        var uid = decodedToken.uid;
+        var loggedIn = decodedToken.loggedIn ?? false;
+        var oAuthed = decodedToken.oAuthed ?? null;
+        var data = decodedToken.data ?? null;
+        var links = decodedProfileMusic.links ?? null;
+        var artists = decodedProfileMusic.artists ?? null;
+        var tracks = decodedProfileMusic.tracks ?? null;
         var attributes = {}
-        attributes['uid'] = cache.get('uid');
-        attributes['loggedIn'] = cache.get('loggedIn');
-        attributes['oAuthed'] = cache.get('oAuthed');
-        attributes['data'] = cache.get('data');
-        attributes['links'] = cache.get('links');
-        attributes['artists'] = cache.get('artists');
-        attributes['tracks'] = cache.get('tracks');
-        cacheAgain(attributes);
-        // console.log(`\n\nattributes: ${uid}, ${loggedIn}, ${oAuthed}, ${data}, ${links}, ${artists}, ${tracks}\n\n`);
-
+        attributes['uid'] = uid;
+        attributes['loggedIn'] = loggedIn;
+        attributes['oAuthed'] = oAuthed;
+        attributes['data'] = data;
+        attributes['links'] = links;
+        attributes['artists'] = artists;
+        attributes['tracks'] = tracks;
         let page = req.params.param;
         // handle where it goes
         switch (page) {
@@ -119,12 +160,12 @@ router
                 var mbURL = `amqp://${MB_USER}:${MB_PASS}@${MB_HOST}:${MB_PORT}/${MB_V}`;
                 mustang.sendAndConsumeMessage(mbURL, MB_Q, {
                     type: "loadMessages",
-                    uid: cache.get('uid'),
+                    uid: uid,
                     board: "all",
                     limit: 20,
                 }, (msg) => {
                     const response = JSON.parse(msg.content.toString());
-                    console.log(`[API] \t Received response: ${response}`);
+                    // console.log(`[API] \t Received response: ${response}`);
                     let msgs = response.messages;
 
                     if (res.headersSent) {
@@ -132,11 +173,7 @@ router
                         return;
                     }
                     if (response.returnCode == 0) {
-                        console.log(`\n\nSuccessfully loaded all messages!\n\n`);
-                        // Iterate over all fo the messages:
-                        msgs.forEach((msg) => {
-                            console.log(`\n\nMessage: ${msg.message}\n\n`);
-                        });
+                        // console.log(`\n\nSuccessfully loaded all messages!\n\n`);
                         // Send it back to the front client handler.
                         res.status(200).json(msgs);
                     }
@@ -144,9 +181,7 @@ router
                         res.status(500).send('Ugh yo this is not working.');
                     }
                 });
-                console.log('Switch case statement - get-all-boards');
                 break;
-
             default:
                 res.send(page);
                 break;
@@ -156,12 +191,39 @@ router
         let type = req.params.param;
         // handle where it goes
         switch (type) {
+            case "add-to-playlist":
+                console.log(`[API] \t Adding to playlist`);
+                var token = req.cookies.token;
+                var uid = getUID(token);
+                var rowId = req.body.rowId;
+                var action = req.body.action;
+                var query_type = req.body.query_type;
+                var amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
+                mustang.sendAndConsumeMessage(amqpURL, SPOTQUEUE, {
+                    type: "add_to_playlist",
+                    uid: uid,
+                    rowId: rowId,
+                    action: action,
+                    query_type: query_type
+                }, (msg) => {
+                    const response = JSON.parse(msg.content.toString());
+                    if (response.returnCode == 0) {
+                        console.log(`Successfully added to playlist!`);
+                        // Send it back to the front client handler.
+                        // res.status(200).json(response);
+                    }
+                    else {
+                        res.status(401).send('Ugh yo this is not working.');
+                    }
+                });
+                break;
             case "query":
-                // Get the Params to send to the query function
-                var uid = cache.get('uid');
+                var token = req.cookies.token;
+                var uid = getUID(token);
                 var query = req.body.query;
                 var queryT = req.body.query_type;
                 var by = req.body.by_type;
+                console.log(`[API] \t Querying ${queryT} by ${by} for ${query}`);
                 // url encode query to prevent errors in sending
                 query = encodeURIComponent(query);
                 var amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
@@ -174,9 +236,9 @@ router
                 }, (msg) => {
                     const response = JSON.parse(msg.content.toString());
                     if (response.returnCode == 0) {
-                        console.log(`Generation success!`);
                         // Send it back to the front client handler.
                         res.status(200).json(response);
+                        // console.log(`Successfully added to playlist!`);
                     }
                     else {
                         res.status(401).send('Ugh yo this is not working.');
@@ -187,11 +249,9 @@ router
                 break;
             case "like-dislike":
                 var uid = cache.get('uid');
-                console.log(`[API] \t Received like-dislike request by ${uid}`);
                 var spotted_id = req.body.rowId; // The track/artist/album id (whatever was requested)
                 var like_type = req.body.action; // the like_type (like/dislike)
                 var query_type = req.body.query_type; // the query type (track/artist/album)
-                console.log(`[API] \t Received like-dislike request by ${uid} for ${spotted_id} to ${like_type} it for query type ${query_type}`);
 
                 var amqpURL = `amqp://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_V}`;
 
@@ -208,12 +268,13 @@ router
 
                     }
                     else {
-                        // res.status(401).send('Something went wrong');
+                        res.status(401).send('Something went wrong');
                     }
                 });
                 break;
             case "send-message":
-                var uid = cache.get('uid');
+                var token = req.cookies.token;
+                var uid = getUID(token);
                 var messageContent = req.body.messageContent;
                 // var board = req.body.board;
                 var board = "alltalk";
