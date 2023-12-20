@@ -9,7 +9,8 @@ import bcrypt
 
 # import LongDB deprecated for now - will be used later
 import pymongo
-import logging
+
+# import logging
 import spotipy
 import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -252,7 +253,7 @@ def query_artist(artist, typebyartist=None):
             }
 
 
-def storeToken(access_token, refresh_token, expires_in, token_type, usercookieid):
+def storeToken(access_token, refresh_token, expires_in, token_type, uid):
     """
     storeToken takes in token and uid as arguments and stores the token in the database.
 
@@ -270,7 +271,7 @@ def storeToken(access_token, refresh_token, expires_in, token_type, usercookieid
     print(f'\nAttempting to add token "{access_token}" to users\n')
     print(f"\nAdding on {thedate}\n")
     db.users.update_one(
-        {"usercookieid": usercookieid},
+        {"uid": uid},
         {
             "$set": {
                 "access_token": access_token,
@@ -817,7 +818,7 @@ def do_register(
             }
         except:
             print("\n[REGISTRATION ERROR] Unknown error adding user to database\n")
-            logging.error("[REGISTRATION ERROR] Unknown error adding user to database")
+            # logging.error("[REGISTRATION ERROR] Unknown error adding user to database")
             return {
                 "returnCode": 1,
                 "message": "[REGISTRATION ERROR] Unable to add user to database. Unknown error.",
@@ -871,16 +872,16 @@ def request_processor(ch, method, properties, body):
     # Try / except added just in case bad JSON is received
     try:
         request = json.loads(body.decode("utf-8"))
-        logging.debug(f"\nReceived request: {request}\n")
+        # logging.debug(f"\nReceived request: {request}\n")
     except json.JSONDecodeError:
         print("\n\tError decoding incoming JSON\n")
-        logging.error("Error decoding incoming JSON")
+        # logging.error("Error decoding incoming JSON")
         response = {"ERROR": "Invalid JSON Format Received"}
         return return_error(ch, method, properties, body, response)
     print(f"\nIncoming request: {request}\n")
     if "type" not in request:
         print(f"\n The Request coming is looks like this: {request}\n")
-        logging.error(f"Error in type. Request received without type: {request}")
+        # logging.error(f"Error in type. Request received without type: {request}")
         response = "ERROR: No type specified by message"
     else:
         match request["type"]:
@@ -948,7 +949,7 @@ def request_processor(ch, method, properties, body):
                     request["refresh_token"],
                     request["expires_in"],
                     request["token_type"],
-                    request["usercookie"],
+                    request["uid"],
                 )
             case "loadMessages":
                 response = ""
