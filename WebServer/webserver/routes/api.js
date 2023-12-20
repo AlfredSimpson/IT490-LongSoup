@@ -195,14 +195,14 @@ router
                 console.log(`[API] \t Adding to playlist`);
                 var token = req.cookies.token;
                 var uid = getUID(token);
-                var rowId = req.body.rowId;
+                var track_id = req.body.rowId;
                 var action = req.body.action;
                 var query_type = req.body.query_type;
                 var amqpURL = `amqp://${SPOTUSER}:${SPOTPASS}@${SPOTHOST}:${SPOTPORT}/${SPOTVHOST}`;
                 mustang.sendAndConsumeMessage(amqpURL, SPOTQUEUE, {
                     type: "add_to_playlist",
                     uid: uid,
-                    rowId: rowId,
+                    track_id: track_id,
                     action: action,
                     query_type: query_type
                 }, (msg) => {
