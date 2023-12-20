@@ -705,12 +705,132 @@ def spotQuery(uid, query_type, query, by_type, limit=10):
 
 
 def create_playlist(uid):
-    pass
+    """
+    This function creates a new playlist for a Spotify user
+    """
+    try:
+        # Fetch user data from the database
+        user_data = db.users.find_one({"uid": uid})
 
+        if not user_data or "access_token" not in user_data:
+            return {
+                "returnCode": 1,
+                "message": "User does not exist or no access token found",
+            }
 
-def addToPlaylist(uid, track_id):
-    pass
+        access_token = user_data["access_token"]
+        print("Access token: " + access_token)
+        # Get the Spotify user id
+        headers = {"Authorization": f"Bearer {access_token}"}
+        user_info_response = requests.get(
+            SPOTIFY_API_BASE_URL + "/me", headers=headers
+        )
+        user_info = user_info_response.json()
+        print(user_info)
 
+        if "id" not in user_info:
+            return {
+                "returnCode": 1,
+                "message": "Failed to get Spotify user id.",
+            }
+
+        user_id = user_info["id"]
+        print(user_id)
+
+        # Create a new playlist info to post
+
+        headers = { "Authorization": f"Bearer {access_token}",'Content-Type': 'application/json'}
+        req_url = SPOTIFY_API_BASE_URL + f"/users/{user_id}/playlists"
+        playlist_data = {
+            "name": "New CGS Playlist",
+            "description": "your shiny new playlist",
+            "public": False,  # Set to True if you want the playlist to be public
+        }
+        response = requests.post(req_url, headers=headers, json=playlist_data)
+        print(response)
+
+        if response.status_code == 201:
+            return {
+                "returnCode": 0,
+                "message": "Playlist created successfully",
+            }
+        else:
+            return {
+                "returnCode": 1,
+                "message": f"Failed to create the playlist. Status: {response.status_code}",
+            }
+    except Exception as e:
+        print(f"Error creating playlist: {e}")
+        return {
+            "returnCode": 1,
+            "message": "An error occurred while creating the playlist.",
+        }
+
+# test
+# playlist_creation_result = create_playlist(uid=0)
+# print(playlist_creation_result)
+
+def addToPlaylist(uid, playlist_id, track_uri):
+    """
+    This function adds a song to an existing playlist for a Spotify user
+    """
+    try:
+        # Fetch user data from the database
+        user_data = db.users.find_one({"uid": uid})
+
+        if not user_data or "access_token" not in user_data:
+            return {
+                "returnCode": 1,
+                "message": "User does not exist or no access token found",
+            }
+
+        access_token = user_data["access_token"]
+
+        # Get the Spotify user id
+        headers = {"Authorization": f"Bearer {access_token}"}
+        user_info_response = requests.get(
+            SPOTIFY_API_BASE_URL + "/me", headers=headers
+        )
+        user_info = user_info_response.json()
+
+        if "id" not in user_info:
+            return {
+                "returnCode": 1,
+                "message": "Failed to get Spotify user id.",
+            }
+
+        user_id = user_info["id"]
+
+        # Add a song to the existing playlist
+        headers = {"Authorization": f"Bearer {access_token}", 'Content-Type': 'application/json'}
+        req_url = SPOTIFY_API_BASE_URL + f"/playlists/{playlist_id}/tracks"
+        playlist_data = {
+            "uris": [track_uri],
+        }
+        response = requests.post(req_url, headers=headers, json=playlist_data)
+
+        if response.status_code == 201:
+            return {
+                "returnCode": 0,
+                "message": "Song added to the playlist successfully",
+            }
+        else:
+            return {
+                "returnCode": 1,
+                "message": f"Failed to add the song to the playlist. Status: {response.status_code}",
+            }
+    except Exception as e:
+        print(f"Error adding song to playlist: {e}")
+        return {
+            "returnCode": 1,
+            "message": "An error occurred while adding the song to the playlist.",
+        }
+
+# test
+#playlist_id = "498SJWpmbWnxR9tSFQh4Hk"  # needs playlist id from spotify
+#track_uri = "spotify:track:1G391cbiT3v3Cywg8T7DM1" # track uri from spotify
+#add_song_result = addToPlaylist(uid=0, playlist_id=playlist_id, track_uri=track_uri)
+#print(add_song_result)
 
 def return_error():
     pass
@@ -772,7 +892,8 @@ def request_processor(ch, method, properties, body):
                 #! TODO: Justin - handle addToPlaylist
                 response = addToPlaylist(
                     request["uid"],
-                    request["track_id"],
+                    request["playlist_id"],
+                    request["track_uri"],
                 )
             case _:
                 # Default case - basically, all else failed.
