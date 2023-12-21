@@ -20,9 +20,16 @@ BROKER_USER = os.getenv("BROKER_USER")
 BROKER_PASS = os.getenv("BROKER_PASS")
 BROKER_VHOST = os.getenv("BROKER_VHOST")
 BROKER_QUEUE = os.getenv("BROKER_QUEUE")
-PROFILE_QUEUE = os.getenv("PROFILE_QUEUE")
-PROFILE_EXCHANGE = os.getenv("PROFILE_EXCHANGE")
 BROKER_EXCHANGE = os.getenv("BROKER_EXCHANGE")
+
+# profile connection info
+PRO_PASS = os.getenv("PROFILE_PASS")
+PRO_USER = os.getenv("PROFILE_USER")
+PRO_HOST = os.getenv("PROFILE_HOST")
+PRO_PORT = os.getenv("PROFILE_PORT")
+PRO_VHOST = os.getenv("PROFILE_VHOST")
+PRO_QUEUE = os.getenv("PROFILE_QUEUE")
+PRO_EXCHANGE = os.getenv("PROFILE_EXCHANGE")
 
 
 # Primary Mongo DB
@@ -192,22 +199,22 @@ def request_processor(ch, method, properties, body):
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
-creds = pika.PlainCredentials(username=BROKER_USER, password=BROKER_PASS)
+creds = pika.PlainCredentials(username=PRO_USER, password=PRO_PASS)
 
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
-        host=BROKER_HOST,
+        host=PRO_HOST,
         port=5672,
         credentials=creds,
-        virtual_host=BROKER_VHOST,
+        virtual_host=PRO_VHOST,
         heartbeat=0,
     )
 )
 
 channel = connection.channel()
-channel.queue_declare(queue=PROFILE_QUEUE, durable=True)
-channel.queue_bind(exchange=PROFILE_EXCHANGE, queue=PROFILE_QUEUE)
+channel.queue_declare(queue=PRO_QUEUE, durable=True)
+channel.queue_bind(exchange=PRO_EXCHANGE, queue=PRO_QUEUE)
 print("\n [*] Waiting for a message from the webserver. To exit, press Ctrl+C\n")
-channel.basic_consume(queue=PROFILE_QUEUE, on_message_callback=request_processor)
+channel.basic_consume(queue=PRO_QUEUE, on_message_callback=request_processor)
 print("\n[x] Awaiting RPC requests\n")
 channel.start_consuming()

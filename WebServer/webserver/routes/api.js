@@ -153,6 +153,7 @@ async function updateProfile(profile_field, field_data, privacy, uid) {
         privacy: privacy
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
+        console.log(`[API] \t Response is ${response}`);
         return response;
         // if (response.returnCode == 0) {
         //     console.log(`Successfully updated profile!`);
@@ -240,9 +241,11 @@ router
                 let response = updateProfile(profile_field, field_data, privacy, uid);
                 console.log(`[API] \t Response is ${response}`);
                 if (response.returnCode == 0) {
+                    console.log(`Successfully updated profile!`);
                     res.status(200).json(response);
                 }
                 else {
+
                     res.status(401).send('Ugh yo this is not working.');
                 }
 
