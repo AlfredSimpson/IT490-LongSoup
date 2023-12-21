@@ -721,9 +721,7 @@ def create_playlist(uid):
         print("Access token: " + access_token)
         # Get the Spotify user id
         headers = {"Authorization": f"Bearer {access_token}"}
-        user_info_response = requests.get(
-            SPOTIFY_API_BASE_URL + "/me", headers=headers
-        )
+        user_info_response = requests.get(SPOTIFY_API_BASE_URL + "/me", headers=headers)
         user_info = user_info_response.json()
         print(user_info)
 
@@ -738,7 +736,10 @@ def create_playlist(uid):
 
         # Create a new playlist info to post
 
-        headers = { "Authorization": f"Bearer {access_token}",'Content-Type': 'application/json'}
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
+        }
         req_url = SPOTIFY_API_BASE_URL + f"/users/{user_id}/playlists"
         playlist_data = {
             "name": "New CGS Playlist",
@@ -777,11 +778,13 @@ def create_playlist(uid):
             "message": "An error occurred while creating the playlist.",
         }
 
+
 # test
 # playlist_creation_result = create_playlist(uid=0)
 # print(playlist_creation_result)
 
 def addToPlaylist(uid, track_id):
+
     """
     This function adds a song to an existing playlist or creates a new playlist for a Spotify user
     """
@@ -814,9 +817,7 @@ def addToPlaylist(uid, track_id):
 
         # Get the Spotify user id
         headers = {"Authorization": f"Bearer {access_token}"}
-        user_info_response = requests.get(
-            SPOTIFY_API_BASE_URL + "/me", headers=headers
-        )
+        user_info_response = requests.get(SPOTIFY_API_BASE_URL + "/me", headers=headers)
         user_info = user_info_response.json()
 
         if "id" not in user_info:
@@ -828,7 +829,10 @@ def addToPlaylist(uid, track_id):
         user_id = user_info["id"]
 
         # Add a song to the existing or newly created playlist
-        headers = {"Authorization": f"Bearer {access_token}", 'Content-Type': 'application/json'}
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
+        }
         req_url = SPOTIFY_API_BASE_URL + f"/playlists/{playlist_uri}/tracks"
 
         playlist_data = {
@@ -853,9 +857,11 @@ def addToPlaylist(uid, track_id):
             "message": "An error occurred while adding the song to the playlist.",
         }
 
+
 # test
 # add_to_playlist_result = addToPlaylist(0, "70LcF31zb1H0PyJoS1Sx1r")
 # print(add_to_playlist_result)
+
 
 def return_error():
     pass
@@ -914,11 +920,17 @@ def request_processor(ch, method, properties, body):
                     request["by"],
                 )
             case "add_to_playlist":
-                #! TODO: Justin - handle addToPlaylist
-                response = addToPlaylist(
-                    request["uid"],
-                    request["track_id"],
-                )
+                try:
+                    response = addToPlaylist(
+                        request["uid"],
+                        request["track_id"],
+                    )
+                except Exception as e:
+                    print(f"\nError adding to playlist: {e}\n")
+                    response = {
+                        "returnCode": 1,
+                        "message": "Error adding to playlist",
+                    }
             case _:
                 # Default case - basically, all else failed.
                 response = {

@@ -187,9 +187,15 @@ function addToPlaylist(rowId, action, query_type) {
         .then(response => {
             // Handle the response from the server (e.g., update UI)
             console.log(response.data);
+            let result = response.data.returnCode;
+            displayToast(result, response.data.message);
         })
         .catch(error => {
             // Handle errors
+            // console.log(response);
+            let result = reponse.returnCode;
+            let msg = reponse.message;
+            displayToast(result, msg);
             console.error(error);
         });
 };
@@ -205,11 +211,70 @@ function handleLikeDislike(rowId, action, query_type) {
     console.log(`[Handler] \t Sending ${action} for row ${rowId} for query type ${query_type}`);
     axios.post('/api/like-dislike', { rowId, action, query_type })
         .then(response => {
-            // Handle the response from the server (e.g., update UI)
-            console.log(response.data);
+            let msg = response.data.message;
+            console.log(`\n\t${msg}`);
+            let result = response.data.returnCode;
+            displayToast(result, msg);
         })
         .catch(error => {
-            // Handle errors
-            console.error(error);
+            let msg = response.data.message;
+            displayToast(1, response.message);
+
         });
+}
+
+function displayToast(result, message) {
+    // Create a toast container, display it for 3 seconds, then remove it. 
+    console.log(`\n\tDisplaying toast with result ${result} and message ${message}`);
+    const cont = document.getElementById("notificationcenter");
+    const toastContainer = document.createElement("div");
+    toastContainer.classList.add("toast");
+    toastContainer.setAttribute("role", "alert");
+    toastContainer.setAttribute("z-index", "1060");
+    // toastContainer.classList.add("bg-danger");
+    toastContainer.classList.add("text-black");
+    toastContainer.classList.add("border-2");
+    toastContainer.classList.add("border-black");
+    toastContainer.classList.add("top-0");
+    toastContainer.classList.add("end-0");
+    toastContainer.classList.add("m-5");
+    toastContainer.classList.add("position-fixed");
+
+
+    // toastContainer.classList.add("p-3");
+    const toastHeader = document.createElement("div");
+    toastHeader.classList.add("toast-header");
+    const toastTitle = document.createElement("strong");
+    toastTitle.classList.add("me-auto");
+
+    const toastClose = document.createElement("button");
+    toastClose.classList.add("btn-close");
+    toastClose.setAttribute("type", "button");
+    toastClose.setAttribute("data-bs-dismiss", "toast");
+    toastClose.setAttribute("aria-label", "Close");
+    toastHeader.appendChild(toastTitle);
+    toastHeader.appendChild(toastClose);
+    toastContainer.appendChild(toastHeader);
+
+    const toastBody = document.createElement("div");
+    toastBody.classList.add("toast-body");
+    toastBody.classList.add("text-black");
+    toastBody.classList.add("text-center");
+    if (result == 0) {
+        toastTitle.textContent = "Success!";
+        toastBody.textContent = message;
+        toastContainer.classList.add("bg-success");
+    } else {
+        toastTitle.textContent = "Error";
+        toastBody.textContent = message;
+        toastContainer.classList.add("bg-danger");
+    }
+    toastContainer.appendChild(toastBody);
+    cont.appendChild(toastContainer);
+    // document.body.appendChild(toastContainer);
+    const toast = new bootstrap.Toast(toastContainer);
+    toast.show();
+    setTimeout(() => {
+        document.body.removeChild(toastContainer);
+    }, 3000);
 }

@@ -9,9 +9,12 @@ var cache = require('memory-cache');
 const jwt = require('jsonwebtoken');
 const jwtDecode = require('jwt-decode');
 const cookieParser = require('cookie-parser');
+const multer = require('multer')
+
 // My own modules
 const timber = require('../lumberjack.js');
 const mustang = require('../mustang.js');
+
 
 require('dotenv').config();
 
@@ -24,6 +27,18 @@ const SPOTPASS = process.env.SPOT_PASS;
 const SPOTVHOST = process.env.SPOT_VHOST;
 const SPOTEXCHANGE = process.env.SPOT_EXCHANGE;
 const SPOTQUEUE = process.env.SPOT_QUEUE;
+
+//AMQP For Profiles
+
+const PRO_HOST = process.env.PROFILE_HOST;
+const PRO_PORT = process.env.PROFILE_PORT;
+const PRO_USER = process.env.PROFILE_USER;
+const PRO_PASS = process.env.PROFILE_PASS;
+const PRO_VHOST = process.env.PROFILE_VHOST;
+const PRO_X = process.env.PROFILE_EXCHANGE;
+const PRO_Q = process.env.PROFILE_QUEUE;
+
+
 
 // AMQP Constants for main broker /DBWorker queues
 
@@ -89,15 +104,40 @@ function getUID(token) {
     return uid;
 }
 
-// function cacheAgain(stuff) {
-//     console.log('[Cache Again - API] trying to recache stuff');
-//     // console.log(`stuff is: ${stuff}`);
-//     // Iterate over a dictionary, and cache each key/value pair
-//     for (let [key, value] of Object.entries(stuff)) {
-//         // console.log(`${key}: ${value}`);
-//         cache.put(key, value);
-//     }
-// }
+
+function getOtherUserData(uid, username) {
+    // using axios we will request the data from our database related to the username. It uses the requester's uid and the requested username to get the data
+    // and then returns the data as an object
+    console.log(`[ACCOUNTS ROUTER] getOtherUserData() called`);
+    console.log(`[ACCOUNTS ROUTER] uid is: ${uid}`);
+    console.log(`[ACCOUNTS ROUTER] username is: ${username}`);
+
+    const pro_host = process.env.PROFILE_HOST;
+    const pro_port = process.env.PROFILE_PORT;
+    const pro_v = process.env.PROFILE_VHOST;
+    const pro_user = process.env.PROFILE_USER;
+    const pro_pass = process.env.PROFILE_PASS;
+    const pro_q = process.env.PROFILE_QUEUE;
+    const pro_x = process.env.PROFILE_EXCHANGE;
+    const amqpUrl = `amqp://${pro_user}:${pro_pass}@${pro_host}:${pro_port}/${encodeURIComponent(pro_v)}`;
+
+    mustang.sendAndConsumeMessage(amqpUrl, pro_q, {
+        "type": "load_profile",
+        "username": username,
+        "uid": uid
+    }, (msg) => {
+        if (response.returnCode == 0) {
+            console.log(`[ACCOUNTS ROUTER] Success: ${response.returnMessage}`);
+            let data = response.data;
+            return data
+        } else {
+            console.log(`[ACCOUNTS ROUTER] Error: ${response.returnMessage}`);
+            let data = response.data;
+            return data
+        }
+    }
+    );
+}
 
 router.use(authenticateToken);
 
@@ -125,6 +165,23 @@ router.get('/', (req, res, next) => {
     next();
 });
 
+function updateProfile(profile_field, field_data, privacy, uid) {
+    console.log('[API] \t Updating profile');
+    console.log(`[API] \t Profile field is ${profile_field}, field data is ${field_data}, privacy is ${privacy} and uid is ${uid}`);
+    // return 1;
+    var amqpURL = `amqp://${PRO_USER}:${PRO_PASS}@${PRO_HOST}:${PRO_PORT}/${PRO_VHOST}`;
+    mustang.sendAndConsumeMessage(amqpURL, PRO_Q, {
+        type: "updateProfile",
+        uid: uid,
+        profile_field: profile_field,
+        field_data: field_data,
+        privacy: privacy
+    }, (msg) => {
+        const response = JSON.parse(msg.content.toString());
+        console.log(`[API] \t Response is ${response}`);
+        return response;
+    });
+}
 
 router
     .route("/:param")
@@ -191,7 +248,48 @@ router
         let type = req.params.param;
         // handle where it goes
         switch (type) {
-            case "update-profile":
+            case "updateProfile":
+                console.log(`[API] \t Updating profile`);
+                var profile_field = req.body.profile_field;
+                console.log(`[API] \t Profile field is ${profile_field}`);
+                var field_data = req.body.field_data;
+                var privacy = req.body.privacy;
+                var token = req.cookies.token;
+                var uid = getUID(token);
+                var amqpURL = `amqp://${PRO_USER}:${PRO_PASS}@${PRO_HOST}:${PRO_PORT}/${PRO_VHOST}`;
+                mustang.sendAndConsumeMessage(amqpURL, PRO_Q, {
+                    type: "updateProfile",
+                    uid: uid,
+                    profile_field: profile_field,
+                    field_data: field_data,
+                    privacy: privacy
+                }, (msg) => {
+                    const response = JSON.parse(msg.content.toString());
+                    console.log(`[API] \t Response is ${response.returnCode}`);
+                    if (response.returnCode == 0) {
+                        console.log(`Successfully updated profile!`);
+                        res.status(200).json(response);
+                    }
+                    else {
+                        res.status(401).json(response);
+                    }
+                });
+                // let response = updateProfile(profile_field, field_data, privacy, uid);
+                // console.log(`[API] \t Response is ${response}`);
+                // if (response.returnCode == 0) {
+                //     console.log(`Successfully updated profile!`);
+                //     res.status(200).json(response);
+                // }
+                // else {
+
+                //     res.status(401).send('Ugh yo this is not working.');
+                // }
+
+                break;
+            case "uploadProfilePic":
+                console.log(`[API] \t Uploading profile pic`);
+                // var token = req.cookies.token;
+                //! Left on the backburner - this is a bit more complicated than I thought and we have other things to get done.
                 break;
             case "set-username":
                 break;
@@ -214,10 +312,10 @@ router
                     if (response.returnCode == 0) {
                         console.log(`Successfully added to playlist!`);
                         // Send it back to the front client handler.
-                        // res.status(200).json(response);
+                        res.status(200).json(response);
                     }
                     else {
-                        res.status(401).send('Ugh yo this is not working.');
+                        res.json(response);
                     }
                 });
                 break;
@@ -269,10 +367,11 @@ router
                     const response = JSON.parse(msg.content.toString());
                     if (response.returnCode == 0) {
                         console.log(`Successfully liked or disliked item!`);
-
+                        console.log(`[API] \t Response is ${response.message}`);
+                        res.status(200).json(response);
                     }
                     else {
-                        res.status(401).send('Something went wrong');
+                        res.json(response);
                     }
                 });
                 break;

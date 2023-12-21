@@ -20,15 +20,22 @@ BROKER_USER = os.getenv("BROKER_USER")
 BROKER_PASS = os.getenv("BROKER_PASS")
 BROKER_VHOST = os.getenv("BROKER_VHOST")
 BROKER_QUEUE = os.getenv("BROKER_QUEUE")
-PROFILE_QUEUE = os.getenv("PROFILE_QUEUE")
-PROFILE_EXCHANGE = os.getenv("PROFILE_EXCHANGE")
 BROKER_EXCHANGE = os.getenv("BROKER_EXCHANGE")
+
+# profile connection info
+PRO_PASS = os.getenv("PROFILE_PASS")
+PRO_USER = os.getenv("PROFILE_USER")
+PRO_HOST = os.getenv("PROFILE_HOST")
+PRO_PORT = os.getenv("PROFILE_PORT")
+PRO_VHOST = os.getenv("PROFILE_VHOST")
+PRO_QUEUE = os.getenv("PROFILE_QUEUE")
+PRO_EXCHANGE = os.getenv("PROFILE_EXCHANGE")
 
 
 # Primary Mongo DB
-DB_PROFILES = os.getenv("DB_PROFILES")
-DB_MAIN_USER = os.getenv("MONGO_USER")
-DB_MAIN_PASS = os.getenv("MONGO_PASS")
+db_profiles = os.getenv("DB_PROFILES")
+DB_MAIN_USER = os.getenv("DB_PRO_USER")
+DB_MAIN_PASS = os.getenv("DB_PRO_PASS")
 
 # Connect to the database - we're going to use cgs_mb
 
@@ -36,12 +43,21 @@ myclient = pymongo.MongoClient(
     "mongodb://%s:%s@localhost:27017/" % (DB_MAIN_USER, DB_MAIN_PASS)
 )
 
-db = myclient[DB_PROFILES]
+db = myclient[db_profiles]
+
+
+def initializeProfile(uid):
+    try:
+        db.profiles.insert_one({"uid": uid})
+        return True
+    except Exception as e:
+        print(f"\nError initializing profile: {e}\n")
+        return False
 
 
 def setUsername(username, uid):
     """# setUsername
-    This function sets the username for the user with the given uid.
+    This function sets the username for the user with the given uid. usernames are always public.
 
     Args:
         username (_type_): _description_
@@ -50,15 +66,27 @@ def setUsername(username, uid):
     Returns:
         _type_: _description_
     """
+    allprofiles = db.profiles
     try:
-        db.profiles.update_one({"uid": uid}, {"$set": {"username": username}})
+        if allprofiles.find_one({"uid": uid}):
+            # We found the user, so we're going to update the username
+            allprofiles.update_one(
+                {"uid": uid},
+                {"$set": {"username": username, "username_privacy": "public"}},
+            )
+        else:
+            # The user didn't previously have a profile started, so we're going to create one
+            allprofiles.update_one(
+                {"uid": uid},
+                {"$set": {"username": username}, "username_privacy": "public"},
+            )
         return True
     except Exception as e:
         print(f"\nError setting username: {e}\n")
         return False
 
 
-def updateProfile(uid, data, public=False):
+def updateProfile(uid, profile_field, field_data, privacy="private"):
     """# updateProfile
     This function updates the profile data for the given user.
 
@@ -70,25 +98,49 @@ def updateProfile(uid, data, public=False):
     Returns:
         _type_: _description_
     """
+    profile_exists = db.profiles.find_one({"uid": uid})
+    if not profile_exists:
+        # The user doesn't have a profile, so we need to initialize one
+        initializeProfile(uid)
+        print(f"\n\tInitialized profile for user with uid {uid}\n")
 
-    try:
-        if public:
-            # Data is a dict containing a key (the name of the field updating) and a value (the value to update to)
-            # We need to update the profile data for the given user
-            # We will update the data in the database, regardless of whether public is true or false, but if it is true, we will need to note that. If it's false, we'll update the data with a public value of 0
-
-            # We need to check if the requesting user is the same as the requested user. It should be... but, just in case, we'll check.
-
-            if data["uid"] == uid:
-                # The requesting user is the same as the requested user, so we'll update all the data
-                db.profiles.update_one({"uid": uid}, {"$set": data})
+    match profile_field:
+        case "username":
+            # We're going to set the username
+            print(f"Privacy set to {privacy}")
+            if setUsername(username=field_data, uid=uid):
+                return {"returnCode": 0, "message": "Successfully updated Username."}
             else:
-                # The requesting user is not the same as the requested user, so we'll update only the public data
-                return {"returnCode": 1, "message": "Error updating profile"}
-        return {"returnCode": 0, "message": "success"}
-    except Exception as e:
-        print(f"\nError updating profile: {e}\n")
-        return {"returnCode": 1, "message": "Error updating profile"}
+                return {"returnCode": 1, "message": "Error setting username"}
+        case "location":
+            pass
+        case "bio":
+            db.profiles.update_one(
+                {"uid": uid}, {"$set": {"bio": field_data, "bio_privacy": privacy}}
+            )
+            return {
+                "returnCode": 0,
+                "message": "Successfully updated Bio. Refresh page to see changes.",
+            }
+
+        case "playlists":
+            try:
+                db.profiles.update_one(
+                    {"uid": uid},
+                    {"$set": {"playlists": field_data}, "playlists_privacy": privacy},
+                )
+                return {
+                    "returnCode": 0,
+                    "message": "Successfully updated Playlists. Refresh page to see changes.",
+                }
+            except Exception as e:
+                print(f"\nError updating playlists: {e}\n")
+                return {
+                    "returnCode": 1,
+                    "message": "Error updating playlist visibility",
+                }
+        case _:
+            return {"returnCode": 1, "message": "Invalid profile field"}
 
 
 def getProfileData(username):
@@ -114,7 +166,24 @@ def load_profile(username_requested, uid_requesting):
 
             if data["uid"] == uid_requesting:
                 # The requesting user is the same as the requested user, so we'll return all the data
-                return {"returnCode": 0, "message": "success", "data": data}
+
+                profile = {
+                    "username": data["username"],
+                    "bio": data["bio"],
+                    "playlists": data["playlists"],
+                    "location": data["location"],
+                    "bio_privacy": data["bio_privacy"],
+                    "playlists_privacy": data["playlists_privacy"],
+                    "location_privacy": data["location_privacy"],
+                }
+                if "bio_privacy" == "private":
+                    profile["bio"] = "User's bio is private."
+                if "playlists_privacy" == "private":
+                    profile["playlists"] = "User's playlists are private."
+                if "location_privacy" == "private":
+                    profile["location"] = "User's location is private."
+
+                return {"returnCode": 0, "message": "success", "profile": profile}
             else:
                 # The requesting user is not the same as the requested user, so we'll return only the public data
                 # as data will contain all the data for the requested user, we need to remove items where public is marked 0
@@ -173,9 +242,12 @@ def request_processor(ch, method, properties, body):
                 response = setUsername(request["username"], request["uid"])
             case "updateProfile":
                 response = updateProfile(
-                    request["username"], request["uid"], request["data"]
+                    request["uid"],
+                    request["profile_field"],
+                    request["field_data"],
+                    request["privacy"],
                 )
-            case "loadProfile":
+            case "load_profile":
                 response = load_profile(request["username"], request["uid"])
             case "this":
                 print(f"\n Received a request to \n")
@@ -198,22 +270,22 @@ def request_processor(ch, method, properties, body):
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
-creds = pika.PlainCredentials(username=BROKER_USER, password=BROKER_PASS)
+creds = pika.PlainCredentials(username=PRO_USER, password=PRO_PASS)
 
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
-        host=BROKER_HOST,
+        host=PRO_HOST,
         port=5672,
         credentials=creds,
-        virtual_host=BROKER_VHOST,
+        virtual_host=PRO_VHOST,
         heartbeat=0,
     )
 )
 
 channel = connection.channel()
-channel.queue_declare(queue=PROFILE_QUEUE, durable=True)
-channel.queue_bind(exchange=PROFILE_EXCHANGE, queue=PROFILE_QUEUE)
+channel.queue_declare(queue=PRO_QUEUE, durable=True)
+channel.queue_bind(exchange=PRO_EXCHANGE, queue=PRO_QUEUE)
 print("\n [*] Waiting for a message from the webserver. To exit, press Ctrl+C\n")
-channel.basic_consume(queue=PROFILE_QUEUE, on_message_callback=request_processor)
+channel.basic_consume(queue=PRO_QUEUE, on_message_callback=request_processor)
 print("\n[x] Awaiting RPC requests\n")
 channel.start_consuming()

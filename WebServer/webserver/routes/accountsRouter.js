@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const jwtDecode = require('jwt-decode');
+const axios = require('axios');
 require('dotenv').config();
 
 
@@ -63,6 +64,58 @@ function authenticateToken(req, res, next) {
     });
 }
 
+
+async function getUserProfile(req, res, next) {
+    const token = req.cookies.token;
+    var decodedToken = jwtDecode.jwtDecode(token);
+    var uid = decodedToken.uid;
+    var loggedIn = decodedToken.loggedIn ?? false;
+    var oAuthed = decodedToken.oAuthed ?? null;
+    var data = decodedToken.data ?? null;
+    var userinfo = decodedToken.userinfo ?? null;
+    console.log(`[ACCOUNTS ROUTER] getUserProfile() called`);
+    return attributes;
+}
+
+function getOtherUserData(uid, username) {
+    // using axios we will request the data from our database related to the username. It uses the requester's uid and the requested username to get the data
+    // and then returns the data as an object
+    console.log(`[ACCOUNTS ROUTER - get other user data] getOtherUserData() called`);
+    console.log(`[ACCOUNTS ROUTER] uid is: ${uid}`);
+    console.log(`[ACCOUNTS ROUTER] username is: ${username}`);
+
+    const pro_host = process.env.PROFILE_HOST;
+    const pro_port = process.env.PROFILE_PORT;
+    const pro_v = process.env.PROFILE_VHOST;
+    const pro_user = process.env.PROFILE_USER;
+    const pro_pass = process.env.PROFILE_PASS;
+    const pro_q = process.env.PROFILE_QUEUE;
+    const pro_x = process.env.PROFILE_EXCHANGE;
+    const amqpUrl = `amqp://${pro_user}:${pro_pass}@${pro_host}:${pro_port}/${encodeURIComponent(pro_v)}`;
+    console.log(`[ACCOUNTS ROUTER] amqpUrl is: ${amqpUrl}`);
+    mustang.sendAndConsumeMessage(amqpUrl, pro_q, {
+        "type": "load_profile",
+        "username": username,
+        "uid": uid
+    }, (response) => {
+        if (response.returnCode == 0) {
+            console.log(`[ACCOUNTS ROUTER] Success!`);
+            let profile = response.profile;
+            console.log(`getOtherUserData() profile is: ${profile}`);
+            return profile
+        } else {
+            console.log(`[ACCOUNTS ROUTER] Error: ${response.message}`);
+            let profile = response.profile;
+            return profile
+        }
+    }
+    );
+}
+
+// async function loadProfile(){
+//     const response = await axios.get('')
+// }
+
 router.use(authenticateToken);
 
 // router.all('*', requireAuthentication);
@@ -97,10 +150,38 @@ router.get('/', requireAuthentication, (req, res) => {
         oAuthed: oAuthed
     });
 });
-router.get('/profile/:username', requireAuthentication, (req, res) => {
+router.get('/p/:username', requireAuthentication, (req, res) => {
+    var page = "userprofile";
+    var viewPath = path.join(__dirname, '../../views/account/', page + '.ejs');
     var username = req.params.username;
     console.log(`username is: ${username}`);
+    var token = req.cookies.token;
+    var decodedToken = jwtDecode.jwtDecode(token);
+    var uid = decodedToken.uid;
+
+    var profile = getOtherUserData(uid, username);
+    console.log(`profile - username is: ${profile}`);
+    var loggedIn = decodedToken.loggedIn ?? false;
+    var oAuthed = decodedToken.oAuthed ?? null;
+    var data = decodedToken.data ?? null;
+    var links = decodedToken.links ?? null;
+    var artists = decodedToken.artists ?? null;
+    var tracks = decodedToken.tracks ?? null;
+    var data = {
+        "loggeduser": "Jim",
+        "loggedIn": loggedIn,
+        "oAuthed": oAuthed,
+        "data": data,
+        "links": links,
+        "artists": artists,
+        "tracks": tracks,
+    }
+    res.status(200).render(viewPath, {
+        data: data,
+        profile: profile
+    });
 });
+
 router.route("/:page")
     .get(requireAuthentication, (req, res) => {
         console.log('checking for page in the accounts router');
@@ -149,11 +230,13 @@ router.route("/:page")
                 console.log(`Rendering ${page}...`);
                 // let username = "al";
                 // let loggedUser = "al";
+
                 data = {
                     username_set: false,
                     loggedUser: "al",
                     username: "al",
                     profilePicture: false,
+                    spotify_username: "alfredhsimpson",
                 }
                 res.status(200).render(viewPath, {
                     data: data
