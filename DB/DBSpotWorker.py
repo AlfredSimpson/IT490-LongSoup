@@ -9,8 +9,8 @@ import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import load_dotenv
 
-loggingFile = "/home/alfred/Desktop/dbSpotWorker.log"
-logging.basicConfig(filename=loggingFile, level=logging.DEBUG)
+# loggingFile = "/home/alfred/Desktop/dbSpotWorker.log"
+# logging.basicConfig(filename=loggingFile, level=logging.DEBUG)
 
 load_dotenv()
 
@@ -652,7 +652,7 @@ def spotQuery(uid, query_type, query, by_type, limit=10):
             # print(f"\nFound access token in db: {access_token}\n")
         else:
             print("\n[ERROR] No access token found in db\n")
-            logging.debug(f"[ERROR] Could not find access token in db for user {uid}")
+            # logging.debug(f"[ERROR] Could not find access token in db for user {uid}")
             access_token = None
             return {
                 "returnCode": 1,
@@ -702,7 +702,6 @@ def spotQuery(uid, query_type, query, by_type, limit=10):
         response = response  # Do nothing else.
 
     return {"returnCode": 0, "message": response, "returnType": returnType}
-
 
 def create_playlist(uid):
     """
@@ -779,10 +778,10 @@ def create_playlist(uid):
         }
 
 # test
-# playlist_creation_result = create_playlist(0)
+# playlist_creation_result = create_playlist(uid=0)
 # print(playlist_creation_result)
 
-def addToPlaylist(uid, track_uri):
+def addToPlaylist(uid, track_id):
     """
     This function adds a song to an existing playlist or creates a new playlist for a Spotify user
     """
@@ -791,7 +790,7 @@ def addToPlaylist(uid, track_uri):
         user_playlists = db.UserPlaylists.find_one({"uid": uid})
 
         if user_playlists:
-            # selects first playlist in the list (most recent)
+            # selects the first playlist in the list (most recent)
             playlist_uri = user_playlists["playlists"][0]["playlist_uri"]
         else:
             # Call our previous create_playlist function passing uid
@@ -827,15 +826,13 @@ def addToPlaylist(uid, track_uri):
             }
 
         user_id = user_info["id"]
-        # print("We are adding playlist to user: " + user_id)
 
         # Add a song to the existing or newly created playlist
         headers = {"Authorization": f"Bearer {access_token}", 'Content-Type': 'application/json'}
         req_url = SPOTIFY_API_BASE_URL + f"/playlists/{playlist_uri}/tracks"
-        # print("This is our url: " + req_url)
 
         playlist_data = {
-            "uris": [track_uri],
+            "uris": [f"spotify:track:{track_id}"],
         }
         response = requests.post(req_url, headers=headers, json=playlist_data)
 
@@ -857,7 +854,7 @@ def addToPlaylist(uid, track_uri):
         }
 
 # test
-# add_to_playlist_result = addToPlaylist(0, "spotify:track:7EZC6E7UjZe63f1jRmkWxt")
+# add_to_playlist_result = addToPlaylist(0, "70LcF31zb1H0PyJoS1Sx1r")
 # print(add_to_playlist_result)
 
 def return_error():
@@ -883,13 +880,13 @@ def request_processor(ch, method, properties, body):
         request = json.loads(body.decode("utf-8"))
     except json.JSONDecodeError:
         print("\n\tError decoding incoming JSON\n")
-        logging.error("Error decoding incoming JSON")
+        # logging.error("Error decoding incoming JSON")
         response = {"ERROR": "Invalid JSON Format Received"}
         return return_error(ch, method, properties, body, response)
     print(f"\nIncoming request: {request}\n")
     if "type" not in request:
         print(f"\n The Request coming is looks like this: {request}\n")
-        logging.error(f"Error in type. Request received without type: {request}")
+        # logging.error(f"Error in type. Request received without type: {request}")
         response = "ERROR: No type specified by message"
     else:
         # iterate over all key value pairs in the request
@@ -920,7 +917,7 @@ def request_processor(ch, method, properties, body):
                 #! TODO: Justin - handle addToPlaylist
                 response = addToPlaylist(
                     request["uid"],
-                    request["track_uri"],
+                    request["track_id"],
                 )
             case _:
                 # Default case - basically, all else failed.
