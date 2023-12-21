@@ -80,10 +80,10 @@ def setUsername(username, uid):
                 {"uid": uid},
                 {"$set": {"username": username}, "username_privacy": "public"},
             )
-        return {"returnCode": 0, "message": "success"}
+        return True
     except Exception as e:
         print(f"\nError setting username: {e}\n")
-        return {"returnCode": 0, "message": "success"}
+        return False
 
 
 def updateProfile(uid, profile_field, field_data, privacy="private"):
@@ -108,10 +108,14 @@ def updateProfile(uid, profile_field, field_data, privacy="private"):
         case "username":
             # We're going to set the username
             print(f"Privacy set to {privacy}")
-            return setUsername(username=field_data, uid=uid)
+            if setUsername(username=field_data, uid=uid):
+                return {"returnCode": 0, "message": "success"}
+            else:
+                return {"returnCode": 1, "message": "Error setting username"}
         case "location":
             pass
         case "bio":
+            return {"returnCode": 1, "message": "Invalid profile field"}
             pass
         case "playlists":
             pass
