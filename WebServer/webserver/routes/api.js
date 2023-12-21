@@ -28,6 +28,18 @@ const SPOTVHOST = process.env.SPOT_VHOST;
 const SPOTEXCHANGE = process.env.SPOT_EXCHANGE;
 const SPOTQUEUE = process.env.SPOT_QUEUE;
 
+//AMQP For Profiles
+
+const PRO_HOST = process.env.PROFILE_HOST;
+const PRO_PORT = process.env.PROFILE_PORT;
+const PRO_USER = process.env.PROFILE_USER;
+const PRO_PASS = process.env.PROFILE_PASS;
+const PRO_VHOST = process.env.PROFILE_VHOST;
+const PRO_X = process.env.PROFILE_EXCHANGE;
+const PRO_Q = process.env.PROFILE_QUEUE;
+
+
+
 // AMQP Constants for main broker /DBWorker queues
 
 const DB_HOST = process.env.BROKER_HOST;
@@ -132,10 +144,13 @@ async function updateProfile(profile_field, field_data, privacy, uid) {
     console.log('[API] \t Updating profile');
     console.log(`[API] \t Profile field is ${profile_field}, field data is ${field_data}, privacy is ${privacy} and uid is ${uid}`);
     // return 1;
-    var amqpURL = `amqp://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_V}`;
-    mustang.sendAndConsumeMessage(amqpURL, DB_Q, {
-        type: "update_profile",
-        uid: uid
+    var amqpURL = `amqp://${PRO_USER}:${PRO_PASS}@${PRO_HOST}:${PRO_PORT}/${PRO_VHOST}`;
+    mustang.sendAndConsumeMessage(amqpURL, PRO_Q, {
+        type: "updateProfile",
+        uid: uid,
+        profile_field: profile_field,
+        field_data: field_data,
+        privacy: privacy
     }, (msg) => {
         const response = JSON.parse(msg.content.toString());
         return response;
