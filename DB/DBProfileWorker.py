@@ -55,9 +55,9 @@ def initializeProfile(uid):
         return False
 
 
-def setUsername(username, uid, privacy):
+def setUsername(username, uid):
     """# setUsername
-    This function sets the username for the user with the given uid.
+    This function sets the username for the user with the given uid. usernames are always public.
 
     Args:
         username (_type_): _description_
@@ -66,7 +66,7 @@ def setUsername(username, uid, privacy):
     Returns:
         _type_: _description_
     """
-    allprofiles = db.allprofiles
+    allprofiles = db.profiles
     try:
         if allprofiles.find_one({"uid": uid}):
             # We found the user, so we're going to update the username
@@ -76,11 +76,14 @@ def setUsername(username, uid, privacy):
             )
         else:
             # The user didn't previously have a profile started, so we're going to create one
-            allprofiles.update_one({"uid": uid}, {"$set": {"username": username}})
+            allprofiles.update_one(
+                {"uid": uid},
+                {"$set": {"username": username}, "username_privacy": "public"},
+            )
         return {"returnCode": 0, "message": "success"}
     except Exception as e:
         print(f"\nError setting username: {e}\n")
-        return False
+        return {"returnCode": 0, "message": "success"}
 
 
 def updateProfile(uid, profile_field, field_data, privacy="private"):
@@ -105,7 +108,7 @@ def updateProfile(uid, profile_field, field_data, privacy="private"):
         case "username":
             # We're going to set the username
             print(f"Privacy set to {privacy}")
-            return setUsername(username=field_data, uid=uid, privacy=privacy)
+            return setUsername(username=field_data, uid=uid)
         case "location":
             pass
         case "bio":

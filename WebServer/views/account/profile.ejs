@@ -106,23 +106,39 @@
                                             <h6 class="mb-0">Bio</h6>
                                         </div>
                                         <div class="col-sm-9 text-secondary">
-                                            <input type="text" class="form-control" value="I just love music">
+                                            <% if (data.bio_set) { %>
+                                                <div id="bio-form">
+                                                    <p>
+                                                        <%= data.bio %>
+                                                    </p>
+                                                </div>
+                                                <% } else { %>
+                                                    <div id="bio-form">
+                                                        <p>
+                                                            No bio set... want one?
+                                                        </p>
+                                                    </div>
+                                                    <% } %>
+                                                        <button type="button" class="btn btn-warning btn-sm"
+                                                            id="bio-btn">Edit</button>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h5 class="d-flex align-items-center mb-3">Playlists</h5>
-                                        </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="d-flex align-items-center mb-3">Playlists</h5>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
             <% } else { %>
                 <!-- If they are not, show the profile information -->

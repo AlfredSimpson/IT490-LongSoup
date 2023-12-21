@@ -24,100 +24,89 @@ function getVisibility() {
 
 }
 
-function createFileUpload() {
-    var picUploadContainer = document.getElementById("picUpload");
-    picUploadContainer.innerHTML = "";
+// function createFileUpload() {
+//     var picUploadContainer = document.getElementById("picUpload");
+//     picUploadContainer.innerHTML = "";
 
-    var frm = document.createElement("form");
-    frm.id = "profilePictureUploadForm";
-    frm.classList.add("mb-3");
-    frm.method = "POST";
-    frm.action = "/api/uploadProfilePic";
-    frm.enctype = "multipart/form-data";
-    picUploadContainer.appendChild(frm);
+//     var frm = document.createElement("form");
+//     frm.id = "profilePictureUploadForm";
+//     frm.classList.add("mb-3");
+//     frm.method = "POST";
+//     frm.action = "/api/uploadProfilePic";
+//     frm.enctype = "multipart/form-data";
+//     picUploadContainer.appendChild(frm);
 
-    // var pic_form = document.getElementById("profilePictureUploadForm");
-
-
-    var label = document.createElement("label");
-    label.htmlFor = "profilePictureUpload";
-    label.className = "form-label";
-    label.innerText = "Upload a picture";
-
-    var input = document.createElement("input");
-    input.className = "form-control form-control-sm";
-    input.formEnctype = "multipart/form-data";
-    input.id = "profilePictureUpload";
-    input.type = "file";
-    input.name = "profilePictureUpload";
-    input.accept = "image/*";
-
-    let vis = getVisibility();
+//     // var pic_form = document.getElementById("profilePictureUploadForm");
 
 
-    var sbmt = document.createElement("button");
-    sbmt.type = "submit";
-    sbmt.className = "btn btn-warning btn-sm";
-    sbmt.innerText = "Save";
-    sbmt.id = "profilePictureUploadBtn";
+//     var label = document.createElement("label");
+//     label.htmlFor = "profilePictureUpload";
+//     label.className = "form-label";
+//     label.innerText = "Upload a picture";
 
-    frm.appendChild(label);
-    frm.appendChild(input);
-    frm.appendChild(vis);
-    frm.appendChild(sbmt);
+//     var input = document.createElement("input");
+//     input.className = "form-control form-control-sm";
+//     input.formEnctype = "multipart/form-data";
+//     input.id = "profilePictureUpload";
+//     input.type = "file";
+//     input.name = "profilePictureUpload";
+//     input.accept = "image/*";
 
-    picUploadContainer.appendChild(frm);
-}
-
-async function uploadPicture() {
-    console.log(`uploading picture`);
+//     let vis = getVisibility();
 
 
-    try {
-        let form = document.getElementById("profilePictureUploadForm");
-        let formData = new FormData(form);
-        console.log(formData);
+//     var sbmt = document.createElement("button");
+//     sbmt.type = "submit";
+//     sbmt.className = "btn btn-warning btn-sm";
+//     sbmt.innerText = "Save";
+//     sbmt.id = "profilePictureUploadBtn";
 
-        const response = await axios.post('/api/uploadProfilePic', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-        return response.data
-    }
-    catch (err) {
-        console.log(err);
-    }
+//     frm.appendChild(label);
+//     frm.appendChild(input);
+//     frm.appendChild(vis);
+//     frm.appendChild(sbmt);
+//     picUploadContainer.appendChild(frm);
+// }
 
-}
+// async function uploadPicture() {
+//     console.log(`uploading picture`);
+//     try {
+//         let form = document.getElementById("profilePictureUploadForm");
+//         let formData = new FormData(form);
+//         console.log(formData);
+
+//         const response = await axios.post('/api/uploadProfilePic', formData, {
+//             headers: {
+//                 'Content-Type': 'multipart/form-data'
+//             }
+//         });
+//         return response.data
+//     }
+//     catch (err) {
+//         console.log(err);
+//     }
+
+// }
 
 function updateInformation(field_data) {
     let field_container = field_data + "-form";
     var fieldcontainer = document.getElementById(field_container);
 
-    // var fieldcontainer = document.createElement("div");
-
-    // var frm = document.createElement("form");
-    // frm.id = field_data + "_upload";
-    // frm.classList.add("mb-3");
-    // frm.method = "POST";
-    // frm.action = "/api/updateProfile";
-
     var label = document.createElement("label");
     label.htmlFor = `${field_data}_uploadform`;
     label.className = "form-label";
-    label.innerText = "What's changed?";
+    label.innerText = "What's it gonna be?";
 
     var input = document.createElement("input");
     input.className = "form-control form-control-sm";
     input.formEnctype = "text";
     input.id = `${field_data}_update`;
     input.type = "text";
+    input.placeholder = "Enter new " + field_data;
     input.name = `${field_data}_uploadform`;
     input.accept = "text";
 
-    let vis = getVisibility();
-
+    var vis = getVisibility();
 
     var sbmt = document.createElement("button");
     sbmt.type = "submit";
@@ -129,13 +118,19 @@ function updateInformation(field_data) {
     fieldcontainer.appendChild(input);
     fieldcontainer.appendChild(vis);
     fieldcontainer.appendChild(sbmt);
-
-
-    // fieldcontainer.appendChild(frm);
-
+    if (field_data == "username") {
+        document.getElementById("privacy").disabled = true;
+        document.getElementById("privacy").hidden = true;
+    }
 }
 
+function removeFields(field_data) {
+    // After a user clicks save, remove the fields from the page
+    let field_container = field_data + "-form";
+    var fieldcontainer = document.getElementById(field_container);
+    fieldcontainer.innerHTML = "";
 
+}
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('username-btn').addEventListener('click', async (e) => {
         e.preventDefault();
@@ -157,13 +152,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     profile_field: "username",
                     field_data: username,
                     privacy: privacy
-                });
-                // if (response.data.error) {
-                //     alert(response.data.error);
-                // }
-                // else {
-                //     alert("Username updated!");
-                // }
+                }
+                );
+                removeFields(field_data);
                 console.log(response.data);
                 usernameForm.innerHTML = "";
                 usernameBtn.style.display = "block";
@@ -184,6 +175,51 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+    document.getElementById('bio-btn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        var bioBtn = document.getElementById('bio-btn');
+        var bioForm = document.getElementById('bio-form');
+        bioForm.innerHTML = "";
+        bioBtn.style.display = "none";
+        let f = "bio";
+        updateInformation(f);
+        var submitBtn = document.getElementById("bio_submit");
+        submitBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            let bio = document.getElementById("bio_update").value;
+            let privacy = document.getElementById("privacy").value;
+            console.log(bio);
+            console.log(privacy);
+            try {
+                const response = await axios.post('/api/updateProfile', {
+                    profile_field: "bio",
+                    field_data: bio,
+                    privacy: privacy
+                });
+                // if (response.data.error) {
+                //     alert(response.data.error);
+                // }
+                // else {
+                //     alert("Bio updated!");
+                // }
+                console.log(response.data);
+                bioForm.innerHTML = "";
+                bioBtn.style.display = "block";
+                try {
+                    var bioSbmt = document.getElementById("bio_submit");
+                    bioSbmt.remove();
+                    console.log("removed");
+                }
+                catch (err) {
+                    console.log(err);
+                }
+            }
+            catch (err) {
+                console.log(err);
+            }
+        });
+    }
+    );
     // document.getElementById("profilePic-btn").addEventListener("click", function (e) {
     //     e.preventDefault();
     //     createFileUpload();

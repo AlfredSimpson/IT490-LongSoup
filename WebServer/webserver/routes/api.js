@@ -140,7 +140,7 @@ router.get('/', (req, res, next) => {
     next();
 });
 
-async function updateProfile(profile_field, field_data, privacy, uid) {
+function updateProfile(profile_field, field_data, privacy, uid) {
     console.log('[API] \t Updating profile');
     console.log(`[API] \t Profile field is ${profile_field}, field data is ${field_data}, privacy is ${privacy} and uid is ${uid}`);
     // return 1;
