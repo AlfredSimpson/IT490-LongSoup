@@ -9,8 +9,8 @@ import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import load_dotenv
 
-loggingFile = "/home/alfred/Desktop/dbSpotWorker.log"
-logging.basicConfig(filename=loggingFile, level=logging.DEBUG)
+# loggingFile = "/home/alfred/Desktop/dbSpotWorker.log"
+# logging.basicConfig(filename=loggingFile, level=logging.DEBUG)
 
 load_dotenv()
 
@@ -652,7 +652,7 @@ def spotQuery(uid, query_type, query, by_type, limit=10):
             # print(f"\nFound access token in db: {access_token}\n")
         else:
             print("\n[ERROR] No access token found in db\n")
-            logging.debug(f"[ERROR] Could not find access token in db for user {uid}")
+            # logging.debug(f"[ERROR] Could not find access token in db for user {uid}")
             access_token = None
             return {
                 "returnCode": 1,
@@ -735,13 +735,13 @@ def request_processor(ch, method, properties, body):
         request = json.loads(body.decode("utf-8"))
     except json.JSONDecodeError:
         print("\n\tError decoding incoming JSON\n")
-        logging.error("Error decoding incoming JSON")
+        # logging.error("Error decoding incoming JSON")
         response = {"ERROR": "Invalid JSON Format Received"}
         return return_error(ch, method, properties, body, response)
     print(f"\nIncoming request: {request}\n")
     if "type" not in request:
         print(f"\n The Request coming is looks like this: {request}\n")
-        logging.error(f"Error in type. Request received without type: {request}")
+        # logging.error(f"Error in type. Request received without type: {request}")
         response = "ERROR: No type specified by message"
     else:
         # iterate over all key value pairs in the request

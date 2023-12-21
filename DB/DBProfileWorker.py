@@ -46,6 +46,15 @@ myclient = pymongo.MongoClient(
 db = myclient[db_profiles]
 
 
+def initializeProfile(uid):
+    try:
+        db.profiles.insert_one({"uid": uid})
+        return True
+    except Exception as e:
+        print(f"\nError initializing profile: {e}\n")
+        return False
+
+
 def setUsername(username, uid, privacy):
     """# setUsername
     This function sets the username for the user with the given uid.
@@ -86,6 +95,11 @@ def updateProfile(uid, profile_field, field_data, privacy="private"):
     Returns:
         _type_: _description_
     """
+    profile_exists = db.profiles.find_one({"uid": uid})
+    if not profile_exists:
+        # The user doesn't have a profile, so we need to initialize one
+        initializeProfile(uid)
+        print(f"\n\tInitialized profile for user with uid {uid}\n")
     match profile_field:
         case "username":
             # We're going to set the username
