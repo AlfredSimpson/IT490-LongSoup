@@ -104,6 +104,41 @@ function getUID(token) {
     return uid;
 }
 
+
+function getOtherUserData(uid, username) {
+    // using axios we will request the data from our database related to the username. It uses the requester's uid and the requested username to get the data
+    // and then returns the data as an object
+    console.log(`[ACCOUNTS ROUTER] getOtherUserData() called`);
+    console.log(`[ACCOUNTS ROUTER] uid is: ${uid}`);
+    console.log(`[ACCOUNTS ROUTER] username is: ${username}`);
+
+    const pro_host = process.env.PROFILE_HOST;
+    const pro_port = process.env.PROFILE_PORT;
+    const pro_v = process.env.PROFILE_VHOST;
+    const pro_user = process.env.PROFILE_USER;
+    const pro_pass = process.env.PROFILE_PASS;
+    const pro_q = process.env.PROFILE_QUEUE;
+    const pro_x = process.env.PROFILE_EXCHANGE;
+    const amqpUrl = `amqp://${pro_user}:${pro_pass}@${pro_host}:${pro_port}/${encodeURIComponent(pro_v)}`;
+
+    mustang.sendAndConsumeMessage(amqpUrl, pro_q, {
+        "type": "load_profile",
+        "username": username,
+        "uid": uid
+    }, (msg) => {
+        if (response.returnCode == 0) {
+            console.log(`[ACCOUNTS ROUTER] Success: ${response.returnMessage}`);
+            let data = response.data;
+            return data
+        } else {
+            console.log(`[ACCOUNTS ROUTER] Error: ${response.returnMessage}`);
+            let data = response.data;
+            return data
+        }
+    }
+    );
+}
+
 router.use(authenticateToken);
 
 router.get('/', (req, res, next) => {

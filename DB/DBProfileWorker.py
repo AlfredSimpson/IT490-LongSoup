@@ -166,7 +166,24 @@ def load_profile(username_requested, uid_requesting):
 
             if data["uid"] == uid_requesting:
                 # The requesting user is the same as the requested user, so we'll return all the data
-                return {"returnCode": 0, "message": "success", "data": data}
+
+                profile = {
+                    "username": data["username"],
+                    "bio": data["bio"],
+                    "playlists": data["playlists"],
+                    "location": data["location"],
+                    "bio_privacy": data["bio_privacy"],
+                    "playlists_privacy": data["playlists_privacy"],
+                    "location_privacy": data["location_privacy"],
+                }
+                if "bio_privacy" == "private":
+                    profile["bio"] = "User's bio is private."
+                if "playlists_privacy" == "private":
+                    profile["playlists"] = "User's playlists are private."
+                if "location_privacy" == "private":
+                    profile["location"] = "User's location is private."
+
+                return {"returnCode": 0, "message": "success", "profile": profile}
             else:
                 # The requesting user is not the same as the requested user, so we'll return only the public data
                 # as data will contain all the data for the requested user, we need to remove items where public is marked 0
@@ -230,7 +247,7 @@ def request_processor(ch, method, properties, body):
                     request["field_data"],
                     request["privacy"],
                 )
-            case "loadProfile":
+            case "load_profile":
                 response = load_profile(request["username"], request["uid"])
             case "this":
                 print(f"\n Received a request to \n")
