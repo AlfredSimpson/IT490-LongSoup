@@ -744,15 +744,27 @@ def create_playlist(uid):
         playlist_data = {
             "name": "New CGS Playlist",
             "description": "your shiny new playlist",
-            "public": False,  # Set to True if you want the playlist to be public
+            "public": True,  # Set to True if you want the playlist to be public
         }
         response = requests.post(req_url, headers=headers, json=playlist_data)
         print(response)
 
         if response.status_code == 201:
+            print("creation works")
+            # Extracting playlist ID from the response
+            playlist_uri = response.json().get("id")
+
+            # Add playlist URI to UserPlaylists collection
+            db.UserPlaylists.update_one(
+                {"uid": uid},
+                {"$push": {"playlists": {"playlist_uri": playlist_uri}}},
+                upsert=True,
+            )
+
             return {
                 "returnCode": 0,
                 "message": "Playlist created successfully",
+                "playlist_uri": playlist_uri,
             }
         else:
             return {
@@ -767,14 +779,29 @@ def create_playlist(uid):
         }
 
 # test
-# playlist_creation_result = create_playlist(uid=0)
+# playlist_creation_result = create_playlist(0)
 # print(playlist_creation_result)
 
-def addToPlaylist(uid, playlist_id, track_uri):
+def addToPlaylist(uid, track_uri):
     """
-    This function adds a song to an existing playlist for a Spotify user
+    This function adds a song to an existing playlist or creates a new playlist for a Spotify user
     """
     try:
+        # Fetch user playlists from the database
+        user_playlists = db.UserPlaylists.find_one({"uid": uid})
+
+        if user_playlists:
+            # selects first playlist in the list (most recent)
+            playlist_uri = user_playlists["playlists"][0]["playlist_uri"]
+        else:
+            # Call our previous create_playlist function passing uid
+            create_playlist_result = create_playlist(uid)
+
+            if create_playlist_result["returnCode"] == 0:
+                playlist_uri = create_playlist_result["playlist_uri"]
+            else:
+                return create_playlist_result
+
         # Fetch user data from the database
         user_data = db.users.find_one({"uid": uid})
 
@@ -800,10 +827,13 @@ def addToPlaylist(uid, playlist_id, track_uri):
             }
 
         user_id = user_info["id"]
+        # print("We are adding playlist to user: " + user_id)
 
-        # Add a song to the existing playlist
+        # Add a song to the existing or newly created playlist
         headers = {"Authorization": f"Bearer {access_token}", 'Content-Type': 'application/json'}
-        req_url = SPOTIFY_API_BASE_URL + f"/playlists/{playlist_id}/tracks"
+        req_url = SPOTIFY_API_BASE_URL + f"/playlists/{playlist_uri}/tracks"
+        # print("This is our url: " + req_url)
+
         playlist_data = {
             "uris": [track_uri],
         }
@@ -827,10 +857,8 @@ def addToPlaylist(uid, playlist_id, track_uri):
         }
 
 # test
-#playlist_id = "498SJWpmbWnxR9tSFQh4Hk"  # needs playlist id from spotify
-#track_uri = "spotify:track:1G391cbiT3v3Cywg8T7DM1" # track uri from spotify
-#add_song_result = addToPlaylist(uid=0, playlist_id=playlist_id, track_uri=track_uri)
-#print(add_song_result)
+# add_to_playlist_result = addToPlaylist(0, "spotify:track:7EZC6E7UjZe63f1jRmkWxt")
+# print(add_to_playlist_result)
 
 def return_error():
     pass
@@ -892,7 +920,6 @@ def request_processor(ch, method, properties, body):
                 #! TODO: Justin - handle addToPlaylist
                 response = addToPlaylist(
                     request["uid"],
-                    request["playlist_id"],
                     request["track_uri"],
                 )
             case _:
