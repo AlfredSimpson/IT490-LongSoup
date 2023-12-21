@@ -100,10 +100,12 @@ def updateProfile(uid, profile_field, field_data, privacy="private"):
         # The user doesn't have a profile, so we need to initialize one
         initializeProfile(uid)
         print(f"\n\tInitialized profile for user with uid {uid}\n")
+
     match profile_field:
         case "username":
             # We're going to set the username
-            return setUsername(field_data, uid, privacy)
+            print(f"Privacy set to {privacy}")
+            return setUsername(username=field_data, uid=uid, privacy=privacy)
         case "location":
             pass
         case "bio":
