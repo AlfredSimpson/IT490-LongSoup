@@ -812,7 +812,10 @@ def do_register(
                 "music": music,
                 "userinfo": {
                     "uid": uid,
+                    "name": first_name,
                     "user_fname": first_name,
+                    "spot_name": spot_name,
+                    "user_spot_name": spot_name,
                     "usercookieid": usercookieid,
                 },
             }

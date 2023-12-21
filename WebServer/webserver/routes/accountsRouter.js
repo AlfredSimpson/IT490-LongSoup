@@ -63,6 +63,20 @@ function authenticateToken(req, res, next) {
     });
 }
 
+
+function getUserProfile(req, res, next) {
+    const token = req.cookies.token;
+    var decodedToken = jwtDecode.jwtDecode(token);
+    var uid = decodedToken.uid;
+    var loggedIn = decodedToken.loggedIn ?? false;
+    var oAuthed = decodedToken.oAuthed ?? null;
+    var data = decodedToken.data ?? null;
+    var userinfo = decodedToken.userinfo ?? null;
+
+    return attributes;
+}
+
+
 router.use(authenticateToken);
 
 // router.all('*', requireAuthentication);
@@ -97,9 +111,22 @@ router.get('/', requireAuthentication, (req, res) => {
         oAuthed: oAuthed
     });
 });
-router.get('/profile/:username', requireAuthentication, (req, res) => {
+router.get('/p/:username', requireAuthentication, (req, res) => {
+    var page = "profile";
+    var viewPath = path.join(__dirname, '../../views/account/', page + '.ejs');
     var username = req.params.username;
     console.log(`username is: ${username}`);
+
+    var data = {
+        username_set: false,
+        loggedUser: req.cookies.token.loggeduser,
+        username: req.cookies.token.data.username,
+        profilePicture: false,
+        spotify_username: "alfredhsimpson",
+    }
+    res.status(200).render(viewPath, {
+        data: data
+    });
 });
 router.route("/:page")
     .get(requireAuthentication, (req, res) => {

@@ -109,7 +109,7 @@ def updateProfile(uid, profile_field, field_data, privacy="private"):
             # We're going to set the username
             print(f"Privacy set to {privacy}")
             if setUsername(username=field_data, uid=uid):
-                return {"returnCode": 0, "message": "success"}
+                return {"returnCode": 0, "message": "Successfully updated Username."}
             else:
                 return {"returnCode": 1, "message": "Error setting username"}
         case "location":
@@ -118,14 +118,27 @@ def updateProfile(uid, profile_field, field_data, privacy="private"):
             db.profiles.update_one(
                 {"uid": uid}, {"$set": {"bio": field_data, "bio_privacy": privacy}}
             )
-            return {"returnCode": 1, "message": "Invalid profile field"}
-            pass
+            return {
+                "returnCode": 0,
+                "message": "Successfully updated Bio. Refresh page to see changes.",
+            }
+
         case "playlists":
-            db.profiles.update_one(
-                {"uid": uid},
-                {"$set": {"playlists": field_data}, "playlists_privacy": privacy},
-            )
-            pass
+            try:
+                db.profiles.update_one(
+                    {"uid": uid},
+                    {"$set": {"playlists": field_data}, "playlists_privacy": privacy},
+                )
+                return {
+                    "returnCode": 0,
+                    "message": "Successfully updated Playlists. Refresh page to see changes.",
+                }
+            except Exception as e:
+                print(f"\nError updating playlists: {e}\n")
+                return {
+                    "returnCode": 1,
+                    "message": "Error updating playlist visibility",
+                }
         case _:
             return {"returnCode": 1, "message": "Invalid profile field"}
 

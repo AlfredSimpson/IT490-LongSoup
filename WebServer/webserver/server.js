@@ -422,6 +422,7 @@ app.post('/account', (req, res) => {
                 timber.logAndSend('\n[Account Post]\tUser requested some jams, got some.\n');
                 data = response.data;
                 musicdata = response.music
+                userinfo = response.userinfo;
                 console.log("\n\nWe made it to simpleRecs, here's response.music/musicdata\n");
                 console.log(musicdata);
                 console.log("\n['account'] \tTesting musicdata\n");
@@ -443,7 +444,7 @@ app.post('/account', (req, res) => {
                 console.log('\n[Account] Setting session data\n');
                 // set jwt tokens
                 const profilemusic = jwt.sign({ tracks: tracks, artists: artists, links: links }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '1h' });
-                const token = jwt.sign({ data: data, uid: uid, loggedIn: loggedIn }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '1h' });
+                const token = jwt.sign({ data: data, uid: uid, loggedIn: loggedIn, userinfo: userinfo }, process.env.SESSION_SECRET_KEYMAKER, { expiresIn: '1h' });
                 res.cookie('profilemusic', profilemusic, { httpOnly: true, secure: true });
                 res.cookie('token', token, { httpOnly: true, secure: true });
                 res.render('account', { data: data, tracks: tracks, artists: artists, links: links, oAuthed: oAuthed, uid: uid });
