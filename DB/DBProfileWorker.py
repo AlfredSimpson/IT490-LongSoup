@@ -33,9 +33,9 @@ PRO_EXCHANGE = os.getenv("PROFILE_EXCHANGE")
 
 
 # Primary Mongo DB
-DB_PROFILES = os.getenv("DB_PROFILES")
-DB_MAIN_USER = os.getenv("MONGO_USER")
-DB_MAIN_PASS = os.getenv("MONGO_PASS")
+db_profiles = os.getenv("DB_PROFILES")
+DB_MAIN_USER = os.getenv("DB_PRO_USER")
+DB_MAIN_PASS = os.getenv("DB_PRO_PASS")
 
 # Connect to the database - we're going to use cgs_mb
 
@@ -43,10 +43,10 @@ myclient = pymongo.MongoClient(
     "mongodb://%s:%s@localhost:27017/" % (DB_MAIN_USER, DB_MAIN_PASS)
 )
 
-db = myclient[DB_PROFILES]
+db = myclient[db_profiles]
 
 
-def setUsername(username, uid):
+def setUsername(username, uid, privacy):
     """# setUsername
     This function sets the username for the user with the given uid.
 
@@ -57,16 +57,17 @@ def setUsername(username, uid):
     Returns:
         _type_: _description_
     """
+    allprofiles = db.allprofiles
     try:
-        if db.profiles.find_one({"uid": uid}):
+        if allprofiles.find_one({"uid": uid}):
             # We found the user, so we're going to update the username
-            db.profiles.update_one(
+            allprofiles.update_one(
                 {"uid": uid},
                 {"$set": {"username": username, "username_privacy": "public"}},
             )
         else:
             # The user didn't previously have a profile started, so we're going to create one
-            db.profiles.update_one({"uid": uid}, {"$set": {"username": username}})
+            allprofiles.update_one({"uid": uid}, {"$set": {"username": username}})
         return {"returnCode": 0, "message": "success"}
     except Exception as e:
         print(f"\nError setting username: {e}\n")
@@ -88,7 +89,7 @@ def updateProfile(uid, profile_field, field_data, privacy="private"):
     match profile_field:
         case "username":
             # We're going to set the username
-            return setUsername(field_data, uid)
+            return setUsername(field_data, uid, privacy)
         case "location":
             pass
         case "bio":
