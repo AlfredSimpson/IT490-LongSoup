@@ -58,8 +58,16 @@ def setUsername(username, uid):
         _type_: _description_
     """
     try:
-        db.profiles.update_one({"uid": uid}, {"$set": {"username": username}})
-        return True
+        if db.profiles.find_one({"uid": uid}):
+            # We found the user, so we're going to update the username
+            db.profiles.update_one(
+                {"uid": uid},
+                {"$set": {"username": username, "username_privacy": "public"}},
+            )
+        else:
+            # The user didn't previously have a profile started, so we're going to create one
+            db.profiles.update_one({"uid": uid}, {"$set": {"username": username}})
+        return {"returnCode": 0, "message": "success"}
     except Exception as e:
         print(f"\nError setting username: {e}\n")
         return False
@@ -77,16 +85,18 @@ def updateProfile(uid, profile_field, field_data, privacy="private"):
     Returns:
         _type_: _description_
     """
-
-    try:
-        privacy_bool = profile_field + "_privacy"
-        db.profiles.update_one(
-            {"uid": uid}, {"$set": {profile_field: field_data, privacy_bool: privacy}}
-        )
-        return {"returnCode": 0, "message": "success"}
-    except Exception as e:
-        print(f"\nError updating profile: {e}\n")
-        return {"returnCode": 1, "message": "Error updating profile"}
+    match profile_field:
+        case "username":
+            # We're going to set the username
+            return setUsername(field_data, uid)
+        case "location":
+            pass
+        case "bio":
+            pass
+        case "playlists":
+            pass
+        case _:
+            return {"returnCode": 1, "message": "Invalid profile field"}
 
 
 def getProfileData(username):
