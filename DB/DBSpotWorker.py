@@ -770,10 +770,17 @@ def request_processor(ch, method, properties, body):
                 )
             case "add_to_playlist":
                 #! TODO: Justin - handle addToPlaylist
-                response = addToPlaylist(
-                    request["uid"],
-                    request["track_id"],
-                )
+                try:
+                    response = addToPlaylist(
+                        request["uid"],
+                        request["track_id"],
+                    )
+                except Exception as e:
+                    print(f"\nError adding to playlist: {e}\n")
+                    response = {
+                        "returnCode": 1,
+                        "message": "Error adding to playlist",
+                    }
             case _:
                 # Default case - basically, all else failed.
                 response = {
