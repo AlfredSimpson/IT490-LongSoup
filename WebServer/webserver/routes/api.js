@@ -104,16 +104,6 @@ function getUID(token) {
     return uid;
 }
 
-// function cacheAgain(stuff) {
-//     console.log('[Cache Again - API] trying to recache stuff');
-//     // console.log(`stuff is: ${stuff}`);
-//     // Iterate over a dictionary, and cache each key/value pair
-//     for (let [key, value] of Object.entries(stuff)) {
-//         // console.log(`${key}: ${value}`);
-//         cache.put(key, value);
-//     }
-// }
-
 router.use(authenticateToken);
 
 router.get('/', (req, res, next) => {
@@ -155,13 +145,6 @@ function updateProfile(profile_field, field_data, privacy, uid) {
         const response = JSON.parse(msg.content.toString());
         console.log(`[API] \t Response is ${response}`);
         return response;
-        // if (response.returnCode == 0) {
-        //     console.log(`Successfully updated profile!`);
-        //     return response;
-        // }
-        // else {
-        //     res.status(401).send('Ugh yo this is not working.');
-        // }
     });
 }
 
@@ -238,16 +221,34 @@ router
                 var privacy = req.body.privacy;
                 var token = req.cookies.token;
                 var uid = getUID(token);
-                let response = updateProfile(profile_field, field_data, privacy, uid);
-                console.log(`[API] \t Response is ${response}`);
-                if (response.returnCode == 0) {
-                    console.log(`Successfully updated profile!`);
-                    res.status(200).json(response);
-                }
-                else {
+                var amqpURL = `amqp://${PRO_USER}:${PRO_PASS}@${PRO_HOST}:${PRO_PORT}/${PRO_VHOST}`;
+                mustang.sendAndConsumeMessage(amqpURL, PRO_Q, {
+                    type: "updateProfile",
+                    uid: uid,
+                    profile_field: profile_field,
+                    field_data: field_data,
+                    privacy: privacy
+                }, (msg) => {
+                    const response = JSON.parse(msg.content.toString());
+                    console.log(`[API] \t Response is ${response.returnCode}`);
+                    if (response.returnCode == 0) {
+                        console.log(`Successfully updated profile!`);
+                        res.status(200).json(response);
+                    }
+                    else {
+                        res.status(401).json(response);
+                    }
+                });
+                // let response = updateProfile(profile_field, field_data, privacy, uid);
+                // console.log(`[API] \t Response is ${response}`);
+                // if (response.returnCode == 0) {
+                //     console.log(`Successfully updated profile!`);
+                //     res.status(200).json(response);
+                // }
+                // else {
 
-                    res.status(401).send('Ugh yo this is not working.');
-                }
+                //     res.status(401).send('Ugh yo this is not working.');
+                // }
 
                 break;
             case "uploadProfilePic":
@@ -276,10 +277,10 @@ router
                     if (response.returnCode == 0) {
                         console.log(`Successfully added to playlist!`);
                         // Send it back to the front client handler.
-                        // res.status(200).json(response);
+                        res.status(200).json(response);
                     }
                     else {
-                        res.status(401).send('Ugh yo this is not working.');
+                        res.status(401).json(response);
                     }
                 });
                 break;
