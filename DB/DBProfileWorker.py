@@ -115,9 +115,16 @@ def updateProfile(uid, profile_field, field_data, privacy="private"):
         case "location":
             pass
         case "bio":
+            db.profiles.update_one(
+                {"uid": uid}, {"$set": {"bio": field_data, "bio_privacy": privacy}}
+            )
             return {"returnCode": 1, "message": "Invalid profile field"}
             pass
         case "playlists":
+            db.profiles.update_one(
+                {"uid": uid},
+                {"$set": {"playlists": field_data}, "playlists_privacy": privacy},
+            )
             pass
         case _:
             return {"returnCode": 1, "message": "Invalid profile field"}
