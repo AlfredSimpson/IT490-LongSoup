@@ -703,7 +703,6 @@ def spotQuery(uid, query_type, query, by_type, limit=10):
 
     return {"returnCode": 0, "message": response, "returnType": returnType}
 
-
 def create_playlist(uid):
     """
     This function creates a new playlist for a Spotify user
@@ -781,11 +780,11 @@ def create_playlist(uid):
 
 
 # test
-# playlist_creation_result = create_playlist(0)
+# playlist_creation_result = create_playlist(uid=0)
 # print(playlist_creation_result)
 
+def addToPlaylist(uid, track_id):
 
-def addToPlaylist(uid, track_uri):
     """
     This function adds a song to an existing playlist or creates a new playlist for a Spotify user
     """
@@ -794,7 +793,7 @@ def addToPlaylist(uid, track_uri):
         user_playlists = db.UserPlaylists.find_one({"uid": uid})
 
         if user_playlists:
-            # selects first playlist in the list (most recent)
+            # selects the first playlist in the list (most recent)
             playlist_uri = user_playlists["playlists"][0]["playlist_uri"]
         else:
             # Call our previous create_playlist function passing uid
@@ -828,7 +827,6 @@ def addToPlaylist(uid, track_uri):
             }
 
         user_id = user_info["id"]
-        # print("We are adding playlist to user: " + user_id)
 
         # Add a song to the existing or newly created playlist
         headers = {
@@ -836,10 +834,9 @@ def addToPlaylist(uid, track_uri):
             "Content-Type": "application/json",
         }
         req_url = SPOTIFY_API_BASE_URL + f"/playlists/{playlist_uri}/tracks"
-        # print("This is our url: " + req_url)
 
         playlist_data = {
-            "uris": [track_uri],
+            "uris": [f"spotify:track:{track_id}"],
         }
         response = requests.post(req_url, headers=headers, json=playlist_data)
 
@@ -862,7 +859,7 @@ def addToPlaylist(uid, track_uri):
 
 
 # test
-# add_to_playlist_result = addToPlaylist(0, "spotify:track:7EZC6E7UjZe63f1jRmkWxt")
+# add_to_playlist_result = addToPlaylist(0, "70LcF31zb1H0PyJoS1Sx1r")
 # print(add_to_playlist_result)
 
 
@@ -923,7 +920,6 @@ def request_processor(ch, method, properties, body):
                     request["by"],
                 )
             case "add_to_playlist":
-                #! TODO: Justin - handle addToPlaylist
                 try:
                     response = addToPlaylist(
                         request["uid"],
