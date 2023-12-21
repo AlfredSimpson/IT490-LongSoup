@@ -393,7 +393,7 @@ def handle_like_event(uid, query_type, spotify_id, like_type):
         # NOTE _ we'll want to change add like to return a T/F value so we can act accordingly. Leaving this now so it doesn't crash in testing
         return {
             "returnCode": 0,
-            "message": "Successfully liked",
+            "message": "Successfully liked track!",
             "data": {
                 "errorStatus": False,
                 "errorOutput": "Successfully liked",
@@ -404,7 +404,7 @@ def handle_like_event(uid, query_type, spotify_id, like_type):
         addDislike(uid, query_type, spotify_id, like_type)
         return {
             "returnCode": 0,
-            "message": "Successfully disliked",
+            "message": "Successfully disliked track!",
             "data": {
                 "errorStatus": False,
                 "errorOutput": "Successfully disliked",

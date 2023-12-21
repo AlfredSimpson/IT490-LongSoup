@@ -280,7 +280,7 @@ router
                         res.status(200).json(response);
                     }
                     else {
-                        res.status(401).json(response);
+                        res.json(response);
                     }
                 });
                 break;
@@ -332,10 +332,11 @@ router
                     const response = JSON.parse(msg.content.toString());
                     if (response.returnCode == 0) {
                         console.log(`Successfully liked or disliked item!`);
-
+                        console.log(`[API] \t Response is ${response.message}`);
+                        res.status(200).json(response);
                     }
                     else {
-                        res.status(401).send('Something went wrong');
+                        res.json(response);
                     }
                 });
                 break;
