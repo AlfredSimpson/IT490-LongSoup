@@ -154,6 +154,7 @@ router.route("/:page")
                     loggedUser: "al",
                     username: "al",
                     profilePicture: false,
+                    spotify_username: "alfredhsimpson",
                 }
                 res.status(200).render(viewPath, {
                     data: data

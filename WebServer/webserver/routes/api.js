@@ -9,9 +9,12 @@ var cache = require('memory-cache');
 const jwt = require('jsonwebtoken');
 const jwtDecode = require('jwt-decode');
 const cookieParser = require('cookie-parser');
+const multer = require('multer')
+
 // My own modules
 const timber = require('../lumberjack.js');
 const mustang = require('../mustang.js');
+
 
 require('dotenv').config();
 
@@ -125,6 +128,26 @@ router.get('/', (req, res, next) => {
     next();
 });
 
+async function updateProfile(profile_field, field_data, privacy, uid) {
+    console.log('[API] \t Updating profile');
+    console.log(`[API] \t Profile field is ${profile_field}, field data is ${field_data}, privacy is ${privacy} and uid is ${uid}`);
+    // return 1;
+    var amqpURL = `amqp://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_V}`;
+    mustang.sendAndConsumeMessage(amqpURL, DB_Q, {
+        type: "update_profile",
+        uid: uid
+    }, (msg) => {
+        const response = JSON.parse(msg.content.toString());
+        return response;
+        // if (response.returnCode == 0) {
+        //     console.log(`Successfully updated profile!`);
+        //     return response;
+        // }
+        // else {
+        //     res.status(401).send('Ugh yo this is not working.');
+        // }
+    });
+}
 
 router
     .route("/:param")
@@ -191,7 +214,28 @@ router
         let type = req.params.param;
         // handle where it goes
         switch (type) {
-            case "update-profile":
+            case "updateProfile":
+                console.log(`[API] \t Updating profile`);
+                var profile_field = req.body.profile_field;
+                console.log(`[API] \t Profile field is ${profile_field}`);
+                var field_data = req.body.field_data;
+                var privacy = req.body.privacy;
+                var token = req.cookies.token;
+                var uid = getUID(token);
+                let response = updateProfile(profile_field, field_data, privacy, uid);
+                console.log(`[API] \t Response is ${response}`);
+                if (response.returnCode == 0) {
+                    res.status(200).json(response);
+                }
+                else {
+                    res.status(401).send('Ugh yo this is not working.');
+                }
+
+                break;
+            case "uploadProfilePic":
+                console.log(`[API] \t Uploading profile pic`);
+                // var token = req.cookies.token;
+                //! Left on the backburner - this is a bit more complicated than I thought and we have other things to get done.
                 break;
             case "set-username":
                 break;

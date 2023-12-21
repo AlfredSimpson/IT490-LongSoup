@@ -58,7 +58,7 @@ def setUsername(username, uid):
         return False
 
 
-def updateProfile(uid, data, public=False):
+def updateProfile(uid, profile_field, field_data, privacy="private"):
     """# updateProfile
     This function updates the profile data for the given user.
 
@@ -72,19 +72,10 @@ def updateProfile(uid, data, public=False):
     """
 
     try:
-        if public:
-            # Data is a dict containing a key (the name of the field updating) and a value (the value to update to)
-            # We need to update the profile data for the given user
-            # We will update the data in the database, regardless of whether public is true or false, but if it is true, we will need to note that. If it's false, we'll update the data with a public value of 0
-
-            # We need to check if the requesting user is the same as the requested user. It should be... but, just in case, we'll check.
-
-            if data["uid"] == uid:
-                # The requesting user is the same as the requested user, so we'll update all the data
-                db.profiles.update_one({"uid": uid}, {"$set": data})
-            else:
-                # The requesting user is not the same as the requested user, so we'll update only the public data
-                return {"returnCode": 1, "message": "Error updating profile"}
+        privacy_bool = profile_field + "_privacy"
+        db.profiles.update_one(
+            {"uid": uid}, {"$set": {profile_field: field_data, privacy_bool: privacy}}
+        )
         return {"returnCode": 0, "message": "success"}
     except Exception as e:
         print(f"\nError updating profile: {e}\n")
@@ -173,7 +164,10 @@ def request_processor(ch, method, properties, body):
                 response = setUsername(request["username"], request["uid"])
             case "updateProfile":
                 response = updateProfile(
-                    request["username"], request["uid"], request["data"]
+                    request["uid"],
+                    request["profile_field"],
+                    request["field_data"],
+                    request["privacy"],
                 )
             case "loadProfile":
                 response = load_profile(request["username"], request["uid"])
