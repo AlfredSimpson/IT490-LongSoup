@@ -16,9 +16,7 @@ Source Code initially copied from [engineerOfLies](https://github.com/engineerOf
 
 ## Project Summary
 
-This project is pulling multiple APIs to create a music/concert app with better recommendations than Spotify.
-
-As of 11/7/2023, the project is still in development. Primary files are as follows:
+This project is pulling multiple APIs to create a music & social media web app with (hopefully) better recommendations than Spotify.
 
 - Front End
   - [WebServer](./WebServer/) : All active development work
@@ -28,12 +26,16 @@ As of 11/7/2023, the project is still in development. Primary files are as follo
 - Database
   - [DB](./DB/): All active development
     - [DBWorker](./DB/DBWorker.py) : Listens for and processes primary requests to the database
-    - [DBMessageWorker](./DB/DBMessageWorker.py) : Listens for and processes messages from the webserver specifically related to the messageboard
+    - [DBProfileWorker](./DB/DBProfileWorker.py) : Assists with updating and accessing profile information.
+    - [DBMessageWorker](./DB/DBmbWorker.py) : Listens for and processes messages from the webserver specifically related to the messageboard
+    - [DBSpotWorker](./DB/DBSpotWorker.py) : Listens for and responds to requests for spotify information
     - [Long*](./DB/): If it starts with Long, there's a good chance it's a class that was build for use in another location
 - DMZ
   - Actually sourced most from the DB directory, we need to move them over.
 - RabbitMQ
   - Similarly, the listeners that reside on the Broker server were just repurposed from WebServer or DB
+- Utilities
+  - Within the Utilities directory you'll find various scripts we created to make our lives easier, including systemd management scripts, configuration files for keepalived, and more.
 
 
 # Languages and Frameworks used
@@ -51,10 +53,8 @@ As of 11/7/2023, the project is still in development. Primary files are as follo
 - CSS
 - Javascript
 - Bootstrap CSS 5
-- AJAX
 - JSON
 - Spotify API
-- Ticketmaster API (Planned)
 - TheAudioDB API
 
 
